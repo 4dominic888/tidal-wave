@@ -17,7 +17,7 @@ dependencies:
   just_audio: ^0.9.37
   just_audio_background: ^0.0.1-beta.11
   rxdart: ^0.27.7
-  waveform_extractor: ^1.0.3
+  just_waveform: ^0.0.5
 
 dev_dependencies:
   flutter_test:

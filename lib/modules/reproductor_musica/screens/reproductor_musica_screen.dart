@@ -20,9 +20,13 @@ class ReproductorMusicaScreen extends StatefulWidget {
 class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
 
   late AudioPlayer _audioPlayer;
+
+  //TODO Esta variable debe ser pasado en el constructor del widget
   late final ConcatenatingAudioSource _playList;
   List<Color> dominanColors = [const Color.fromARGB(255, 30, 114, 138),const Color(0xFF071A2C)];
   Color constrastColor = Colors.white;
+
+  //TODO Este atributo debe debe depender del atributo de la cancion a pasar
   bool tempFav = false;
 
   Stream<PositionData> get _positionDataStream => 
@@ -35,6 +39,8 @@ class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
   void initState() {
     super.initState();
     _audioPlayer = AudioPlayer();
+
+    //TODO realizar alguna accion cuando se carge la playlist o cancion
     _init().then((value) => print("listoooo"));
   }
 
@@ -94,6 +100,7 @@ class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
     });
   }
 
+  //TODO cambiar a clase externa
   Color _darken(Color color, {double amount = .1}){
     assert(amount >= 0 && amount <= 1);
 
@@ -113,6 +120,7 @@ class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
+      //* Parte superior
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -151,6 +159,7 @@ class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            //* campo de informacion de la cancion
             StreamBuilder<SequenceState?>(
               stream: _audioPlayer.sequenceStateStream,
               builder: (context, snapshot) {
@@ -171,6 +180,7 @@ class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
             ),
             const SizedBox(height: 20),
             
+            //* barra de progreso de la cancion
             StreamBuilder<PositionData>(
               stream: _positionDataStream,
               builder: (context, snapshot) {
@@ -191,6 +201,7 @@ class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
               },
             ),
             
+            //* controles
             Controls(audioPlayer: _audioPlayer, color: constrastColor)
           ],
         ),

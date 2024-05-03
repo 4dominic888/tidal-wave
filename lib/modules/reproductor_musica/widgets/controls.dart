@@ -1,8 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:just_audio/just_audio.dart';
 
 class Controls extends StatelessWidget {
   final AudioPlayer audioPlayer;
+  static const int seconds = 10;
   const Controls({super.key, required this.audioPlayer});
 
   Widget _buttonBuilder(Icon icon, double size, void Function() onPressed){
@@ -31,21 +34,35 @@ class Controls extends StatelessWidget {
           return const Icon(Icons.play_arrow_rounded, size: 80, color: Colors.white);
         }
       },
-    );    
+    );
+  }
+
+  Future<void> seekRewind() async{
+    await audioPlayer.seek(audioPlayer.position - const Duration(seconds: seconds));
+  }
+
+  Future<void> seekForward() async{
+    await audioPlayer.seek(audioPlayer.position + const Duration(seconds: seconds));
   }
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        //* Previous button
-        _buttonBuilder(const Icon(Icons.skip_previous_rounded), 60, audioPlayer.seekToPrevious),
+        //* Rewind button
+        Expanded(child: _buttonBuilder(const Icon(Icons.fast_rewind_rounded), 60, seekRewind)),
 
+        //* Previous button
+        Expanded(child: _buttonBuilder(const Icon(Icons.skip_previous_rounded), 60, audioPlayer.seekToPrevious)),
         _playButton(),
 
         //* Previous button
-        _buttonBuilder(const Icon(Icons.skip_next_rounded), 60, audioPlayer.seekToNext),
+        Expanded(child: _buttonBuilder(const Icon(Icons.skip_next_rounded), 60, audioPlayer.seekToNext)),
+
+        //* Rewind button
+        Expanded(child: _buttonBuilder(const Icon(Icons.fast_forward_rounded), 60, seekForward)),
       ],
     );
   }

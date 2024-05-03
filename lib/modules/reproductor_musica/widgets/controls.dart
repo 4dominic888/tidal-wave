@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 
@@ -12,7 +13,8 @@ class Controls extends StatelessWidget {
       icon: icon,
       color: color,
       iconSize: size,
-      onPressed: onPressed
+      onPressed: onPressed,
+      enableFeedback: true
     );
   }
 
@@ -44,24 +46,53 @@ class Controls extends StatelessWidget {
     await audioPlayer.seek(audioPlayer.position + const Duration(seconds: seconds));
   }
 
+  Future<void> restart() async {
+    await audioPlayer.seek(Duration.zero);
+  }
+
+  Future<void> random() async {
+    final random = Random();
+    final int maxIndex = audioPlayer.sequence!.length;
+    final int randomIndex = random.nextInt(maxIndex);
+    await audioPlayer.seek(Duration.zero, index: min(randomIndex, maxIndex));
+
+  }  
+
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        //* Rewind button
-        Expanded(child: _buttonBuilder(const Icon(Icons.fast_rewind_rounded), 60, seekRewind)),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Container(child: _buttonBuilder(const Icon(Icons.replay_rounded), 30, restart)),
+            Expanded(
+              child: Container(),
+            ),
+            Container(child: _buttonBuilder(const Icon(Icons.shuffle_rounded), 30, random))
+          ]
+        ),
 
-        //* Previous button
-        Expanded(child: _buttonBuilder(const Icon(Icons.skip_previous_rounded), 60, audioPlayer.seekToPrevious)),
-        _playButton(),
-
-        //* Previous button
-        Expanded(child: _buttonBuilder(const Icon(Icons.skip_next_rounded), 60, audioPlayer.seekToNext)),
-
-        //* Rewind button
-        Expanded(child: _buttonBuilder(const Icon(Icons.fast_forward_rounded), 60, seekForward)),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            //* Rewind button
+            Expanded(child: _buttonBuilder(const Icon(Icons.fast_rewind_rounded), 60, seekRewind)),
+        
+            //* Previous button
+            Expanded(child: _buttonBuilder(const Icon(Icons.skip_previous_rounded), 60, audioPlayer.seekToPrevious)),
+            _playButton(),
+        
+            //* Previous button
+            Expanded(child: _buttonBuilder(const Icon(Icons.skip_next_rounded), 60, audioPlayer.seekToNext)),
+        
+            //* Rewind button
+            Expanded(child: _buttonBuilder(const Icon(Icons.fast_forward_rounded), 60, seekForward)),
+          ],
+        ),
       ],
     );
   }

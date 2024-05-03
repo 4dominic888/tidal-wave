@@ -6,8 +6,9 @@ class MediaMetaData extends StatelessWidget {
   final String imgUrl;
   final String title;
   final String artist;
+  final Color color;
 
-  const MediaMetaData({super.key, required this.imgUrl, required this.title, required this.artist});
+  const MediaMetaData({super.key, required this.imgUrl, required this.title, required this.artist, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +33,7 @@ class MediaMetaData extends StatelessWidget {
 
         Text(
           title,
-          style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+          style: TextStyle(color: color, fontSize: 22, fontWeight: FontWeight.bold),
           textAlign: TextAlign.center,
         ),
 
@@ -40,7 +41,7 @@ class MediaMetaData extends StatelessWidget {
 
         Text(
           artist,
-          style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+          style: TextStyle(color: color, fontSize: 20, fontWeight: FontWeight.bold),
           textAlign: TextAlign.center,
         ),
       ],

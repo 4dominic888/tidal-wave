@@ -1,17 +1,16 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:just_audio/just_audio.dart';
 
 class Controls extends StatelessWidget {
   final AudioPlayer audioPlayer;
   static const int seconds = 10;
-  const Controls({super.key, required this.audioPlayer});
+  final Color color;
+  const Controls({super.key, required this.audioPlayer, required this.color});
 
   Widget _buttonBuilder(Icon icon, double size, void Function() onPressed){
     return IconButton(
       icon: icon,
-      color: Colors.white,
+      color: color,
       iconSize: size,
       onPressed: onPressed
     );
@@ -31,7 +30,7 @@ class Controls extends StatelessWidget {
           return _buttonBuilder(const Icon(Icons.pause_rounded), 80, audioPlayer.pause);
         }
         else{
-          return const Icon(Icons.play_arrow_rounded, size: 80, color: Colors.white);
+          return Icon(Icons.play_arrow_rounded, size: 80, color: color);
         }
       },
     );

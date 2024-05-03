@@ -21,6 +21,7 @@ class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
   late AudioPlayer _audioPlayer;
   late final ConcatenatingAudioSource _playList;
   List<Color> dominanColors = [const Color.fromARGB(255, 30, 114, 138),const Color(0xFF071A2C)];
+  Color constrastColor = Colors.white;
 
   Stream<PositionData> get _positionDataStream => 
     Rx.combineLatest3<Duration, Duration, Duration?, PositionData>(
@@ -70,7 +71,7 @@ class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
     await _audioPlayer.setAudioSource(_playList);
   }
 
-  void _changeBg({String? imgUrl}) async {
+  void _adjustColorBy({String? imgUrl}) async {
     if(imgUrl != null){
       final PaletteGenerator paletteGenerator = await PaletteGenerator.fromImageProvider(
         CachedNetworkImageProvider(imgUrl),
@@ -82,8 +83,22 @@ class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
       });      
     }
     else{
-      dominanColors = [const Color.fromARGB(255, 30, 114, 138),const Color(0xFF071A2C)];
+      setState(() {
+        dominanColors = [const Color.fromARGB(255, 30, 114, 138),const Color(0xFF071A2C)];        
+      });
     }
+    setState(() {
+      constrastColor = dominanColors[1].computeLuminance() > 0.5 ? Colors.black : Colors.white;
+    });
+  }
+
+  Color _darken(Color color, {double amount = .1}){
+    assert(amount >= 0 && amount <= 1);
+
+    final hsl = HSLColor.fromColor(color);
+    final hslDark = hsl.withLightness((hsl.lightness - amount).clamp(0.0, 1.0));
+
+    return hslDark.toColor();
   }
 
   @override
@@ -124,19 +139,19 @@ class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
               builder: (context, snapshot) {
                 final state = snapshot.data;
                 if(state?.sequence.isEmpty ?? true){
-                  _changeBg();
+                  _adjustColorBy();
                   return const SizedBox();
                 }
                 final metaData = state!.currentSource!.tag as MediaItem;
-                _changeBg(imgUrl: metaData.artUri.toString());
+                _adjustColorBy(imgUrl: metaData.artUri.toString());
                 return MediaMetaData(
                   imgUrl: metaData.artUri.toString(),
                   title: metaData.artist ?? '',
-                  artist: metaData.title
+                  artist: metaData.title,
+                  color: constrastColor
                 );
               },
-            )
-            ,
+            ),
             const SizedBox(height: 20),
             
             StreamBuilder<PositionData>(
@@ -147,9 +162,9 @@ class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
                   barHeight: 8,
                   baseBarColor: Colors.grey.shade600,
                   bufferedBarColor: Colors.grey,
-                  progressBarColor: Colors.red,
-                  thumbColor: Colors.red,
-                  timeLabelTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                  progressBarColor: _darken(dominanColors[0], amount: 0.3),
+                  thumbColor: _darken(dominanColors[1], amount: 0.3),
+                  timeLabelTextStyle: TextStyle(color: constrastColor, fontWeight: FontWeight.w600),
 
                   progress: positionData?.position ?? Duration.zero,
                   buffered: positionData?.bufferedPosition ?? Duration.zero,
@@ -159,7 +174,7 @@ class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
               },
             ),
             
-            Controls(audioPlayer: _audioPlayer)
+            Controls(audioPlayer: _audioPlayer, color: constrastColor)
           ],
         ),
       ),

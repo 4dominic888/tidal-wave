@@ -52,7 +52,7 @@ class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
           Uri.parse('asset:/assets/music/cYsmix - Phone Me First.mp3'),
           tag: MediaItem(
             id: '1',
-            title: 'Babaroque (WHAT Ver.)',
+            title: 'Phone Me First',
             artist: 'cYsmix',
             artUri: Uri.parse('https://i.ytimg.com/vi/uDYdecWY85w/hqdefault.jpg')
           )
@@ -61,8 +61,8 @@ class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
           Uri.parse('asset:/assets/music/Demonicity - Eight O\'Eight.mp3'),
           tag: MediaItem(
             id: '2',
-            title: 'Babaroque (WHAT Ver.)',
-            artist: 'cYsmix',
+            title: 'Eight O\'Eigh',
+            artist: 'Demonicity',
             artUri: Uri.parse('https://i.ytimg.com/vi/ksZb4xKOdzI/hqdefault.jpg')
           )      
         )        

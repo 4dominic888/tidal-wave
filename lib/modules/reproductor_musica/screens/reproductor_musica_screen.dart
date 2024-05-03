@@ -1,7 +1,9 @@
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
+import 'package:palette_generator/palette_generator.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:tidal_wave/modules/reproductor_musica/classes/position_data.dart';
 import 'package:tidal_wave/modules/reproductor_musica/widgets/controls.dart';
@@ -18,6 +20,7 @@ class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
 
   late AudioPlayer _audioPlayer;
   late final ConcatenatingAudioSource _playList;
+  List<Color> dominanColors = [const Color.fromARGB(255, 30, 114, 138),const Color(0xFF071A2C)];
 
   Stream<PositionData> get _positionDataStream => 
     Rx.combineLatest3<Duration, Duration, Duration?, PositionData>(
@@ -67,6 +70,22 @@ class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
     await _audioPlayer.setAudioSource(_playList);
   }
 
+  void _changeBg({String? imgUrl}) async {
+    if(imgUrl != null){
+      final PaletteGenerator paletteGenerator = await PaletteGenerator.fromImageProvider(
+        CachedNetworkImageProvider(imgUrl),
+        size: const Size(300, 300),
+        maximumColorCount: 2
+      );
+      setState(() {
+        dominanColors = paletteGenerator.colors.take(2).toList();
+      });      
+    }
+    else{
+      dominanColors = [const Color.fromARGB(255, 30, 114, 138),const Color(0xFF071A2C)];
+    }
+  }
+
   @override
   void dispose() {
     _audioPlayer.dispose();
@@ -89,11 +108,12 @@ class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
         padding: const EdgeInsets.all(20),
         height: double.infinity,
         width: double.infinity,
-        decoration: const BoxDecoration(
+        //* background color
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color.fromARGB(255, 30, 114, 138), Color(0xFF071A2C)]
+            colors: dominanColors
           )
         ),
         child: Column(
@@ -104,9 +124,11 @@ class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
               builder: (context, snapshot) {
                 final state = snapshot.data;
                 if(state?.sequence.isEmpty ?? true){
+                  _changeBg();
                   return const SizedBox();
                 }
                 final metaData = state!.currentSource!.tag as MediaItem;
+                _changeBg(imgUrl: metaData.artUri.toString());
                 return MediaMetaData(
                   imgUrl: metaData.artUri.toString(),
                   title: metaData.artist ?? '',
@@ -136,6 +158,7 @@ class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
                 );
               },
             ),
+            
             Controls(audioPlayer: _audioPlayer)
           ],
         ),

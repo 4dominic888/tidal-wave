@@ -1,5 +1,6 @@
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
@@ -22,6 +23,7 @@ class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
   late final ConcatenatingAudioSource _playList;
   List<Color> dominanColors = [const Color.fromARGB(255, 30, 114, 138),const Color(0xFF071A2C)];
   Color constrastColor = Colors.white;
+  bool tempFav = false;
 
   Stream<PositionData> get _positionDataStream => 
     Rx.combineLatest3<Duration, Duration, Duration?, PositionData>(
@@ -114,9 +116,24 @@ class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.keyboard_arrow_down_rounded),
-          onPressed: (){},
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(child: Container()),
+            IconButton(icon: Icon(tempFav ? CupertinoIcons.heart_fill : CupertinoIcons.heart, color: constrastColor, size: 30), onPressed: () {
+              setState(() {
+                tempFav = !tempFav;
+              });
+            })
+          ],
+        ),
+        leading: Row(
+          children: [
+            IconButton(
+              icon: Icon(Icons.keyboard_arrow_down_rounded, color: constrastColor, size: 30),
+              onPressed: (){},
+            ),
+          ],
         ),
       ),
       body: Container(

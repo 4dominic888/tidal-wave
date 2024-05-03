@@ -18,6 +18,7 @@ dependencies:
   just_audio_background: ^0.0.1-beta.11
   rxdart: ^0.27.7
   just_waveform: ^0.0.5
+  palette_generator: ^0.3.3+3
 
 dev_dependencies:
   flutter_test:

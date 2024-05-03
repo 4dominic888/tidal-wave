@@ -9,6 +9,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:tidal_wave/modules/reproductor_musica/classes/position_data.dart';
 import 'package:tidal_wave/modules/reproductor_musica/widgets/controls.dart';
 import 'package:tidal_wave/modules/reproductor_musica/widgets/media_meta_data.dart';
+import 'package:tidal_wave/shared/color_util.dart';
 
 class ReproductorMusicaScreen extends StatefulWidget {
   const ReproductorMusicaScreen({super.key});
@@ -100,16 +101,6 @@ class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
     });
   }
 
-  //TODO cambiar a clase externa
-  Color _darken(Color color, {double amount = .1}){
-    assert(amount >= 0 && amount <= 1);
-
-    final hsl = HSLColor.fromColor(color);
-    final hslDark = hsl.withLightness((hsl.lightness - amount).clamp(0.0, 1.0));
-
-    return hslDark.toColor();
-  }
-
   @override
   void dispose() {
     _audioPlayer.dispose();
@@ -189,8 +180,8 @@ class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
                   barHeight: 8,
                   baseBarColor: Colors.grey.shade600,
                   bufferedBarColor: Colors.grey,
-                  progressBarColor: _darken(dominanColors[0], amount: 0.3),
-                  thumbColor: _darken(dominanColors[1], amount: 0.3),
+                  progressBarColor: ColorUtil.darken(dominanColors[0], amount: 0.3),
+                  thumbColor: ColorUtil.darken(dominanColors[1], amount: 0.3),
                   timeLabelTextStyle: TextStyle(color: constrastColor, fontWeight: FontWeight.w600),
 
                   progress: positionData?.position ?? Duration.zero,

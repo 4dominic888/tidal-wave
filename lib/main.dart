@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:just_audio_background/just_audio_background.dart';
+import 'package:tidal_wave/modules/reproductor_musica/classes/musica.dart';
+import 'package:tidal_wave/modules/reproductor_musica/screens/reproductor_musica_screen.dart';
 
-void main() {
+Future<void> main() async {
+  await JustAudioBackground.init(
+    androidNotificationChannelId: 'com.ryanheise.bg_demon_channel.audio',
+    androidNotificationChannelName: 'Audio playback',
+    androidNotificationOngoing: true
+  );
   runApp(const MyApp());
 }
 
@@ -9,61 +17,40 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+
+    List<Music> playListTest = [
+      Music(
+        titulo: 'Babaroque (WHAT Ver.)',
+        artista: 'cYsmix',
+        musica: Uri.parse('asset:/assets/music/cYsmix - Babaroque (WHAT Ver.).mp3'),
+        favorito: false,
+        imagen: Uri.parse('https://i.ytimg.com/vi/jXy6YCpJnQM/hqdefault.jpg')
+      ),
+      Music(
+        titulo: 'Phone Me First',
+        artista: 'cYsmix',
+        musica: Uri.parse('asset:/assets/music/cYsmix - Phone Me First.mp3'),
+        favorito: false,
+        imagen: Uri.parse('https://i.ytimg.com/vi/uDYdecWY85w/hqdefault.jpg')
+      ),
+      Music(
+        titulo: 'Eight O\'Eigh',
+        artista: 'Demonicity',
+        musica: Uri.parse('asset:/assets/music/Demonicity - Eight O\'Eight.mp3'),
+        favorito: false,
+        imagen: Uri.parse('https://i.ytimg.com/vi/ksZb4xKOdzI/hqdefault.jpg')
+      )
+    ];
+
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.black),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      )
+      home: ReproductorMusicaScreen(listOfMusic: playListTest),
     );
   }
 }

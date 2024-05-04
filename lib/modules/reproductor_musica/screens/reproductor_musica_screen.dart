@@ -6,13 +6,16 @@ import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:palette_generator/palette_generator.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:tidal_wave/modules/reproductor_musica/classes/musica.dart';
 import 'package:tidal_wave/modules/reproductor_musica/classes/position_data.dart';
 import 'package:tidal_wave/modules/reproductor_musica/widgets/controls.dart';
 import 'package:tidal_wave/modules/reproductor_musica/widgets/media_meta_data.dart';
 import 'package:tidal_wave/shared/color_util.dart';
 
 class ReproductorMusicaScreen extends StatefulWidget {
-  const ReproductorMusicaScreen({super.key});
+  
+  final List<Music> listOfMusic;
+  const ReproductorMusicaScreen({super.key, required this.listOfMusic});
 
   @override
   State<ReproductorMusicaScreen> createState() => _ReproductorMusicaScreenState();
@@ -21,9 +24,9 @@ class ReproductorMusicaScreen extends StatefulWidget {
 class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
 
   late AudioPlayer _audioPlayer;
-
-  //TODO Esta variable debe ser pasado en el constructor del widget
   late final ConcatenatingAudioSource _playList;
+
+  
   List<Color> dominanColors = [const Color.fromARGB(255, 30, 114, 138),const Color(0xFF071A2C)];
   Color constrastColor = Colors.white;
 
@@ -47,35 +50,9 @@ class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
 
   Future<void> _init() async{
     await _audioPlayer.setLoopMode(LoopMode.all);
-    _playList = ConcatenatingAudioSource(children: [
-        AudioSource.uri(
-        Uri.parse('asset:/assets/music/cYsmix - Babaroque (WHAT Ver.).mp3'),
-          tag: MediaItem(
-            id: '0',
-            title: 'Babaroque (WHAT Ver.)',
-            artist: 'cYsmix',
-            artUri: Uri.parse('https://i.ytimg.com/vi/jXy6YCpJnQM/hqdefault.jpg')
-          )
-        ),
-        AudioSource.uri(
-          Uri.parse('asset:/assets/music/cYsmix - Phone Me First.mp3'),
-          tag: MediaItem(
-            id: '1',
-            title: 'Phone Me First',
-            artist: 'cYsmix',
-            artUri: Uri.parse('https://i.ytimg.com/vi/uDYdecWY85w/hqdefault.jpg')
-          )
-        ),
-        AudioSource.uri(
-          Uri.parse('asset:/assets/music/Demonicity - Eight O\'Eight.mp3'),
-          tag: MediaItem(
-            id: '2',
-            title: 'Eight O\'Eigh',
-            artist: 'Demonicity',
-            artUri: Uri.parse('https://i.ytimg.com/vi/ksZb4xKOdzI/hqdefault.jpg')
-          )      
-        )        
-      ]);
+    _playList = ConcatenatingAudioSource(children: 
+      widget.listOfMusic.map((e) => e.toAudioSource(widget.listOfMusic.indexOf(e).toString())).toList()
+    );
 
     await _audioPlayer.setAudioSource(_playList);
   }

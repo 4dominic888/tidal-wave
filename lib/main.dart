@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:just_audio_background/just_audio_background.dart';
+import 'package:tidal_wave/modules/lista_musica/screens/lista_musica_screen.dart';
 import 'package:tidal_wave/modules/reproductor_musica/classes/musica.dart';
-import 'package:tidal_wave/modules/reproductor_musica/screens/reproductor_musica_screen.dart';
 
 Future<void> main() async {
   await JustAudioBackground.init(
@@ -17,7 +17,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
 
     List<Music> playListTest = [
       Music(
@@ -46,11 +45,15 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
+      
+      //? Codigo para cambiar la bolita esa de los textos
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.black),
-        useMaterial3: true,
+        textSelectionTheme: TextSelectionThemeData(
+          selectionHandleColor: Colors.grey.shade400,
+          selectionColor: Colors.grey.shade400.withOpacity(0.4),
+        ),
       ),
-      home: ReproductorMusicaScreen(listOfMusic: playListTest),
+      home: const ListaMusicaScreen(),
     );
   }
 }

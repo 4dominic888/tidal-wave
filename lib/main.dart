@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
       )
     ];
 
-    List<Music> duplicatedList = List.generate(6, (_) => playListTest).expand((element) => element).toList();
+    List<Music> duplicatedList = List.generate(16, (_) => playListTest).expand((element) => element).toList();
 
     return MaterialApp(
       title: 'Flutter Demo',

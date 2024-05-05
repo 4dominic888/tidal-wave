@@ -1,8 +1,4 @@
-import 'dart:ui';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/icon_button_music.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/music_item.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/text_field_find.dart';
@@ -19,6 +15,9 @@ class ListaMusicaScreen extends StatefulWidget {
 }
 
 class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
+
+  final ScrollController _scrollController = ScrollController();
+  bool _isScrolled = false;
 
   List<Widget> _appBarWidgets(){
     return [
@@ -51,6 +50,34 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
     ];
   }
 
+  //TODO: Agregar funcionalidad de extraer mas datos de la base de datos a medida que se baja
+  void _scrollListener(){
+    const offset = 10;
+    if(_scrollController.offset > offset && !_isScrolled){
+      setState(() {
+        _isScrolled = true;
+      });
+    }
+    else if(_scrollController.offset <= offset && _isScrolled){
+      setState(() {
+        _isScrolled = false;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,8 +85,9 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
       appBar: AppBar(
         toolbarHeight: 80,
         actions: _appBarWidgets(),
-        backgroundColor: Colors.transparent,
+        backgroundColor: _isScrolled ? Colors.black.withAlpha(220) : Colors.transparent,
         elevation: 1,
+        shadowColor: _isScrolled ? Colors.black : Colors.transparent,
       ),
       body: Container(
         padding: const EdgeInsets.only(top: 10),
@@ -80,14 +108,27 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
               child: SizedBox(
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height,
-                child: ListView.builder(
+
+                child: CustomScrollView(
                   scrollDirection: Axis.vertical,
-                  itemCount: widget.listado.length,
-                  itemBuilder: (context, index) {
-                        
-                    final musica = widget.listado[index];
-                    return MusicItem(music: musica);
-                }),
+                  controller: _scrollController,
+                  slivers: [
+                    //? Espaciado
+                    const SliverToBoxAdapter(
+                      child: SizedBox(height: 100)
+                    ),
+                    //? Lista como tal
+                    SliverList(
+                      delegate: 
+                        SliverChildBuilderDelegate((context, index) {
+                          final musica = widget.listado[index];
+                          return MusicItem(music: musica);
+                        },
+                      childCount: widget.listado.length
+                      )
+                    ),
+                  ]
+                ),
               ),
             ),
           ],

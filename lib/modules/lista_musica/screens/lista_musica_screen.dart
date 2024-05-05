@@ -83,7 +83,7 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        toolbarHeight: 20,
+        toolbarHeight: 80,
         actions: _appBarWidgets(),
         backgroundColor: _isScrolled ? Colors.black.withAlpha(220) : Colors.transparent,
         elevation: 1,

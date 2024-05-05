@@ -45,6 +45,8 @@ class MyApp extends StatelessWidget {
       )
     ];
 
+    List<Music> duplicatedList = List.generate(6, (_) => playListTest).expand((element) => element).toList();
+
     return MaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
@@ -56,7 +58,7 @@ class MyApp extends StatelessWidget {
           selectionColor: Colors.grey.shade400.withOpacity(0.4),
         ),
       ),
-      home: ListaMusicaScreen(listado: playListTest),
+      home: ListaMusicaScreen(listado: duplicatedList),
     );
   }
 }

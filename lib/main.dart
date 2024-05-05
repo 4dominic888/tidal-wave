@@ -24,21 +24,24 @@ class MyApp extends StatelessWidget {
         artista: 'cYsmix',
         musica: Uri.parse('asset:/assets/music/cYsmix - Babaroque (WHAT Ver.).mp3'),
         favorito: false,
-        imagen: Uri.parse('https://i.ytimg.com/vi/jXy6YCpJnQM/hqdefault.jpg')
+        imagen: Uri.parse('https://i.ytimg.com/vi/jXy6YCpJnQM/hqdefault.jpg'),
+        duration: const Duration(minutes: 1, seconds: 11)
       ),
       Music(
         titulo: 'Phone Me First',
         artista: 'cYsmix',
         musica: Uri.parse('asset:/assets/music/cYsmix - Phone Me First.mp3'),
         favorito: false,
-        imagen: Uri.parse('https://i.ytimg.com/vi/uDYdecWY85w/hqdefault.jpg')
+        imagen: Uri.parse('https://i.ytimg.com/vi/uDYdecWY85w/hqdefault.jpg'),
+        duration: const Duration(minutes: 2, seconds: 47)
       ),
       Music(
         titulo: 'Eight O\'Eigh',
         artista: 'Demonicity',
         musica: Uri.parse('asset:/assets/music/Demonicity - Eight O\'Eight.mp3'),
         favorito: false,
-        imagen: Uri.parse('https://i.ytimg.com/vi/ksZb4xKOdzI/hqdefault.jpg')
+        imagen: Uri.parse('https://i.ytimg.com/vi/ksZb4xKOdzI/hqdefault.jpg'),
+        duration: const Duration(minutes: 3, seconds: 16)
       )
     ];
 
@@ -53,7 +56,7 @@ class MyApp extends StatelessWidget {
           selectionColor: Colors.grey.shade400.withOpacity(0.4),
         ),
       ),
-      home: const ListaMusicaScreen(),
+      home: ListaMusicaScreen(listado: playListTest),
     );
   }
 }

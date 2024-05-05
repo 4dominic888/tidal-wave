@@ -7,14 +7,26 @@ class Music {
   Uri? imagen;
   Uri musica;
   bool? favorito = false;
+  Duration duration;
 
   Music({
     required this.titulo,
     required this.artista,
     required this.musica,
+    required this.duration,
     this.imagen,
-    this.favorito
+    this.favorito,
   });
+
+  String get durationString {
+    String formattedDuration = '';
+    if (duration.inHours > 0) {
+      formattedDuration += '${duration.inHours}:';
+    }
+    formattedDuration += '${duration.inMinutes.remainder(60).toString().padLeft(2, '0')}:';
+    formattedDuration += duration.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return formattedDuration;
+  }
 
   AudioSource toAudioSource(String index){
     return AudioSource.uri(musica,

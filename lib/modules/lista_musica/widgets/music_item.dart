@@ -5,8 +5,10 @@ import 'package:tidal_wave/modules/reproductor_musica/classes/musica.dart';
 class MusicItem extends StatefulWidget {
 
   final Music music;
+  final void Function() onPlay;
+  final void Function() onOptions;
 
-  const MusicItem({super.key, required this.music});
+  const MusicItem({super.key, required this.music, required this.onPlay, required this.onOptions});
 
   @override
   State<MusicItem> createState() => _MusicItemState();
@@ -29,7 +31,7 @@ class _MusicItemState extends State<MusicItem> {
           borderSize: 2.5,
           fillColor: Colors.black.withOpacity(0.3),
           icon: const Icon(Icons.play_arrow_rounded, size: 25, color: Colors.white),
-          onTap: () {},                  
+          onTap: widget.onPlay,                  
         ),
         title: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -51,7 +53,7 @@ class _MusicItemState extends State<MusicItem> {
         contentPadding: const EdgeInsets.only(top: 15, bottom: 15, left: 15),
         trailing: SizedBox(
           width: 40,
-          child: IconButton(onPressed: (){}, icon: const Icon(Icons.more_vert, color: Colors.white))),
+          child: IconButton(onPressed: widget.onOptions, icon: const Icon(Icons.more_vert, color: Colors.white))),
       ),
     );
   }

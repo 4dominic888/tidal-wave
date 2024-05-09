@@ -20,6 +20,8 @@ dependencies:
   just_waveform: ^0.0.5
   palette_generator: ^0.3.3+3
   percent_indicator: ^4.2.3
+  flutter_bloc: ^8.1.5
+  gradient_widgets: ^0.6.0
 
 dev_dependencies:
   flutter_test:

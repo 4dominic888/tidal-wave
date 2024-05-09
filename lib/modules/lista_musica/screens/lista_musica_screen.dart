@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:percent_indicator/percent_indicator.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tidal_wave/bloc/music_cubit.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/icon_button_music.dart';
+import 'package:tidal_wave/modules/lista_musica/widgets/mini_music_player.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/music_item.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/text_field_find.dart';
 import 'package:tidal_wave/modules/reproductor_musica/classes/musica.dart';
@@ -21,6 +23,7 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
 
   final ScrollController _scrollController = ScrollController();
   bool _isScrolled = false;
+  bool _isPlay = false;
 
   List<Widget> _appBarWidgets(){
     return [
@@ -131,7 +134,16 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
                                 final musica = widget.listado[index];
 
                                 //TODO: Agregar funcionalidad de play y opciones, play debe mostrar el mini reproductor de abajo
-                                return MusicItem(music: musica, onPlay: () {}, onOptions: (){});
+                                return MusicItem(
+                                  music: musica,
+                                  onPlay: () async {
+                                    setState(() {
+                                      _isPlay = true;
+                                    });
+                                    context.read<MusicCubit>().setMusic(musica.toAudioSource('0'));                                 
+                                  },
+                                  onOptions: (){}
+                                );
                               },
                             childCount: widget.listado.length
                             )
@@ -140,63 +152,17 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
                       ),
                     ),
                   ),
+                  AnimatedPositioned(
+                    duration: const Duration(seconds: 1),
+                    curve: Curves.easeInBack,
+                    bottom: _isPlay ? 0 : -90,
+                    width: MediaQuery.of(context).size.width,
+                    height: 90,
+                    child: const MiniMusicPlayer()
+                  )
                 ],
               ),
             ),
-
-            //TODO: Separar todo esto en otro widget
-            Container(
-              color: Colors.black,
-              child: Column(
-                children: [
-                  //? Progress bar musica
-                  LinearPercentIndicator(
-                    percent: 0.5,
-                    padding: EdgeInsets.zero,
-                    animation: true,
-                    linearGradient: LinearGradient(colors: [Colors.blue.shade400, Colors.blue.shade800]),
-                    barRadius: const Radius.circular(3.0),
-                  ),
-
-                  Row(
-                    children: [
-                      const SizedBox(width: 10),
-                      //? Imagen circular
-                      //TODO: Debe ser seleccionable y dirigir al reproductor de musica.
-                      Container(
-                        padding: const EdgeInsets.all(36.0),
-                        width: 50,
-                        decoration: const BoxDecoration(color: Colors.grey, shape: BoxShape.circle),
-                      ),
-                      const SizedBox(width: 10),
-
-                      //? Texto de titulo y artista de la musica
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SingleChildScrollView(scrollDirection: Axis.horizontal,
-                              child: Text('Titulo cancion',
-                              style: TextStyle(color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.w600))
-                            ),
-                            
-                            SingleChildScrollView(scrollDirection: Axis.horizontal,
-                              child: Text('Artista', style: TextStyle(color: Colors.grey.shade500, fontSize: 16.0))
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      //? Botones de anterior, play y siguiente
-                      //TODO: Colocarle funcionalidad
-                      IconButton(onPressed: () {}, icon: const Icon(Icons.skip_previous_sharp), color: Colors.grey.shade500),
-                      IconButton(onPressed: () {}, icon: const Icon(Icons.play_arrow_rounded), color: Colors.grey.shade500),
-                      IconButton(onPressed: () {}, icon: const Icon(Icons.skip_next_rounded), color: Colors.grey.shade500)
-                    ],
-                  ),
-                ],
-              ),
-            )
           ],
         ),
       )

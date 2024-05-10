@@ -31,4 +31,13 @@ class MusicCubit extends Cubit<AudioPlayer> {
     await state.play();
     emit(state);
   }
+
+  void setPlayList(ConcatenatingAudioSource playList) async {
+    await state.setAudioSource(playList);
+    emit(state);
+  }
+
+  void seekTo(int? index) async{
+    await state.seek(Duration.zero, index: index);
+  }
 }

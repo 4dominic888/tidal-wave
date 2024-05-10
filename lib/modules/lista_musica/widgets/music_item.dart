@@ -99,9 +99,19 @@ class _MusicItemState extends State<MusicItem> {
           ],
         ),
         contentPadding: const EdgeInsets.only(top: 15, bottom: 15, left: 15),
-        trailing: SizedBox(
-          width: 40,
-          child: IconButton(onPressed: widget.onOptions, icon: const Icon(Icons.more_vert, color: Colors.white))),
+        trailing: PopupMenuButton<String>(
+          color: Colors.grey.shade900,
+          icon: const SizedBox(width: 35, child: Icon(Icons.more_vert, color: Colors.white)),
+          itemBuilder: (context) => <PopupMenuEntry<String>>[
+            //TODO: Colocar funcionalidades luego
+            const PopupMenuItem(value: 'delete', child: Text('Borrar cancion', style: TextStyle(color: Colors.white))),
+            const PopupMenuItem(value: 'edit', child: Text('Editar cancion', style: TextStyle(color: Colors.white))),
+            const PopupMenuItem(value: 'move', child: Text('Mover cancion', style: TextStyle(color: Colors.white))),
+          ],
+          onSelected: (value) {
+            //* codigo
+          },
+        )
       ),
     );
   }

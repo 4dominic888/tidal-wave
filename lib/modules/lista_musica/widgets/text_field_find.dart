@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 class TextFieldFind extends StatefulWidget {
   final String? hintText;
   final Widget? suffixIcon;
-  const TextFieldFind({super.key, this.hintText, this.suffixIcon});
+  final void Function(String)? onChanged;
+  const TextFieldFind({super.key, this.hintText, this.suffixIcon, this.onChanged});
 
   @override
   State<TextFieldFind> createState() => _TextFieldFindState();
@@ -36,6 +37,7 @@ class _TextFieldFindState extends State<TextFieldFind> {
         enableSuggestions: false,
         cursorColor: Colors.white,
         style: const TextStyle(color: Colors.white),
+        onChanged: widget.onChanged ?? (_){},
     );
   }
 }

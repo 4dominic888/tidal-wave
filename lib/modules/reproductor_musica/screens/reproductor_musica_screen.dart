@@ -2,11 +2,11 @@ import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:palette_generator/palette_generator.dart';
-import 'package:rxdart/rxdart.dart';
-import 'package:tidal_wave/modules/reproductor_musica/classes/musica.dart';
+import 'package:tidal_wave/bloc/music_cubit.dart';
 import 'package:tidal_wave/modules/reproductor_musica/classes/position_data.dart';
 import 'package:tidal_wave/modules/reproductor_musica/widgets/controls.dart';
 import 'package:tidal_wave/modules/reproductor_musica/widgets/media_meta_data.dart';
@@ -14,8 +14,7 @@ import 'package:tidal_wave/shared/color_util.dart';
 
 class ReproductorMusicaScreen extends StatefulWidget {
   
-  final List<Music> listOfMusic;
-  const ReproductorMusicaScreen({super.key, required this.listOfMusic});
+  const ReproductorMusicaScreen({super.key});
 
   @override
   State<ReproductorMusicaScreen> createState() => _ReproductorMusicaScreenState();
@@ -23,39 +22,12 @@ class ReproductorMusicaScreen extends StatefulWidget {
 
 class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
 
-  late AudioPlayer _audioPlayer;
-  late final ConcatenatingAudioSource _playList;
-
   
-  List<Color> dominanColors = [const Color.fromARGB(255, 30, 114, 138),const Color(0xFF071A2C)];
+  List<Color> dominanColors = const [ Color.fromARGB(255, 30, 114, 138),Color(0xFF071A2C)];
   Color constrastColor = Colors.white;
 
   //TODO Este atributo debe debe depender del atributo de la cancion a pasar
   bool tempFav = false;
-
-  Stream<PositionData> get _positionDataStream => 
-    Rx.combineLatest3<Duration, Duration, Duration?, PositionData>(
-      _audioPlayer.positionStream, _audioPlayer.bufferedPositionStream, _audioPlayer.durationStream,
-      (position, bufferedPosition, duration) => PositionData(position, bufferedPosition, duration ?? Duration.zero)
-    );
-
-  @override
-  void initState() {
-    super.initState();
-    _audioPlayer = AudioPlayer();
-
-    //TODO realizar alguna accion cuando se carge la playlist o cancion
-    _init().then((value) => print("listoooo"));
-  }
-
-  Future<void> _init() async{
-    await _audioPlayer.setLoopMode(LoopMode.all);
-    _playList = ConcatenatingAudioSource(children: 
-      widget.listOfMusic.map((e) => e.toAudioSource(widget.listOfMusic.indexOf(e).toString())).toList()
-    );
-
-    await _audioPlayer.setAudioSource(_playList);
-  }
 
   void _adjustColorBy({String? imgUrl}) async {
     if(imgUrl != null){
@@ -64,24 +36,22 @@ class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
         size: const Size(300, 300),
         maximumColorCount: 2
       );
-      setState(() {
+      if (paletteGenerator.colors.length >= 2) {
         dominanColors = paletteGenerator.colors.take(2).toList();
-      });      
+      }
+      else if (paletteGenerator.colors.length == 1) {
+        dominanColors = [paletteGenerator.colors.first, Colors.black]; 
+      }
+      else{
+        dominanColors = const [ Color.fromARGB(255, 30, 114, 138),Color(0xFF071A2C)];
+      }
     }
     else{
-      setState(() {
-        dominanColors = [const Color.fromARGB(255, 30, 114, 138),const Color(0xFF071A2C)];        
-      });
+      dominanColors = const [Color.fromARGB(255, 30, 114, 138),Color(0xFF071A2C)];
     }
     setState(() {
-      constrastColor = dominanColors[1].computeLuminance() > 0.5 ? Colors.black : Colors.white;
+      constrastColor = dominanColors.last.computeLuminance() > 0.5 ? Colors.black : Colors.white;
     });
-  }
-
-  @override
-  void dispose() {
-    _audioPlayer.dispose();
-    super.dispose();
   }
 
   @override
@@ -106,73 +76,81 @@ class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
         leading: Row(
           children: [
             IconButton(
-              icon: Icon(Icons.keyboard_arrow_down_rounded, color: constrastColor, size: 30),
-              onPressed: (){},
+              icon: Icon(Icons.arrow_back, color: constrastColor, size: 30),
+              onPressed: () => Navigator.pop(context),
             ),
           ],
         ),
       ),
       body: Container(
-        padding: const EdgeInsets.all(20),
-        height: double.infinity,
-        width: double.infinity,
-        //* background color
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: dominanColors
-          )
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            //* campo de informacion de la cancion
-            StreamBuilder<SequenceState?>(
-              stream: _audioPlayer.sequenceStateStream,
-              builder: (context, snapshot) {
-                final state = snapshot.data;
-                if(state?.sequence.isEmpty ?? true){
-                  _adjustColorBy();
-                  return const SizedBox();
-                }
-                final metaData = state!.currentSource!.tag as MediaItem;
-                _adjustColorBy(imgUrl: metaData.artUri.toString());
-                return MediaMetaData(
-                  imgUrl: metaData.artUri.toString(),
-                  title: metaData.artist ?? '',
-                  artist: metaData.title,
-                  color: constrastColor
-                );
-              },
+            padding: const EdgeInsets.all(20),
+            height: double.infinity,
+            width: double.infinity,
+            //* background color
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: dominanColors.take(2).toList()
+              )
             ),
-            const SizedBox(height: 20),
-            
-            //* barra de progreso de la cancion
-            StreamBuilder<PositionData>(
-              stream: _positionDataStream,
-              builder: (context, snapshot) {
-                final positionData = snapshot.data;
-                return ProgressBar(
-                  barHeight: 8,
-                  baseBarColor: Colors.grey.shade600,
-                  bufferedBarColor: Colors.grey,
-                  progressBarColor: ColorUtil.darken(dominanColors[0], amount: 0.3),
-                  thumbColor: ColorUtil.darken(dominanColors[1], amount: 0.3),
-                  timeLabelTextStyle: TextStyle(color: constrastColor, fontWeight: FontWeight.w600),
-
-                  progress: positionData?.position ?? Duration.zero,
-                  buffered: positionData?.bufferedPosition ?? Duration.zero,
-                  total: positionData?.duration ??  Duration.zero,
-                  onSeek: _audioPlayer.seek,
-                );
-              },
-            ),
-            
-            //* controles
-            Controls(audioPlayer: _audioPlayer, color: constrastColor)
-          ],
-        ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                //* campo de informacion de la cancion
+                StreamBuilder<SequenceState?>(
+                  stream: context.read<MusicCubit>().state.sequenceStateStream,
+                  builder: (context, snapshot) {
+                    final state = snapshot.data;
+                    if(state?.sequence.isEmpty ?? true){
+                      _adjustColorBy();
+                      return const SizedBox();
+                    }
+                    final metaData = state!.currentSource!.tag as MediaItem;
+                    _adjustColorBy(imgUrl: metaData.artUri.toString());
+                    return MediaMetaData(
+                      imgUrl: metaData.artUri.toString(),
+                      title: metaData.title,
+                      artist: metaData.artist ?? '',
+                      color: constrastColor
+                    );
+                  },
+                ),
+                const SizedBox(height: 20),
+                
+                //* barra de progreso de la cancion
+                StreamBuilder<PositionData>(
+                  stream: context.read<MusicCubit>().positionDataStream,
+                  builder: (context, snapshot) {
+                    final positionData = snapshot.data;
+                    return Column(
+                      children: [
+                        ProgressBar(
+                          barHeight: 8,
+                          baseBarColor: Colors.grey.shade600,
+                          bufferedBarColor: Colors.grey,
+                          progressBarColor: ColorUtil.darken(dominanColors[0], amount: 0.3),
+                          thumbColor: ColorUtil.darken(dominanColors[1], amount: 0.3),
+                          timeLabelTextStyle: TextStyle(color: constrastColor, fontWeight: FontWeight.w600),
+                                    
+                          progress: positionData?.position ?? Duration.zero,
+                          buffered: positionData?.bufferedPosition ?? Duration.zero,
+                          total: positionData?.duration ??  Duration.zero,
+                          onSeek: context.read<MusicCubit>().state.seek,
+                        ),
+                        ((positionData?.duration ?? Duration.zero) == Duration.zero) ? SizedBox(
+                          height: 15,
+                          child: CircularProgressIndicator(color: constrastColor
+                        )) : const SizedBox()
+                      ],
+                    );
+                  },
+                ),
+                
+                //* controles
+                Controls(audioPlayer: context.read<MusicCubit>().state, color: constrastColor)
+              ],
+            )
       ),
     );
   }

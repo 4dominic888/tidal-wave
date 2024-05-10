@@ -8,10 +8,10 @@ class Controls extends StatelessWidget {
   final Color color;
   const Controls({super.key, required this.audioPlayer, required this.color});
 
-  Widget _buttonBuilder(Icon icon, double size, void Function() onPressed){
+  Widget _buttonBuilder(Icon icon, double size, void Function() onPressed, {bool locked = false}){
     return IconButton(
       icon: icon,
-      color: color,
+      color: locked ? color.withOpacity(0.3) : color,
       iconSize: size,
       onPressed: onPressed,
       enableFeedback: true
@@ -83,13 +83,30 @@ class Controls extends StatelessWidget {
             Expanded(child: _buttonBuilder(const Icon(Icons.fast_rewind_rounded), 60, seekRewind)),
         
             //* Previous button
-            Expanded(child: _buttonBuilder(const Icon(Icons.skip_previous_rounded), 60, audioPlayer.seekToPrevious)),
+            Expanded(child: StreamBuilder<int?>(
+              stream: audioPlayer.currentIndexStream,
+              builder: (context, snapshot) {
+                if ((snapshot.data ?? 0) == 0) {
+                  return _buttonBuilder(const Icon(Icons.skip_previous_rounded), 60, (){}, locked: true);
+                }
+                return _buttonBuilder(const Icon(Icons.skip_previous_rounded), 60, audioPlayer.seekToPrevious);
+              }
+            )),
+            
             _playButton(),
         
-            //* Previous button
-            Expanded(child: _buttonBuilder(const Icon(Icons.skip_next_rounded), 60, audioPlayer.seekToNext)),
+            //* Skip button
+            Expanded(child: StreamBuilder<int?>(
+              stream: audioPlayer.currentIndexStream,
+              builder: (context, snapshot) {
+                if ((snapshot.data ?? 0) == (audioPlayer.sequence?.length ?? 0)-1) {
+                  return _buttonBuilder(const Icon(Icons.skip_next_rounded), 60, (){}, locked: true);  
+                }
+                return _buttonBuilder(const Icon(Icons.skip_next_rounded), 60, audioPlayer.seekToNext);
+              }
+            )),
         
-            //* Rewind button
+            //* Forward button
             Expanded(child: _buttonBuilder(const Icon(Icons.fast_forward_rounded), 60, seekForward)),
           ],
         ),

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:tidal_wave/bloc/music_cubit.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/icon_button_music.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/mini_music_player.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/music_item.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/text_field_find.dart';
 import 'package:tidal_wave/modules/reproductor_musica/classes/musica.dart';
-
 class ListaMusicaScreen extends StatefulWidget {
 
   final List<Music> listado;
@@ -23,6 +24,7 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
   bool _isScrolled = false;
   bool _isPlay = false;
   int _selectedIndex = -1;
+  late List<Music> _list;
 
   List<Widget> _appBarWidgets(){
     return [
@@ -48,6 +50,19 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
             icon: const Icon(Icons.search, size: 25, color: Colors.white),
             onTap: () {},
           ),
+          onChanged: (value) {
+            setState(() {
+              _list = widget.listado.where((element) {
+                if (value.trim().isEmpty) {
+                  return true;
+                }
+                return element.titulo.toLowerCase().contains(value.toLowerCase().trim()) ||
+                      element.artista.toLowerCase().contains(value.toLowerCase().trim());
+
+              }).toList();              
+            });
+
+          },
         )
       ),
 
@@ -74,6 +89,7 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
   void initState() {
     super.initState();
     _scrollController.addListener(_scrollListener);
+    _list = widget.listado;
   }
 
   @override
@@ -98,6 +114,8 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
         padding: const EdgeInsets.only(top: 10),
         height: double.infinity,
         width: double.infinity,
+
+        //? Degradado
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -121,16 +139,56 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
                         scrollDirection: Axis.vertical,
                         controller: _scrollController,
                         slivers: [
-                          //? Espaciado, tal vez se coloque algun disen~o, para los albunes o historial
-                          const SliverToBoxAdapter(
-                            child: SizedBox(height: 100)
+
+                          const SliverToBoxAdapter(child: SizedBox(height: 110)),
+
+                          //? Escuchando...
+                          SliverToBoxAdapter(
+                            child: SizedBox(
+                              height: 110,
+                              child: StreamBuilder<SequenceState?>(
+                                stream: context.read<MusicCubit>().state.sequenceStateStream,
+                                builder: (context, snapshot) {
+                                  final mediaData = snapshot.data?.currentSource?.tag as MediaItem?;
+                                  final String text = mediaData != null ? 'Escuchando ${mediaData.title}' : 'En silencio...';
+                                  return Container(
+                                    height: 140,
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        colors: [Colors.black.withOpacity(0.2),Colors.white.withOpacity(0.2)]
+                                      )
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        const Padding(
+                                          padding: EdgeInsets.only(top: 5, bottom: 5),
+                                          child: Icon(Icons.multitrack_audio_sharp, size: 40, color: Colors.white),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(right: 40, left: 40, top: 8),
+                                          child: SingleChildScrollView(
+                                            scrollDirection: Axis.horizontal,
+                                            child: Text(text,
+                                              style: const TextStyle(color: Colors.white, fontSize: 20),
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  );
+                                }
+                              ),
+                            )
                           ),
 
                           //? Lista como tal
-                          SliverList(
+                          _list.isNotEmpty ? 
+                          SliverList( 
                             delegate: 
                               SliverChildBuilderDelegate((context, index) {
-                                final musica = widget.listado[index];
+                                final musica = _list[index];
                                 return MusicItem(
                                   selected: [index == _selectedIndex],
                                   music: musica,
@@ -144,8 +202,13 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
                                   onOptions: (){}
                                 );
                               },
-                            childCount: widget.listado.length
-                            )
+                            childCount: _list.length
+                          )
+                          ) : 
+                          const SliverToBoxAdapter(child: Center(child: Text('Sin musica', style: TextStyle(color: Colors.white)))),
+                          
+                          if(_isPlay) const SliverToBoxAdapter(
+                            child: SizedBox(height: 110)
                           ),
                         ],                  
                       ),

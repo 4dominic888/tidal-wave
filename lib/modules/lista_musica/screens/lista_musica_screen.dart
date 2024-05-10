@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tidal_wave/bloc/music_cubit.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/icon_button_music.dart';
@@ -24,6 +22,7 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
   final ScrollController _scrollController = ScrollController();
   bool _isScrolled = false;
   bool _isPlay = false;
+  int _selectedIndex = -1;
 
   List<Widget> _appBarWidgets(){
     return [
@@ -132,15 +131,15 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
                             delegate: 
                               SliverChildBuilderDelegate((context, index) {
                                 final musica = widget.listado[index];
-
-                                //TODO: Agregar funcionalidad de play y opciones, play debe mostrar el mini reproductor de abajo
                                 return MusicItem(
+                                  selected: [index == _selectedIndex],
                                   music: musica,
                                   onPlay: () async {
                                     setState(() {
                                       _isPlay = true;
+                                      _selectedIndex = index;
                                     });
-                                    context.read<MusicCubit>().setMusic(musica.toAudioSource('0'));                                 
+                                    context.read<MusicCubit>().setMusic(musica.toAudioSource(index.toString()));
                                   },
                                   onOptions: (){}
                                 );
@@ -152,6 +151,8 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
                       ),
                     ),
                   ),
+                  
+                  //? Mini music player
                   AnimatedPositioned(
                     duration: const Duration(seconds: 1),
                     curve: Curves.easeInBack,

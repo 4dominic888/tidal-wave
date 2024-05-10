@@ -32,7 +32,7 @@ class MediaMetaData extends StatelessWidget {
         const SizedBox(height: 20),
 
         Text(
-          title,
+          artist,
           style: TextStyle(color: color, fontSize: 22, fontWeight: FontWeight.bold),
           textAlign: TextAlign.center,
         ),
@@ -40,7 +40,7 @@ class MediaMetaData extends StatelessWidget {
         const SizedBox(height: 20),
 
         Text(
-          artist,
+          title,
           style: TextStyle(color: color, fontSize: 20, fontWeight: FontWeight.bold),
           textAlign: TextAlign.center,
         ),

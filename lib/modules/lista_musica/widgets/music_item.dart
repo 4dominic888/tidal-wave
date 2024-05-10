@@ -70,6 +70,7 @@ class _MusicItemState extends State<MusicItem> {
         leading: StreamBuilder<PlayerState>(
           stream: context.read<MusicCubit>().state.playerStateStream,
           builder: (context, snapshot) {
+            //* Play/Pause
             return IconButtonUIMusic(
               borderColor: Colors.blue.shade100.withAlpha(100),
               borderSize: 2.5,

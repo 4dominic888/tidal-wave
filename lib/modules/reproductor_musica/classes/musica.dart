@@ -2,6 +2,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 
 class Music {
+  int index;
   String titulo;
   String artista;
   Uri? imagen;
@@ -10,6 +11,7 @@ class Music {
   Duration duration;
 
   Music({
+    required this.index,
     required this.titulo,
     required this.artista,
     required this.musica,

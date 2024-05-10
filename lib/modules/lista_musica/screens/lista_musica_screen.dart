@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:tidal_wave/bloc/music_cubit.dart';
+import 'package:tidal_wave/bloc/play_list_cubit.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/icon_button_music.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/mini_music_player.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/music_item.dart';
@@ -23,7 +24,6 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
   final ScrollController _scrollController = ScrollController();
   bool _isScrolled = false;
   bool _isPlay = false;
-  int _selectedIndex = -1;
   late List<Music> _list;
 
   List<Widget> _appBarWidgets(){
@@ -89,6 +89,8 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
   void initState() {
     super.initState();
     _scrollController.addListener(_scrollListener);
+    //* El codigo ilegible asdasfasfas
+    context.read<MusicCubit>().setPlayList(context.read<PlayListCubit>().setPlayList(widget.listado));
     _list = widget.listado;
   }
 
@@ -150,7 +152,7 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
                                 stream: context.read<MusicCubit>().state.sequenceStateStream,
                                 builder: (context, snapshot) {
                                   final mediaData = snapshot.data?.currentSource?.tag as MediaItem?;
-                                  final String text = mediaData != null ? 'Escuchando ${mediaData.title}' : 'En silencio...';
+                                  final String text = (mediaData != null) && _isPlay ? 'Escuchando ${mediaData.title}' : 'En silencio...';
                                   return Container(
                                     height: 140,
                                     decoration: BoxDecoration(
@@ -185,25 +187,31 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
 
                           //? Lista como tal
                           _list.isNotEmpty ? 
-                          SliverList( 
-                            delegate: 
-                              SliverChildBuilderDelegate((context, index) {
-                                final musica = _list[index];
-                                return MusicItem(
-                                  selected: [index == _selectedIndex],
-                                  music: musica,
-                                  onPlay: () async {
-                                    setState(() {
-                                      _isPlay = true;
-                                      _selectedIndex = index;
-                                    });
-                                    context.read<MusicCubit>().setMusic(musica.toAudioSource(index.toString()));
+                          StreamBuilder<SequenceState?>(
+                            stream: context.read<MusicCubit>().state.sequenceStateStream,
+                            builder: (context, snapshot) {
+                              return SliverList( 
+                                delegate: 
+                                  SliverChildBuilderDelegate((context, index) {
+                                    final musica = _list[index];
+                                    return MusicItem(
+                                      selected: [musica.index == (_isPlay ? snapshot.data?.currentIndex : -1)],
+                                      music: musica,
+                                      onPlay: () async {
+                                        setState(() {
+                                          _isPlay = true;
+                                        });
+                                        context.read<MusicCubit>().seekTo(musica.index);
+                                      },
+                                      onOptions: (){
+                                        //* Codigo por si se desea hacer algo al abrir el menu desplegable de cada cancion
+                                      }
+                                    );
                                   },
-                                  onOptions: (){}
-                                );
-                              },
-                            childCount: _list.length
-                          )
+                                childCount: _list.length
+                              )
+                              );
+                            }
                           ) : 
                           const SliverToBoxAdapter(child: Center(child: Text('Sin musica', style: TextStyle(color: Colors.white)))),
                           

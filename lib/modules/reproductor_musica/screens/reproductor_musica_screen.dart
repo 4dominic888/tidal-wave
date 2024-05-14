@@ -1,11 +1,9 @@
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
-import 'package:palette_generator/palette_generator.dart';
 import 'package:tidal_wave/bloc/music_cubit.dart';
 import 'package:tidal_wave/modules/reproductor_musica/classes/position_data.dart';
 import 'package:tidal_wave/modules/reproductor_musica/widgets/controls.dart';
@@ -21,36 +19,19 @@ class ReproductorMusicaScreen extends StatefulWidget {
 }
 
 class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
-
   
   List<Color> dominanColors = const [ Color.fromARGB(255, 30, 114, 138),Color(0xFF071A2C)];
   Color constrastColor = Colors.white;
+  List<dynamic> colors = [];
 
   //TODO Este atributo debe debe depender del atributo de la cancion a pasar
   bool tempFav = false;
 
-  void _adjustColorBy({String? imgUrl}) async {
-    if(imgUrl != null){
-      final PaletteGenerator paletteGenerator = await PaletteGenerator.fromImageProvider(
-        CachedNetworkImageProvider(imgUrl),
-        size: const Size(300, 300),
-        maximumColorCount: 2
-      );
-      if (paletteGenerator.colors.length >= 2) {
-        dominanColors = paletteGenerator.colors.take(2).toList();
-      }
-      else if (paletteGenerator.colors.length == 1) {
-        dominanColors = [paletteGenerator.colors.first, Colors.black]; 
-      }
-      else{
-        dominanColors = const [ Color.fromARGB(255, 30, 114, 138),Color(0xFF071A2C)];
-      }
-    }
-    else{
-      dominanColors = const [Color.fromARGB(255, 30, 114, 138),Color(0xFF071A2C)];
-    }
+  void _updateBackground({String? url}) async{
+    colors = await ColorUtil.adjustColorBy(imgUrl: url);
     setState(() {
-      constrastColor = dominanColors.last.computeLuminance() > 0.5 ? Colors.black : Colors.white;
+      dominanColors = colors[0];
+      constrastColor = colors[1]; 
     });
   }
 
@@ -91,7 +72,7 @@ class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: dominanColors.take(2).toList()
+                colors: dominanColors
               )
             ),
             child: Column(
@@ -103,11 +84,11 @@ class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
                   builder: (context, snapshot) {
                     final state = snapshot.data;
                     if(state?.sequence.isEmpty ?? true){
-                      _adjustColorBy();
+                      _updateBackground();
                       return const SizedBox();
                     }
                     final metaData = state!.currentSource!.tag as MediaItem;
-                    _adjustColorBy(imgUrl: metaData.artUri.toString());
+                    _updateBackground(url: metaData.artUri.toString());
                     return MediaMetaData(
                       imgUrl: metaData.artUri.toString(),
                       title: metaData.title,

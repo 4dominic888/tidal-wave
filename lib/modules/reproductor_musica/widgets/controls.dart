@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:tidal_wave/shared/music_state_util.dart';
 
 class Controls extends StatelessWidget {
   final AudioPlayer audioPlayer;
@@ -15,26 +16,6 @@ class Controls extends StatelessWidget {
       iconSize: size,
       onPressed: onPressed,
       enableFeedback: true
-    );
-  }
-
-  Widget _playButton(){
-    return StreamBuilder<PlayerState>(
-      stream: audioPlayer.playerStateStream,
-      builder: (context, snapshot) {
-        final playerState = snapshot.data;
-        final processingState = playerState?.processingState;
-        final playing = playerState?.playing;
-        if(!(playing ?? false)){
-          return _buttonBuilder(const Icon(Icons.play_arrow_rounded), 80, audioPlayer.play);
-        }
-        else if(processingState != ProcessingState.completed){
-          return _buttonBuilder(const Icon(Icons.pause_rounded), 80, audioPlayer.pause);
-        }
-        else{
-          return Icon(Icons.play_arrow_rounded, size: 80, color: color);
-        }
-      },
     );
   }
 
@@ -86,25 +67,32 @@ class Controls extends StatelessWidget {
             Expanded(child: StreamBuilder<int?>(
               stream: audioPlayer.currentIndexStream,
               builder: (context, snapshot) {
-                if ((snapshot.data ?? 0) == 0) {
-                  return _buttonBuilder(const Icon(Icons.skip_previous_rounded), 60, (){}, locked: true);
-                }
-                return _buttonBuilder(const Icon(Icons.skip_previous_rounded), 60, audioPlayer.seekToPrevious);
-              }
-            )),
+                return MusicStateUtil.previousReturns<Widget>(snapshot.data,
+                  noActive: _buttonBuilder(const Icon(Icons.skip_previous_rounded), 60, (){}, locked: true),
+                  active: _buttonBuilder(const Icon(Icons.skip_previous_rounded), 60, audioPlayer.seekToPrevious)
+                );
+              })
+            ),
             
-            _playButton(),
+            //* Play/Stop
+            StreamBuilder<PlayerState>(
+              stream: audioPlayer.playerStateStream,
+              builder: (context, snapshot) => _buttonBuilder(MusicStateUtil.playIcon(snapshot.data), 80, MusicStateUtil.playAction(audioPlayer))
+            ),
         
             //* Skip button
-            Expanded(child: StreamBuilder<int?>(
+            Expanded(
+              child: StreamBuilder<int?>(
               stream: audioPlayer.currentIndexStream,
               builder: (context, snapshot) {
-                if ((snapshot.data ?? 0) == (audioPlayer.sequence?.length ?? 0)-1) {
-                  return _buttonBuilder(const Icon(Icons.skip_next_rounded), 60, (){}, locked: true);  
-                }
-                return _buttonBuilder(const Icon(Icons.skip_next_rounded), 60, audioPlayer.seekToNext);
-              }
-            )),
+                return MusicStateUtil.nextReturns<Widget>(
+                  snapshot.data,
+                  audioPlayer,
+                  noActive: _buttonBuilder(const Icon(Icons.skip_next_rounded), 60, (){}, locked: true),
+                  active: _buttonBuilder(const Icon(Icons.skip_next_rounded), 60, audioPlayer.seekToNext)
+                );
+              })
+            ),
         
             //* Forward button
             Expanded(child: _buttonBuilder(const Icon(Icons.fast_forward_rounded), 60, seekForward)),

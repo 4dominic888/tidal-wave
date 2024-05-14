@@ -4,6 +4,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:tidal_wave/bloc/music_cubit.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/icon_button_music.dart';
 import 'package:tidal_wave/modules/reproductor_musica/classes/musica.dart';
+import 'package:tidal_wave/shared/music_state_util.dart';
 
 class MusicItem extends StatefulWidget {
 
@@ -19,42 +20,6 @@ class MusicItem extends StatefulWidget {
 }
 
 class _MusicItemState extends State<MusicItem> {
-
-  IconData _playState(PlayerState? playerState){
-    final processingState = playerState?.processingState;
-    final playing = playerState?.playing;
-
-    if(widget.selected![0]){
-      if (!(playing ?? false)) {
-        return Icons.play_arrow_rounded;
-      }
-      else if(processingState != ProcessingState.completed){
-        return Icons.stop_rounded;
-      }
-      else{
-        return Icons.play_arrow_rounded;
-      }
-    }
-    return Icons.play_arrow_rounded;
-  }
-
-  void Function() _actionState(PlayerState? playerState){
-    final processingState = playerState?.processingState;
-    final playing = playerState?.playing;
-
-    if(widget.selected![0]){
-      if (!(playing ?? false)) {
-        return context.read<MusicCubit>().state.play;
-      }
-      else if(processingState != ProcessingState.completed){
-        return context.read<MusicCubit>().state.pause;
-      }
-      else{
-        return widget.onPlay;
-      }
-    }
-    return widget.onPlay;
-  }  
 
   @override
   Widget build(BuildContext context) {
@@ -75,10 +40,8 @@ class _MusicItemState extends State<MusicItem> {
               borderColor: Colors.blue.shade100.withAlpha(100),
               borderSize: 2.5,
               fillColor: Colors.black.withOpacity(0.3),
-            
-              icon: Icon(_playState(snapshot.data), color: Colors.white),
-              
-              onTap: _actionState(snapshot.data),
+              icon: widget.selected![0] ? MusicStateUtil.playIcon(snapshot.data, color: Colors.white) : const Icon(Icons.play_arrow_rounded, color: Colors.white),
+              onTap: widget.selected![0] ? MusicStateUtil.playAction(context.read<MusicCubit>().state) : widget.onPlay,
             );
           }
         ),

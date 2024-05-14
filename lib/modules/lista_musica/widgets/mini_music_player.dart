@@ -5,6 +5,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:tidal_wave/bloc/music_cubit.dart';
 import 'package:tidal_wave/modules/reproductor_musica/screens/reproductor_musica_screen.dart';
+import 'package:tidal_wave/shared/music_state_util.dart';
 class MiniMusicPlayer extends StatelessWidget {
 
   const MiniMusicPlayer({super.key});
@@ -107,10 +108,10 @@ class MiniMusicPlayer extends StatelessWidget {
                   StreamBuilder<int?>(
                     stream: state.currentIndexStream,
                     builder: (context, snapshot) {
-                      if ((snapshot.data ?? 0) == 0) {
-                        return IconButton(onPressed: (){}, icon: const Icon(Icons.skip_previous_sharp), color: Colors.grey.shade800);                        
-                      }
-                      return IconButton(onPressed: state.seekToPrevious, icon: const Icon(Icons.skip_previous_sharp), color: Colors.grey.shade500);
+                      return MusicStateUtil.previousReturns<Widget>(snapshot.data, 
+                        active: IconButton(onPressed: state.seekToPrevious, icon: const Icon(Icons.skip_previous_sharp), color: Colors.grey.shade500),
+                        noActive: IconButton(onPressed: (){}, icon: const Icon(Icons.skip_previous_sharp), color: Colors.grey.shade800)
+                      );
                     }
                   ),
 
@@ -118,18 +119,11 @@ class MiniMusicPlayer extends StatelessWidget {
                   StreamBuilder<PlayerState>(
                     stream: state.playerStateStream,
                     builder: (context, snapshot) {
-                      final playerState = snapshot.data;
-                      final processingState = playerState?.processingState;
-                      final playing = playerState?.playing;
-                      if(!(playing ?? false)){
-                        return IconButton(onPressed: state.play, icon: Icon(Icons.play_arrow_rounded, color: Colors.grey.shade500));
-                      }
-                      else if(processingState != ProcessingState.completed){
-                        return IconButton(onPressed: state.stop, icon: Icon(Icons.pause_rounded, color: Colors.grey.shade500));
-                      }
-                      else {
-                        return Icon(Icons.play_arrow_rounded, color: Colors.grey.shade800);
-                      }
+                      return MusicStateUtil.playReturns<Widget>(snapshot.data,
+                        playCase: IconButton(onPressed: state.play, icon: Icon(Icons.play_arrow_rounded, color: Colors.grey.shade500)),
+                        stopCase: IconButton(onPressed: state.stop, icon: Icon(Icons.pause_rounded, color: Colors.grey.shade500)),
+                        playStatic: Icon(Icons.play_arrow_rounded, color: Colors.grey.shade800)
+                      );
                     }
                   ),
                   
@@ -137,10 +131,10 @@ class MiniMusicPlayer extends StatelessWidget {
                   StreamBuilder<int?>(
                     stream: state.currentIndexStream,
                     builder: (context, snapshot) {
-                      if ((snapshot.data ?? 0) == (state.sequence?.length ?? 0)-1 ) {
-                        return IconButton(onPressed: (){}, icon: Icon(Icons.skip_next_rounded, color: Colors.grey.shade800));
-                      }
-                      return IconButton(onPressed: state.seekToNext, icon: const Icon(Icons.skip_next_rounded), color: Colors.grey.shade500);
+                      return MusicStateUtil.nextReturns<Widget>(snapshot.data, state,
+                        active: IconButton(onPressed: state.seekToNext, icon: const Icon(Icons.skip_next_rounded), color: Colors.grey.shade500),
+                        noActive: IconButton(onPressed: (){}, icon: Icon(Icons.skip_next_rounded, color: Colors.grey.shade800))
+                      );
                     }
                   )
                 ],

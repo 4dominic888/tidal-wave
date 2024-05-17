@@ -46,4 +46,23 @@ class MusicStateUtil {
       playStatic: () {},
     );
   }
+
+  static Icon volumeIcon(double? volume){
+
+    if (volume == null) {
+      return const Icon(Icons.volume_off_rounded);
+    }
+
+    if (volume > 0.5) {
+      return const Icon(Icons.volume_up_rounded);
+    } else if(volume <= 0.5 && volume > 0) {
+      return const Icon(Icons.volume_down_rounded);
+    }
+    else if(volume <= 0){
+      return const Icon(Icons.volume_mute_rounded);
+    }
+    else{
+      return const Icon(Icons.volume_off_rounded);
+    }
+  }
 }

@@ -22,6 +22,8 @@ dependencies:
   percent_indicator: ^4.2.3
   flutter_bloc: ^8.1.5
   gradient_widgets: ^0.6.0
+  syncfusion_flutter_sliders: ^25.2.4
+  super_tooltip: ^2.0.7
 
 dev_dependencies:
   flutter_test:

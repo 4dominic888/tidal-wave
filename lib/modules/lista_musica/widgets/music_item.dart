@@ -27,7 +27,7 @@ class MusicItem extends StatelessWidget {
       ),
       child: ListTile(
         leading: StreamBuilder<PlayerState>(
-          stream: context.read<MusicCubit>().state.playerStateStream,
+          stream: context.read<MusicCubit>().state.playerStateStream.asBroadcastStream(),
           builder: (context, snapshot) {
             //* Play/Pause
             return IconButtonUIMusic(

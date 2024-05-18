@@ -149,7 +149,7 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
                           child: SizedBox(
                             height: 120,
                             child: StreamBuilder<SequenceState?>(
-                              stream: context.read<MusicCubit>().state.sequenceStateStream,
+                              stream: context.read<MusicCubit>().state.sequenceStateStream.asBroadcastStream(),
                               builder: (context, snapshot) {
                                 final mediaData = snapshot.data?.currentSource?.tag as MediaItem?;
                                 final String text = (mediaData != null) && _isPlay ? 'Escuchando ${mediaData.title}' : 'En silencio...';
@@ -161,7 +161,7 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
 
                         //? Lista como tal
                         if (_list.isNotEmpty) StreamBuilder<SequenceState?>(
-                          stream: context.read<MusicCubit>().state.sequenceStateStream,
+                          stream: context.read<MusicCubit>().state.sequenceStateStream.asBroadcastStream(),
                           builder: (context, snapshot) {
                             return SliverList( 
                               delegate: 

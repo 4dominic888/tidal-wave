@@ -24,7 +24,7 @@ class MiniMusicPlayer extends StatelessWidget {
         }
         final mediaItem = state!.currentSource!.tag as MediaItem;
 
-        return GestureDetector(
+        return InkWell(
           onTapUp: (_) {
             Navigator.push(context, MaterialPageRoute(builder: (context) => const ReproductorMusicaScreen()));
           },

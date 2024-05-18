@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
@@ -8,6 +9,7 @@ import 'package:tidal_wave/modules/lista_musica/widgets/icon_button_music.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/mini_music_player.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/music_item.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/text_field_find.dart';
+import 'package:tidal_wave/modules/lista_musica/widgets/title_container.dart';
 import 'package:tidal_wave/modules/reproductor_musica/classes/musica.dart';
 class ListaMusicaScreen extends StatefulWidget {
 
@@ -131,95 +133,62 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
             Expanded(
               child: Stack(
                 children: [
-                  Positioned(
-                    right: 10,
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height,
-                      
-                      child: CustomScrollView(
-                        scrollDirection: Axis.vertical,
-                        controller: _scrollController,
-                        slivers: [
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
+                    
+                    child: CustomScrollView(
+                      scrollDirection: Axis.vertical,
+                      controller: _scrollController,
+                      slivers: [
+                  
+                        const SliverToBoxAdapter(child: SizedBox(height: 110)),
+                  
+                        //? Escuchando...
+                        SliverToBoxAdapter(
+                          child: SizedBox(
+                            height: 120,
+                            child: StreamBuilder<SequenceState?>(
+                              stream: context.read<MusicCubit>().state.sequenceStateStream,
+                              builder: (context, snapshot) {
+                                final mediaData = snapshot.data?.currentSource?.tag as MediaItem?;
+                                final String text = (mediaData != null) && _isPlay ? 'Escuchando ${mediaData.title}' : 'En silencio...';
+                                return TitleContainer(text: text);
+                              }
+                            ),
+                          )
+                        ),
 
-                          const SliverToBoxAdapter(child: SizedBox(height: 110)),
-
-                          //? Escuchando...
-                          SliverToBoxAdapter(
-                            child: SizedBox(
-                              height: 110,
-                              child: StreamBuilder<SequenceState?>(
-                                stream: context.read<MusicCubit>().state.sequenceStateStream,
-                                builder: (context, snapshot) {
-                                  final mediaData = snapshot.data?.currentSource?.tag as MediaItem?;
-                                  final String text = (mediaData != null) && _isPlay ? 'Escuchando ${mediaData.title}' : 'En silencio...';
-                                  return Container(
-                                    height: 140,
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                        colors: [Colors.black.withOpacity(0.2),Colors.white.withOpacity(0.2)]
-                                      )
-                                    ),
-                                    child: Column(
-                                      children: [
-                                        const Padding(
-                                          padding: EdgeInsets.only(top: 5, bottom: 5),
-                                          child: Icon(Icons.multitrack_audio_sharp, size: 40, color: Colors.white),
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.only(right: 40, left: 40, top: 8),
-                                          child: SingleChildScrollView(
-                                            scrollDirection: Axis.horizontal,
-                                            child: Text(text,
-                                              style: const TextStyle(color: Colors.white, fontSize: 20),
-                                            ),
-                                          ),
-                                        )
-                                      ],
-                                    ),
+                        //? Lista como tal
+                        if (_list.isNotEmpty) StreamBuilder<SequenceState?>(
+                          stream: context.read<MusicCubit>().state.sequenceStateStream,
+                          builder: (context, snapshot) {
+                            return SliverList( 
+                              delegate: 
+                                SliverChildBuilderDelegate(childCount: _list.length, (context, index) {
+                                  final musica = _list[index];
+                                  return MusicItem(
+                                    selected: [musica.index == (_isPlay ? snapshot.data?.currentIndex : -1)],
+                                    music: musica,
+                                    onPlay: () async {
+                                      setState(() => _isPlay = true);
+                                      context.read<MusicCubit>().seekTo(musica.index);
+                                    },
+                                    onOptions: (){
+                                      //* Codigo por si se desea hacer algo al abrir el menu desplegable de cada cancion
+                                    }
                                   );
                                 }
-                              ),
-                            )
-                          ),
-
-                          //? Lista como tal
-                          _list.isNotEmpty ? 
-                          StreamBuilder<SequenceState?>(
-                            stream: context.read<MusicCubit>().state.sequenceStateStream,
-                            builder: (context, snapshot) {
-                              return SliverList( 
-                                delegate: 
-                                  SliverChildBuilderDelegate((context, index) {
-                                    final musica = _list[index];
-                                    return MusicItem(
-                                      selected: [musica.index == (_isPlay ? snapshot.data?.currentIndex : -1)],
-                                      music: musica,
-                                      onPlay: () async {
-                                        setState(() {
-                                          _isPlay = true;
-                                        });
-                                        context.read<MusicCubit>().seekTo(musica.index);
-                                      },
-                                      onOptions: (){
-                                        //* Codigo por si se desea hacer algo al abrir el menu desplegable de cada cancion
-                                      }
-                                    );
-                                  },
-                                childCount: _list.length
                               )
-                              );
-                            }
-                          ) : 
-                          const SliverToBoxAdapter(child: Center(child: Text('Sin musica', style: TextStyle(color: Colors.white)))),
-                          
-                          if(_isPlay) const SliverToBoxAdapter(
-                            child: SizedBox(height: 110)
-                          ),
-                        ],                  
-                      ),
+                            );
+                          }
+                        ) else const SliverToBoxAdapter(child: Center(child: Text('Sin musica', style: TextStyle(color: Colors.white)))),
+                        
+                        //? En caso el mini reproductor de musica no este activo
+                        if(_isPlay) const SliverToBoxAdapter(
+                          child: SizedBox(height: 110)
+                        ),
+                      ],                  
                     ),
                   ),
                   

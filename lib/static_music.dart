@@ -43,11 +43,11 @@ class StaticMusic {
       ),
       Music(
         index: 4,
-        titulo: '-RUN-',
-        artista: 'WaterFlame',
-        musica: Uri.parse('https://cdn.discordapp.com/attachments/1099395357160505397/1238381570369523773/475234_-Run-.mp3?ex=663f1436&is=663dc2b6&hm=1ccb53652ea11afa08f61c7eca88e9c2345b419d081e6ad0e2ac20da078efd02&'),
+        titulo: 'Oye Mujer',
+        artista: 'Ke Personajes',
+        musica: Uri.parse('https://firebasestorage.googleapis.com/v0/b/loginapp-2b19d.appspot.com/o/Musica%2FKe%20Personajes%20-%20Oye%20Mujer.mp3?alt=media&token=eee7faf5-74c3-4cb4-a654-077824f4a477'),
         favorito: false,
-        imagen: Uri.parse('https://i.ytimg.com/vi/WbLBKn5MOqs/hqdefault.jpg'),
+        imagen: Uri.parse('https://firebasestorage.googleapis.com/v0/b/loginapp-2b19d.appspot.com/o/Imaguen%20Artista%2Ffondo-evento.jpg?alt=media&token=6be2a2b0-246a-45ef-addf-56d7fe98d383'),
         duration: const Duration(minutes: 3, seconds: 47)
       ),
       Music(

@@ -44,7 +44,7 @@ class _VolumeControlState extends State<VolumeControl> {
         }
       ),
       child: StreamBuilder<double>(
-        stream: widget.audioPlayer.volumeStream,
+        stream: widget.audioPlayer.volumeStream.asBroadcastStream(),
         builder: (context, snapshot) {
           return Container(child: widget.buttonBuilder(MusicStateUtil.volumeIcon(snapshot.data), 30, () async {
             await _superToolTipController.showTooltip();

@@ -1,57 +1,48 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:super_tooltip/super_tooltip.dart';
 import 'package:tidal_wave/modules/reproductor_musica/widgets/volume_control.dart';
 import 'package:tidal_wave/shared/music_state_util.dart';
 
-class Controls extends StatefulWidget {
+class Controls extends StatelessWidget {
   final AudioPlayer audioPlayer;
   static const int seconds = 10;
   final Color color;
 
-
   const Controls({super.key, required this.audioPlayer, required this.color});
 
-  @override
-  State<Controls> createState() => _ControlsState();
-}
-
-class _ControlsState extends State<Controls> {
   Widget _buttonBuilder(Icon icon, double size, void Function() onPressed, {bool locked = false}){
     return IconButton(
       icon: icon,
-      color: locked ? widget.color.withOpacity(0.3) : widget.color,
+      color: locked ? color.withOpacity(0.3) : color,
       iconSize: size,
       onPressed: onPressed,
-      enableFeedback: true
     );
   }
 
   Future<void> seekRewind() async{
-    await widget.audioPlayer.seek(widget.audioPlayer.position - const Duration(seconds: Controls.seconds));
+    await audioPlayer.seek(audioPlayer.position - const Duration(seconds: seconds));
   }
 
   Future<void> seekForward() async{
-    await widget.audioPlayer.seek(widget.audioPlayer.position + const Duration(seconds: Controls.seconds));
+    await audioPlayer.seek(audioPlayer.position + const Duration(seconds: seconds));
   }
 
   Future<void> restart() async {
-    await widget.audioPlayer.seek(Duration.zero);
+    await audioPlayer.seek(Duration.zero);
   }
 
   Future<void> random() async {
     final random = Random();
-    final int maxIndex = widget.audioPlayer.sequence!.length;
+    final int maxIndex = audioPlayer.sequence!.length;
     final int randomIndex = random.nextInt(maxIndex);
-    await widget.audioPlayer.seek(Duration.zero, index: min(randomIndex, maxIndex));
+    await audioPlayer.seek(Duration.zero, index: min(randomIndex, maxIndex));
 
   }  
 
-  final _superToolTipController = SuperTooltipController();
-
   @override
   Widget build(BuildContext context) {
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -67,7 +58,7 @@ class _ControlsState extends State<Controls> {
 
             // Volumen
             VolumeControl(
-              audioPlayer: widget.audioPlayer,
+              audioPlayer: audioPlayer,
               buttonBuilder: _buttonBuilder,
             ),
             
@@ -83,31 +74,38 @@ class _ControlsState extends State<Controls> {
         
             //* Previous button
             Expanded(child: StreamBuilder<int?>(
-              stream: widget.audioPlayer.currentIndexStream,
+              stream: audioPlayer.currentIndexStream.asBroadcastStream(),
               builder: (context, snapshot) {
                 return MusicStateUtil.previousReturns<Widget>(snapshot.data,
                   noActive: _buttonBuilder(const Icon(Icons.skip_previous_rounded), 60, (){}, locked: true),
-                  active: _buttonBuilder(const Icon(Icons.skip_previous_rounded), 60, widget.audioPlayer.seekToPrevious)
+                  active: _buttonBuilder(const Icon(Icons.skip_previous_rounded), 60, audioPlayer.seekToPrevious)
                 );
               })
             ),
             
             //* Play/Stop
             StreamBuilder<PlayerState>(
-              stream: widget.audioPlayer.playerStateStream,
-              builder: (context, snapshot) => _buttonBuilder(MusicStateUtil.playIcon(snapshot.data), 80, MusicStateUtil.playAction(widget.audioPlayer))
+              stream: audioPlayer.playerStateStream.asBroadcastStream(),
+              builder: (context, snapshot) { 
+                return _ButtonBuilder(
+                  icon: MusicStateUtil.playIcon(snapshot.data),
+                  color: color,
+                  size: 80,
+                  onPressed: MusicStateUtil.playAction(audioPlayer)
+                );
+              }
             ),
         
             //* Skip button
             Expanded(
               child: StreamBuilder<int?>(
-              stream: widget.audioPlayer.currentIndexStream,
+              stream: audioPlayer.currentIndexStream.asBroadcastStream(),
               builder: (context, snapshot) {
                 return MusicStateUtil.nextReturns<Widget>(
                   snapshot.data,
-                  widget.audioPlayer,
+                  audioPlayer,
                   noActive: _buttonBuilder(const Icon(Icons.skip_next_rounded), 60, (){}, locked: true),
-                  active: _buttonBuilder(const Icon(Icons.skip_next_rounded), 60, widget.audioPlayer.seekToNext)
+                  active: _buttonBuilder(const Icon(Icons.skip_next_rounded), 60, audioPlayer.seekToNext)
                 );
               })
             ),
@@ -119,10 +117,25 @@ class _ControlsState extends State<Controls> {
       ],
     );
   }
+}
+
+class _ButtonBuilder extends StatelessWidget {
+
+  final Icon icon;
+  final bool? locked = false;
+  final Color color;
+  final double size;
+  final void Function()? onPressed;
+
+  const _ButtonBuilder({required this.icon, required this.color, required this.size, required this.onPressed});
 
   @override
-  void dispose() {
-    _superToolTipController.dispose();
-    super.dispose();
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: icon,
+      color: locked! ? color.withOpacity(0.3) : color,
+      iconSize: size,
+      onPressed: onPressed,
+    );
   }
 }

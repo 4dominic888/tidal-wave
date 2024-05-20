@@ -12,7 +12,7 @@ class MiniMusicPlayer extends StatelessWidget {
 
   Widget _circularImage(AudioPlayer state){
     return StreamBuilder<SequenceState?>(
-      stream: state.sequenceStateStream,
+      stream: state.sequenceStateStream.asBroadcastStream(),
       builder: (context, snapshot) {        
         final state = snapshot.data;
         if (state?.sequence.isEmpty ?? true) {
@@ -47,7 +47,7 @@ class MiniMusicPlayer extends StatelessWidget {
   Widget _titleAndArtist(AudioPlayer state){
     return Expanded(
       child: StreamBuilder<SequenceState?>(
-        stream: state.sequenceStateStream,
+        stream: state.sequenceStateStream.asBroadcastStream(),
         builder: (context, snapshot) {
           final MediaItem? mediaItem = snapshot.data?.currentSource?.tag as MediaItem?;
 
@@ -80,7 +80,7 @@ class MiniMusicPlayer extends StatelessWidget {
 
               //? Progress bar musica
               StreamBuilder<Duration>(
-                stream: state.positionStream,
+                stream: state.positionStream.asBroadcastStream(),
                 builder: (context, snapshot) {
                   final percent = (snapshot.data?.inMilliseconds ?? 0) / (state.duration?.inMilliseconds ?? 1);
                   return LinearProgressIndicator(
@@ -106,7 +106,7 @@ class MiniMusicPlayer extends StatelessWidget {
                   
                   //* Previous
                   StreamBuilder<int?>(
-                    stream: state.currentIndexStream,
+                    stream: state.currentIndexStream.asBroadcastStream(),
                     builder: (context, snapshot) {
                       return MusicStateUtil.previousReturns<Widget>(snapshot.data, 
                         active: IconButton(onPressed: state.seekToPrevious, icon: const Icon(Icons.skip_previous_sharp), color: Colors.grey.shade500),
@@ -117,7 +117,7 @@ class MiniMusicPlayer extends StatelessWidget {
 
                   //* Play/Pause
                   StreamBuilder<PlayerState>(
-                    stream: state.playerStateStream,
+                    stream: state.playerStateStream.asBroadcastStream(),
                     builder: (context, snapshot) {
                       return MusicStateUtil.playReturns<Widget>(snapshot.data,
                         playCase: IconButton(onPressed: state.play, icon: Icon(Icons.play_arrow_rounded, color: Colors.grey.shade500)),
@@ -129,7 +129,7 @@ class MiniMusicPlayer extends StatelessWidget {
                   
                   //* Next
                   StreamBuilder<int?>(
-                    stream: state.currentIndexStream,
+                    stream: state.currentIndexStream.asBroadcastStream(),
                     builder: (context, snapshot) {
                       return MusicStateUtil.nextReturns<Widget>(snapshot.data, state,
                         active: IconButton(onPressed: state.seekToNext, icon: const Icon(Icons.skip_next_rounded), color: Colors.grey.shade500),

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "975559689515",
+    "project_id": "tidal-wave-service",
+    "storage_bucket": "tidal-wave-service.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:975559689515:android:3ae9db00361b3a6575716e",
+        "android_client_info": {
+          "package_name": "com.team4trezz.tidal_wave"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDIITU5ji3msF8SkShi1gZdF2-mYtco8LY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,1 @@
+{"flutter":{"platforms":{"android":{"default":{"projectId":"tidal-wave-service","appId":"1:975559689515:android:3ae9db00361b3a6575716e","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"tidal-wave-service","configurations":{"android":"1:975559689515:android:3ae9db00361b3a6575716e"}}}}}}

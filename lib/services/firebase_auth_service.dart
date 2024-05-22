@@ -5,19 +5,22 @@ import 'package:tidal_wave/shared/result.dart';
 
 class FirebaseAuthService {
   
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final TWUserRepository _twUserRepository = TWUserRepository();
+  static final FirebaseAuth _auth = FirebaseAuth.instance;
+  static final TWUserRepository _twUserRepository = TWUserRepository();
 
-  Future<Result<TWUser>> registerUser(TWUser twUser, String password) async{
+  static Future<Result<TWUser>> registerUser(TWUser twUser, String password) async{
     try {
       await _auth.createUserWithEmailAndPassword(email: twUser.email, password: password);
       return await _twUserRepository.addOne(twUser);
     } on FirebaseAuthException catch (e) {
-      return Result.error('some error ocurrer: ${e.code}');
+      if(e.code == "email-already-in-use"){
+        return Result.error('El email proporcionado ya ha sido registrado, intente con otro.');
+      }
+      return Result.error('${e.code} | ${e.message}');
     }
   }
 
-  Future<Result<TWUser>> loginUser(TWUser twUser, String password) async{
+  static Future<Result<TWUser>> loginUser(TWUser twUser, String password) async{
     try {
       UserCredential credential = await _auth.signInWithEmailAndPassword(email: twUser.email, password: password);
       if (credential.user == null) {
@@ -25,7 +28,13 @@ class FirebaseAuthService {
       }
       return _twUserRepository.getOne(credential.user!.uid);
     } on FirebaseAuthException catch (e) {
-      return Result.error('some error ocurrer: ${e.code}');
+      if(e.code == "invalid-credential"){
+        return Result.error('El email ingresado no ha sido registrado, probablemente te han borrado la cuenta.');
+      }
+      if(e.code == "wrong-password"){
+        return Result.error('La contraseña ingresada no coincide con el email proporcionado.');
+      }
+      return Result.error('${e.code} | ${e.message}');
     }
   }
 

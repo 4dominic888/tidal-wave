@@ -16,6 +16,7 @@ class MusicCubit extends Cubit<AudioPlayer> {
       (p, b, d) => PositionData(p, b, d ?? Duration.zero)
     );
   }
+  bool isActive = false;
 
   void enableLoop() async {
     await state.setLoopMode(LoopMode.all);
@@ -39,5 +40,14 @@ class MusicCubit extends Cubit<AudioPlayer> {
 
   void seekTo(int? index) async{
     await state.seek(Duration.zero, index: index);
+  }
+
+  void stopMusic(void Function()? toEnd){
+    if (isActive) {
+      state.stop();
+      state.seek(null, index: -1);
+      isActive = false;
+      toEnd?.call();
+    }
   }
 }

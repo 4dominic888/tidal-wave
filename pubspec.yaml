@@ -17,11 +17,8 @@ dependencies:
   just_audio: ^0.9.37
   just_audio_background: ^0.0.1-beta.11
   rxdart: ^0.27.7
-  just_waveform: ^0.0.5
   palette_generator: ^0.3.3+3
-  percent_indicator: ^4.2.3
   flutter_bloc: ^8.1.5
-  gradient_widgets: ^0.6.0
   syncfusion_flutter_sliders: ^25.2.5
   super_tooltip: ^2.0.7
   firebase_auth: ^4.19.5

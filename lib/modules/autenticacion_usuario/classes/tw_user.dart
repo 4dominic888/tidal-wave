@@ -6,9 +6,11 @@ class TWUser {
   final String type;
   final Uri? pfp;
   final String email;
-  final Timestamp createdAt;
+  Timestamp? createdAt;
 
-  TWUser({required this.username, required this.type, required this.email, required this.createdAt, this.pfp});
+  TWUser({required this.username, required this.type, Timestamp? createdAt, required this.email, this.pfp}){
+    this.createdAt = createdAt ?? Timestamp.now();
+  }
 
   factory TWUser.fromJson(Map<String,dynamic> json){
     return TWUser(
@@ -28,6 +30,17 @@ class TWUser {
       'created_at': createdAt,
       'pfp': pfp
     };
+  }
+
+  @override
+  String toString() {
+    return """
+      username: $username
+      type: $type
+      email: $email
+      create_at ${createdAt.toString()}
+      pfp ${pfp ?? "no pfp"}
+    """;
   }
 
 }

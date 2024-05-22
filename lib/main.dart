@@ -11,10 +11,11 @@ import 'package:tidal_wave/modules/reproductor_musica/classes/musica.dart';
 import 'package:tidal_wave/static_music.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform
   );
-
   await JustAudioBackground.init(
     androidNotificationChannelId: 'com.ryanheise.bg_demon_channel.audio',
     androidNotificationChannelName: 'Audio playback',
@@ -30,9 +31,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
 
     List<Music> playListTest = StaticMusic.musicas;
-
-    //? Usar para testear listas largas
-    //List<Music> duplicatedList = List.generate(16, (_) => playListTest).expand((element) => element).toList();
 
     return MultiBlocProvider(
       providers: [

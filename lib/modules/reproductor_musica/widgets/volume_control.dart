@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:super_tooltip/super_tooltip.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
@@ -31,6 +31,7 @@ class _VolumeControlState extends State<VolumeControl> {
             width: 50,
             height: 200,
             child: SfSlider.vertical(
+              activeColor: Colors.red,
               min: 0.0,
               max: 1.0,
               value: widget.audioPlayer.volume,

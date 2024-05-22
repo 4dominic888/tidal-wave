@@ -6,8 +6,9 @@ class PopupMessage extends StatelessWidget {
 
   final String title;
   final String description;
+  final void Function()? onClose;
 
-  const PopupMessage({super.key, required this.title, required this.description});
+  const PopupMessage({super.key, required this.title, required this.description, this.onClose});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +17,11 @@ class PopupMessage extends StatelessWidget {
       backgroundColor: Colors.grey.shade900,
       content: Text(description, style: const TextStyle(color: Colors.grey)),
       actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cerrar', style: TextStyle(color: Colors.blueAccent)))
+        TextButton(onPressed: () {
+          onClose?.call();          
+          Navigator.of(context).pop();
+        },
+        child: const Text('Cerrar', style: TextStyle(color: Colors.blueAccent)))
       ],
     );
   }

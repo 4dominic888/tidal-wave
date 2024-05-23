@@ -3,12 +3,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 class MediaMetaData extends StatelessWidget {
 
-  final String imgUrl;
+  final String? imgUrl;
   final String title;
   final String artist;
   final Color color;
+  final double? sizePercent;
 
-  const MediaMetaData({super.key, required this.imgUrl, required this.title, required this.artist, required this.color});
+  const MediaMetaData({super.key, this.imgUrl, required this.title, required this.artist, required this.color, this.sizePercent = 1});
 
   @override
   Widget build(BuildContext context) {
@@ -20,28 +21,31 @@ class MediaMetaData extends StatelessWidget {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(10),
-            child: CachedNetworkImage(
-              imageUrl: imgUrl,
-              height: 300,
-              width: 300,
+            child: imgUrl != null ? 
+            CachedNetworkImage(
+              imageUrl: imgUrl!,
+              height: 300 * sizePercent!,
+              width: 300 * sizePercent!,
               fit: BoxFit.cover,
+            ) : Container(
+              color: Colors.grey.shade600,
+              height: 300 * sizePercent!,
+              width: 300 * sizePercent!,
             ),
           )
         ),
 
-        const SizedBox(height: 20),
+        SizedBox(height: 20 * sizePercent!),
 
         Text(
           artist,
-          style: TextStyle(color: color, fontSize: 22, fontWeight: FontWeight.bold),
+          style: TextStyle(color: color, fontSize: 22 * sizePercent!, fontWeight: FontWeight.bold),
           textAlign: TextAlign.center,
         ),
 
-        const SizedBox(height: 20),
-
         Text(
           title,
-          style: TextStyle(color: color, fontSize: 20, fontWeight: FontWeight.bold),
+          style: TextStyle(color: color, fontSize: 20 * sizePercent!, fontWeight: FontWeight.bold),
           textAlign: TextAlign.center,
         ),
       ],

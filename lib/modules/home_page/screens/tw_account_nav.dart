@@ -1,17 +1,22 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tidal_wave/bloc/user_cubit.dart';
 import 'package:tidal_wave/modules/autenticacion_usuario/classes/tw_user.dart';
+import 'package:tidal_wave/modules/autenticacion_usuario/screens/login_screen.dart';
+import 'package:tidal_wave/modules/autenticacion_usuario/screens/register_screen.dart';
+import 'package:tidal_wave/modules/autenticacion_usuario/widgets/popup_message.dart';
+import 'package:tidal_wave/services/firebase_auth_service.dart';
 
 class TWAccountNav extends StatelessWidget {
 
   const TWAccountNav({super.key});
 
-  static List<Map<String, String>> userFields = [
-    {'Tipo de usuario': 'Artista'},
-    {'Email': 'pepeasd@gmail.com.pe'},
-    {'Unido desde': 'Alguna fecha'},
-
+  static List<Map<String, String>> userFields(String type, String email, String timeStamp) => [
+    {'Tipo de usuario': type},
+    {'Email': email},
+    {'Unido desde': timeStamp},
   ];
 
   @override
@@ -29,9 +34,9 @@ class TWAccountNav extends StatelessWidget {
         
               const SizedBox(height: 10),
         
-              const Text(
-                '# Pepito Juarez',
-                style: TextStyle(
+              Text(
+                '# ${snapshot.username}',
+                style: const TextStyle(
                   fontSize: 20,
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -48,7 +53,7 @@ class TWAccountNav extends StatelessWidget {
                       color: Colors.grey.shade100.withOpacity(0.1)
                     )
                   ),
-                  children: userFields.map((e) => TableRow(
+                  children: userFields(snapshot.type, snapshot.email, snapshot.createdAt!.toDate().toString()).map((e) => TableRow(
                     decoration: BoxDecoration(
                       color: Colors.black.withOpacity(0.4),
                       border: Border.all(color: Colors.grey.shade100.withOpacity(0.1))
@@ -60,7 +65,10 @@ class TWAccountNav extends StatelessWidget {
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Text(e.values.first, style: const TextStyle(color: Colors.white)),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Text(e.values.first, style: const TextStyle(color: Colors.white))
+                        ),
                       ),
                     ]
                   )).toList(),
@@ -72,17 +80,29 @@ class TWAccountNav extends StatelessWidget {
                 spacing: 10,
                 alignment: WrapAlignment.center,
                 children: [
-                  ElevatedButton(onPressed: (){}, style: ElevatedButton.styleFrom(
+                  ElevatedButton(onPressed: null, style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     foregroundColor: Colors.white
                   ), child: const Text('Cambiar contraseña')),
         
-                  ElevatedButton(onPressed: (){}, style: ElevatedButton.styleFrom(
+                  ElevatedButton(onPressed: null, style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blueAccent,
                     foregroundColor: Colors.white
                   ), child: const Text('Editar cuenta')),
         
-                  ElevatedButton(onPressed: (){}, style: ElevatedButton.styleFrom(
+                  ElevatedButton(onPressed: (){
+                    showDialog(context: context, builder: (context) => 
+                      PopupDialog(
+                        title: 'Advertencia',
+                        description: '¿Estás seguro de que quieres cerrar sesión?',
+                        onOK: () async {
+                          await FirebaseAuthService.exitAccout();
+                          context.read<UserCubit>().user = null;
+                          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+                        },
+                        ),
+                      );
+                  }, style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
                     foregroundColor: Colors.white
                   ), child: const Text('Salir de la cuenta')),
@@ -109,17 +129,21 @@ class TWAccountNav extends StatelessWidget {
         
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: ElevatedButton(onPressed: (){}, style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueAccent,
-                  foregroundColor: Colors.white
+                child: ElevatedButton(
+                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginScreen())),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                    foregroundColor: Colors.white
                 ), child: const Text('Iniciar sesion')),
               ),
         
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: ElevatedButton(onPressed: (){}, style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white
+                child: ElevatedButton(
+                  onPressed: ()=> Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen())),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white
                 ), child: const Text('Registrarse')),
               ),
             ]

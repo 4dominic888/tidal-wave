@@ -51,14 +51,14 @@ class _HomePageScreenState extends State<HomePageScreen> {
         }},
         {"Registrarse": () {
           Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen()));
-        }
-        }
+        }}
       ]);
     }
     else{
       _drawerOptions.addAll([
         {"Canciones favoritas": (){}},
         {"Historial de canciones": (){}},
+        {"Sube tu canción": (){}},
       ]);
     }
     _drawerOptions.add({

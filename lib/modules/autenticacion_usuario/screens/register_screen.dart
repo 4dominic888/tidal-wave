@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tidal_wave/bloc/user_cubit.dart';
 import 'package:tidal_wave/modules/autenticacion_usuario/classes/tw_user.dart';
 import 'package:tidal_wave/modules/autenticacion_usuario/widgets/auth_text_field.dart';
 import 'package:tidal_wave/modules/autenticacion_usuario/widgets/popup_message.dart';
@@ -44,7 +46,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       setState(() =>_onLoad = false);
 
       if (result.onSuccess) {
-        showDialog(context: context, builder: (context) => const PopupMessage(title: 'Exito', description: 'Se ha registrado al usuario'));
+        showDialog(context: context, builder: (context) => const PopupMessage(title: 'Exito', description: 'Se ha registrado al usuario'), barrierDismissible: false);
+        context.read<UserCubit>().user = user;
+
       }
       else{
         showDialog(context: context, builder: (context) => PopupMessage(title: 'Ha ocurrido un error', description: result.errorMessage!));
@@ -59,7 +63,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
-        title: const Text('Registrate en Tidal Wave'),
       ),
       body: SingleChildScrollView(
         child: Form(

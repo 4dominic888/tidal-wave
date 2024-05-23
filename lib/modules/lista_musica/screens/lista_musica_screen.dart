@@ -4,6 +4,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:tidal_wave/bloc/music_cubit.dart';
 import 'package:tidal_wave/bloc/play_list_cubit.dart';
+import 'package:tidal_wave/modules/autenticacion_usuario/screens/login_screen.dart';
 import 'package:tidal_wave/modules/autenticacion_usuario/screens/register_screen.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/icon_button_music.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/mini_music_player.dart';
@@ -109,7 +110,10 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
     return Scaffold(
       key: _scaffoldKey,
       drawer: TWDrawer(options: [
-        {"Iniciar sesion": (){}},
+        {"Iniciar sesion": (){
+          context.read<MusicCubit>().stopMusic(()=>setState((){}));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+        }},
         {"Registrarse": () {
           context.read<MusicCubit>().stopMusic(()=>setState((){}));
           Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen()));

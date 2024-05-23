@@ -18,8 +18,7 @@ class PopupMessage extends StatelessWidget {
       content: Text(description, style: const TextStyle(color: Colors.grey)),
       actions: [
         TextButton(onPressed: () {
-          onClose?.call();          
-          Navigator.of(context).pop();
+          onClose == null ?  Navigator.of(context).pop() : onClose?.call();
         },
         child: const Text('Cerrar', style: TextStyle(color: Colors.blueAccent)))
       ],

@@ -4,12 +4,9 @@ import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:tidal_wave/bloc/music_cubit.dart';
 import 'package:tidal_wave/bloc/play_list_cubit.dart';
-import 'package:tidal_wave/modules/autenticacion_usuario/screens/login_screen.dart';
-import 'package:tidal_wave/modules/autenticacion_usuario/screens/register_screen.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/icon_button_music.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/mini_music_player.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/music_item.dart';
-import 'package:tidal_wave/modules/lista_musica/widgets/tw_drawer.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/text_field_find.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/title_container.dart';
 import 'package:tidal_wave/modules/reproductor_musica/classes/musica.dart';
@@ -26,22 +23,11 @@ class ListaMusicaScreen extends StatefulWidget {
 class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
 
   final ScrollController _scrollController = ScrollController();
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _isScrolled = false;
   late List<Music> _list;
 
   List<Widget> _appBarWidgets(){
-    return [
-      const SizedBox(width: 10),
-
-      IconButtonUIMusic(
-        borderColor: Colors.blue.shade400.withAlpha(50),
-        borderSize: 4.0,
-        fillColor: Colors.transparent,
-        icon: const Icon(Icons.menu, size: 25, color: Colors.white),
-        onTap: () => _scaffoldKey.currentState!.openDrawer()
-      ),
-      
+    return [      
       const SizedBox(width: 5),
 
       Expanded(
@@ -108,18 +94,6 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
-      drawer: TWDrawer(options: [
-        {"Iniciar sesion": (){
-          context.read<MusicCubit>().stopMusic(()=>setState((){}));
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
-        }},
-        {"Registrarse": () {
-          context.read<MusicCubit>().stopMusic(()=>setState((){}));
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen()));
-        }
-        },
-      ]),
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         automaticallyImplyLeading: false,

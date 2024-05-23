@@ -37,6 +37,7 @@ flutter:
 
   assets:
     - assets/music/
+    - assets/placeholder/
 
 
   # To add custom fonts to your application, add a fonts section here,

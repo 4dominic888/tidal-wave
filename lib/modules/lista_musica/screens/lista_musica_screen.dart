@@ -171,15 +171,15 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
                         ),
 
                         //? Lista como tal
-                        if (_list.isNotEmpty) StreamBuilder<SequenceState?>(
-                          stream: context.read<MusicCubit>().state.sequenceStateStream.asBroadcastStream(),
+                        if (_list.isNotEmpty) StreamBuilder<int?>(
+                          stream: context.read<MusicCubit>().state.currentIndexStream.asBroadcastStream(),
                           builder: (context, snapshot) {
                             return SliverList( 
                               delegate: 
                                 SliverChildBuilderDelegate(childCount: _list.length, (context, index) {
                                   final musica = _list[index];
                                   return MusicItem(
-                                    selected: [musica.index == (context.read<MusicCubit>().isActive ? _list[snapshot.data?.currentIndex ?? 0].index : -1)],
+                                    selected: [musica.index == (context.read<MusicCubit>().isActive ? _list[snapshot.data ?? 0].index : -1)],
                                     music: musica,
                                     onPlay: () async {
                                       if (!context.read<MusicCubit>().isActive) {

@@ -1,5 +1,11 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tidal_wave/bloc/user_cubit.dart';
 import 'package:tidal_wave/modules/autenticacion_usuario/widgets/auth_text_field.dart';
+import 'package:tidal_wave/modules/autenticacion_usuario/widgets/popup_message.dart';
+import 'package:tidal_wave/modules/home_page/screens/home_page_screen.dart';
 import 'package:tidal_wave/services/firebase_auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -17,11 +23,21 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  bool _onLoad = false;
+
+
   void onLogin() async {
     if(_formKey.currentState!.validate()){
+      setState(() =>_onLoad = true);
+      
       final result = await FirebaseAuthService.loginUser(_emailController.text, _passwordController.text);
+      setState(() =>_onLoad = false);
       if (result.onSuccess) {
-
+        context.read<UserCubit>().user = result.data!;
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomePageScreen()));
+      }
+      else{
+        showDialog(context: context, builder: (context) => PopupMessage(title: 'Ha ocurrido un error', description: result.errorMessage!));
       }
     }
   }
@@ -90,6 +106,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: const Text('Iniciar sesión')
                 ),
               ),
+
+              //* Circular progress indicator
+              _onLoad ? const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: Center(child: CircularProgressIndicator(color: Colors.blueAccent)),
+              ) : const SizedBox.shrink()
             ],
           ),
         ),

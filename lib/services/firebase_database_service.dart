@@ -17,6 +17,10 @@ class FireBaseDatabaseService {
     await db.collection(collectionName).add(data);
   }
 
+  Future<void> setOne(String collectionName, Map<String, dynamic> data, String id) async{
+    await db.collection(collectionName).doc(id).set(data);
+  }
+
   Future<Map<String, dynamic>> updateOne(String collectionName, Map<String, dynamic> updateData, String id) async{
     await db.collection(collectionName).doc(id).update(updateData);
     return updateData;

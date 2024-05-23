@@ -5,10 +5,9 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'package:tidal_wave/bloc/music_color_cubit.dart';
 import 'package:tidal_wave/bloc/music_cubit.dart';
 import 'package:tidal_wave/bloc/play_list_cubit.dart';
+import 'package:tidal_wave/bloc/user_cubit.dart';
 import 'package:tidal_wave/firebase_options.dart';
-import 'package:tidal_wave/modules/lista_musica/screens/lista_musica_screen.dart';
-import 'package:tidal_wave/modules/reproductor_musica/classes/musica.dart';
-import 'package:tidal_wave/static_music.dart';
+import 'package:tidal_wave/modules/home_page/screens/home_page_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,13 +29,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    List<Music> playListTest = StaticMusic.musicas;
+    //List<Music> playListTest = StaticMusic.musicas;
 
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => MusicCubit()),
         BlocProvider(create: (_) => PlayListCubit()),
-        BlocProvider(create: (_) => MusicColorCubit())
+        BlocProvider(create: (_) => MusicColorCubit()),
+        BlocProvider(create: (_) => UserCubit())
       ],
 
       child: MaterialApp(
@@ -50,7 +50,7 @@ class MyApp extends StatelessWidget {
             selectionColor: Colors.grey.shade400.withOpacity(0.4),
           ),
         ),
-        home: ListaMusicaScreen(listado: playListTest),
+        home: const HomePageScreen(),
       ),
     );
   }

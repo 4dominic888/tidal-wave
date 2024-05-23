@@ -8,7 +8,9 @@ import 'package:tidal_wave/modules/reproductor_musica/screens/reproductor_musica
 import 'package:tidal_wave/shared/music_state_util.dart';
 class MiniMusicPlayer extends StatelessWidget {
 
-  const MiniMusicPlayer({super.key});
+  final void Function()? externalSetState;
+
+  const MiniMusicPlayer({super.key, this.externalSetState});
 
   Widget _circularImage(AudioPlayer state){
     return StreamBuilder<SequenceState?>(
@@ -135,6 +137,13 @@ class MiniMusicPlayer extends StatelessWidget {
                         active: IconButton(onPressed: state.seekToNext, icon: const Icon(Icons.skip_next_rounded), color: Colors.grey.shade500),
                         noActive: IconButton(onPressed: (){}, icon: Icon(Icons.skip_next_rounded, color: Colors.grey.shade800))
                       );
+                    }
+                  ),
+
+                  IconButton(
+                    icon: Icon(Icons.close_rounded, color: Colors.grey.shade500),
+                    onPressed: (){
+                      context.read<MusicCubit>().stopMusic(externalSetState);
                     }
                   )
                 ],

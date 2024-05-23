@@ -1,6 +1,10 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tidal_wave/bloc/user_cubit.dart';
 import 'package:tidal_wave/modules/autenticacion_usuario/classes/tw_user.dart';
+import 'package:tidal_wave/modules/autenticacion_usuario/widgets/auth_text_field.dart';
+import 'package:tidal_wave/modules/autenticacion_usuario/widgets/popup_message.dart';
 import 'package:tidal_wave/services/firebase_auth_service.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -42,7 +46,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       setState(() =>_onLoad = false);
 
       if (result.onSuccess) {
-        showDialog(context: context, builder: (context) => const PopupMessage(title: 'Exito', description: 'Se ha registrado al usuario'));
+        showDialog(context: context, builder: (context) => const PopupMessage(title: 'Exito', description: 'Se ha registrado al usuario'), barrierDismissible: false);
+        context.read<UserCubit>().user = user;
+
       }
       else{
         showDialog(context: context, builder: (context) => PopupMessage(title: 'Ha ocurrido un error', description: result.errorMessage!));
@@ -57,7 +63,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
-        title: const Text('Registrate en Tidal Wave'),
       ),
       body: SingleChildScrollView(
         child: Form(
@@ -73,7 +78,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               //* Username
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: RegisterTextField(
+                child: AuthTextField(
                   controller: _usernameController,
                   hintText: 'Nombre de usuario',
                   icon: const Icon(Icons.person_2_rounded),
@@ -96,7 +101,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               //* Email
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: RegisterTextField(
+                child: AuthTextField(
                   controller: _emailController,
                   hintText: 'Email',
                   textInputType: TextInputType.emailAddress,
@@ -113,7 +118,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               //* Password
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: RegisterTextField(
+                child: AuthTextField(
                   controller: _passwordController,
                   hintText: 'Contraseña',
                   textInputType: TextInputType.visiblePassword,
@@ -145,7 +150,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               //* Verify password
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: RegisterTextField(
+                child: AuthTextField(
                   controller: _verifyPasswordController,
                   hintText: 'Verificar contraseña',
                   textInputType: TextInputType.visiblePassword,
@@ -207,76 +212,5 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _passwordController.dispose();
     _verifyPasswordController.dispose();
     super.dispose();
-  }
-}
-
-class RegisterTextField extends StatelessWidget {
-
-  final String hintText;
-  final TextInputType? textInputType;
-  final Icon? icon;
-  final String? Function(String? value)? validator;
-  final TextEditingController? controller;
-
-  const RegisterTextField({
-    super.key, required this.hintText, this.textInputType, this.icon, this.validator, this.controller
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      validator: validator,
-      controller: controller,
-      keyboardType: textInputType,
-      obscureText: textInputType==TextInputType.visiblePassword,
-      cursorColor: Colors.grey.shade500,
-      autocorrect: false,
-      enableSuggestions: false,
-      style: TextStyle(color: Colors.grey.shade500),
-      decoration: InputDecoration(
-        suffixIcon: icon,
-        suffixIconColor: Colors.grey,
-        filled: true,
-        fillColor: Colors.grey.shade900,
-        hintText: hintText,
-        hintStyle: TextStyle(color: Colors.grey.shade600),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: const BorderSide(color: Colors.transparent)
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: BorderSide(color: Colors.grey.shade600)
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: BorderSide(color: Colors.red.shade800)
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8.0),
-          borderSide: BorderSide(color: Colors.red.shade400)
-        ),
-      ),
-    );
-  }
-}
-
-class PopupMessage extends StatelessWidget {
-
-  final String title;
-  final String description;
-
-  const PopupMessage({super.key, required this.title, required this.description});
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(title, style: const TextStyle(color: Colors.grey)),
-      backgroundColor: Colors.grey.shade900,
-      content: Text(description, style: const TextStyle(color: Colors.grey)),
-      actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cerrar', style: TextStyle(color: Colors.blueAccent)))
-      ],
-    );
   }
 }

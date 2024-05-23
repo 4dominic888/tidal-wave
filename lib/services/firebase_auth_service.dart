@@ -20,9 +20,9 @@ class FirebaseAuthService {
     }
   }
 
-  static Future<Result<TWUser>> loginUser(TWUser twUser, String password) async{
+  static Future<Result<TWUser>> loginUser(String email, String password) async{
     try {
-      UserCredential credential = await _auth.signInWithEmailAndPassword(email: twUser.email, password: password);
+      UserCredential credential = await _auth.signInWithEmailAndPassword(email: email, password: password);
       if (credential.user == null) {
         return Result.error('El usuario no se ha encontrado');
       }

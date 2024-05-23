@@ -4,11 +4,9 @@ import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:tidal_wave/bloc/music_cubit.dart';
 import 'package:tidal_wave/bloc/play_list_cubit.dart';
-import 'package:tidal_wave/modules/autenticacion_usuario/screens/register_screen.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/icon_button_music.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/mini_music_player.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/music_item.dart';
-import 'package:tidal_wave/modules/lista_musica/widgets/tw_drawer.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/text_field_find.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/title_container.dart';
 import 'package:tidal_wave/modules/reproductor_musica/classes/musica.dart';
@@ -25,23 +23,11 @@ class ListaMusicaScreen extends StatefulWidget {
 class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
 
   final ScrollController _scrollController = ScrollController();
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _isScrolled = false;
-  bool _isPlay = false;
   late List<Music> _list;
 
   List<Widget> _appBarWidgets(){
-    return [
-      const SizedBox(width: 10),
-
-      IconButtonUIMusic(
-        borderColor: Colors.blue.shade400.withAlpha(50),
-        borderSize: 4.0,
-        fillColor: Colors.transparent,
-        icon: const Icon(Icons.menu, size: 25, color: Colors.white),
-        onTap: () => _scaffoldKey.currentState!.openDrawer()
-      ),
-      
+    return [      
       const SizedBox(width: 5),
 
       Expanded(
@@ -108,19 +94,6 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
-      drawer: TWDrawer(options: [
-        {"Iniciar sesion": (){}},
-        {"Registrarse": () {
-          context.read<MusicCubit>().state.stop();
-          context.read<MusicCubit>().state.seek(null);
-          setState(() {
-            _isPlay = false;
-          });
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen()));
-        }
-        },
-      ]),
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -168,7 +141,7 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
                               stream: context.read<MusicCubit>().state.sequenceStateStream.asBroadcastStream(),
                               builder: (context, snapshot) {
                                 final mediaData = snapshot.data?.currentSource?.tag as MediaItem?;
-                                final String text = (mediaData != null) && _isPlay ? 'Escuchando ${mediaData.title}' : 'En silencio...';
+                                final String text = (mediaData != null) && context.read<MusicCubit>().isActive ? 'Escuchando ${mediaData.title}' : 'En silencio...';
                                 return TitleContainer(text: text);
                               }
                             ),
@@ -176,18 +149,20 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
                         ),
 
                         //? Lista como tal
-                        if (_list.isNotEmpty) StreamBuilder<SequenceState?>(
-                          stream: context.read<MusicCubit>().state.sequenceStateStream.asBroadcastStream(),
+                        if (_list.isNotEmpty) StreamBuilder<int?>(
+                          stream: context.read<MusicCubit>().state.currentIndexStream.asBroadcastStream(),
                           builder: (context, snapshot) {
                             return SliverList( 
                               delegate: 
                                 SliverChildBuilderDelegate(childCount: _list.length, (context, index) {
                                   final musica = _list[index];
                                   return MusicItem(
-                                    selected: [musica.index == (_isPlay ? snapshot.data?.currentIndex : -1)],
+                                    selected: [musica.index == (context.read<MusicCubit>().isActive ? _list[snapshot.data ?? 0].index : -1)],
                                     music: musica,
                                     onPlay: () async {
-                                      setState(() => _isPlay = true);
+                                      if (!context.read<MusicCubit>().isActive) {
+                                        setState(() => context.read<MusicCubit>().isActive = true); 
+                                      }
                                       context.read<MusicCubit>().seekTo(musica.index);
                                     },
                                     onOptions: (){
@@ -201,7 +176,7 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
                         ) else const SliverToBoxAdapter(child: Center(child: Text('Sin musica', style: TextStyle(color: Colors.white)))),
                         
                         //? En caso el mini reproductor de musica no este activo
-                        if(_isPlay) const SliverToBoxAdapter(
+                        if(context.read<MusicCubit>().isActive) const SliverToBoxAdapter(
                           child: SizedBox(height: 110)
                         ),
                       ],                  
@@ -212,10 +187,10 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
                   AnimatedPositioned(
                     duration: const Duration(seconds: 1),
                     curve: Curves.easeInBack,
-                    bottom: _isPlay ? 0 : -90,
+                    bottom: context.read<MusicCubit>().isActive ? 0 : -90,
                     width: MediaQuery.of(context).size.width,
                     height: 90,
-                    child: const MiniMusicPlayer()
+                    child: MiniMusicPlayer(externalSetState: () => setState(() {}))
                   )
                 ],
               ),

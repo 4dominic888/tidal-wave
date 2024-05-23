@@ -38,6 +38,16 @@ class TWUserRepository extends RepositoryBase<TWUser> {
       return Result.error('Ha ocurrido un error: $e');
     }
   }
+
+  @override
+  Future<Result<TWUser>> setOne(TWUser data, String id) async {
+    try {
+      await context.setOne(collectionName, data.toJson(), id);
+      return Result.sucess(data);
+    } on Exception catch (e) {
+      return Result.error('Ha ocurrido un error: $e');
+    }
+  }
     
   @override
   Future<Result<TWUser>> updateOne(TWUser data, String id) async {

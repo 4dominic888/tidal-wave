@@ -25,3 +25,33 @@ class PopupMessage extends StatelessWidget {
     );
   }
 }
+
+class PopupDialog extends StatelessWidget {
+
+  final String title;
+  final String description;
+  final void Function()? onOK;
+  final void Function()? onCancel;
+
+  const PopupDialog({super.key, required this.title, required this.description, this.onOK, this.onCancel});
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(title, style: const TextStyle(color: Colors.grey)),
+      backgroundColor: Colors.grey.shade900,
+      content: Text(description, style: const TextStyle(color: Colors.grey)),
+      actions: [
+        TextButton(onPressed: () {
+          onOK == null ?  Navigator.of(context).pop() : onOK?.call();
+        },
+        child: const Text('Si', style: TextStyle(color: Colors.blueAccent))),
+        
+        TextButton(onPressed: () {
+          onCancel == null ?  Navigator.of(context).pop() : onCancel?.call();
+        },
+        child: const Text('No', style: TextStyle(color: Colors.blueAccent)))
+      ],
+    );
+  }
+}

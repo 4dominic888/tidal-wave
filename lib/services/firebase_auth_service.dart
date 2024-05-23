@@ -10,8 +10,8 @@ class FirebaseAuthService {
 
   static Future<Result<TWUser>> registerUser(TWUser twUser, String password) async{
     try {
-      await _auth.createUserWithEmailAndPassword(email: twUser.email, password: password);
-      return await _twUserRepository.addOne(twUser);
+      final userCredential = await _auth.createUserWithEmailAndPassword(email: twUser.email, password: password);
+      return await _twUserRepository.setOne(twUser, userCredential.user!.uid);
     } on FirebaseAuthException catch (e) {
       if(e.code == "email-already-in-use"){
         return Result.error('El email proporcionado ya ha sido registrado, intente con otro.');
@@ -36,6 +36,10 @@ class FirebaseAuthService {
       }
       return Result.error('${e.code} | ${e.message}');
     }
+  }
+
+  static Future<void> exitAccout() async{
+    await _auth.signOut();
   }
 
   //* Mas funciones relacionados a la cuenta de usuario

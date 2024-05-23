@@ -5,6 +5,7 @@ import 'package:tidal_wave/bloc/user_cubit.dart';
 import 'package:tidal_wave/modules/autenticacion_usuario/classes/tw_user.dart';
 import 'package:tidal_wave/modules/autenticacion_usuario/widgets/auth_text_field.dart';
 import 'package:tidal_wave/modules/autenticacion_usuario/widgets/popup_message.dart';
+import 'package:tidal_wave/modules/home_page/screens/home_page_screen.dart';
 import 'package:tidal_wave/services/firebase_auth_service.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -46,9 +47,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
       setState(() =>_onLoad = false);
 
       if (result.onSuccess) {
-        showDialog(context: context, builder: (context) => const PopupMessage(title: 'Exito', description: 'Se ha registrado al usuario'), barrierDismissible: false);
         context.read<UserCubit>().user = user;
-
+        showDialog(context: context, builder: (context) => 
+          PopupMessage(
+            title: 'Exito',
+            description: 'Se ha registrado al usuario',
+            onClose: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomePageScreen())),
+          ),
+          barrierDismissible: false
+        );
       }
       else{
         showDialog(context: context, builder: (context) => PopupMessage(title: 'Ha ocurrido un error', description: result.errorMessage!));

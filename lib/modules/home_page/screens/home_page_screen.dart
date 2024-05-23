@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tidal_wave/bloc/music_cubit.dart';
+import 'package:tidal_wave/bloc/user_cubit.dart';
 import 'package:tidal_wave/modules/autenticacion_usuario/screens/login_screen.dart';
 import 'package:tidal_wave/modules/autenticacion_usuario/screens/register_screen.dart';
 import 'package:tidal_wave/modules/home_page/screens/tw_account_nav.dart';
@@ -38,8 +38,33 @@ class _HomePageScreenState extends State<HomePageScreen> {
     {'Cuenta': const Icon(Icons.account_box)}
   ];
 
+  final List<Map<String, void Function()>> _drawerOptions = [];
+
   @override
   Widget build(BuildContext context) {
+    _drawerOptions.clear();
+
+    if(context.read<UserCubit>().state == null){
+      _drawerOptions.addAll([
+        {"Iniciar sesion": (){
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+        }},
+        {"Registrarse": () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen()));
+        }}
+      ]);
+    }
+    else{
+      _drawerOptions.addAll([
+        {"Canciones favoritas": (){}},
+        {"Historial de canciones": (){}},
+        {"Sube tu canción": (){}},
+      ]);
+    }
+    _drawerOptions.add({
+      "Opciones": (){}
+    });
+
     return Scaffold(
       key: _scaffoldKey,
       extendBodyBehindAppBar: true,
@@ -51,17 +76,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
         toolbarHeight: 0,
         elevation: 0,
       ),
-        drawer: TWDrawer(options: [
-          {"Iniciar sesion": (){
-            context.read<MusicCubit>().stopMusic(()=>setState((){}));
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
-          }},
-          {"Registrarse": () {
-            context.read<MusicCubit>().stopMusic(()=>setState((){}));
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen()));
-          }
-          },
-        ]),
+        drawer: TWDrawer(options: _drawerOptions),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,

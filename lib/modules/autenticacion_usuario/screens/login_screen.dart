@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tidal_wave/bloc/user_cubit.dart';
-import 'package:tidal_wave/modules/autenticacion_usuario/widgets/auth_text_field.dart';
-import 'package:tidal_wave/modules/autenticacion_usuario/widgets/popup_message.dart';
+import 'package:tidal_wave/shared/tw_text_field.dart';
+import 'package:tidal_wave/shared/popup_message.dart';
 import 'package:tidal_wave/modules/home_page/screens/home_page_screen.dart';
 import 'package:tidal_wave/services/firebase_auth_service.dart';
 
@@ -63,7 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
               //* Email
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: AuthTextField(
+                child: TWTextField(
                   controller: _emailController,
                   hintText: 'Email',
                   textInputType: TextInputType.emailAddress,
@@ -80,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
               //* Password
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: AuthTextField(
+                child: TWTextField(
                   controller: _passwordController,
                   hintText: 'Contraseña',
                   textInputType: TextInputType.visiblePassword,

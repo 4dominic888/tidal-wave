@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 
-class AuthTextField extends StatelessWidget {
+class TWTextField extends StatelessWidget {
 
   final String hintText;
   final TextInputType? textInputType;
@@ -10,7 +10,7 @@ class AuthTextField extends StatelessWidget {
   final String? Function(String? value)? validator;
   final TextEditingController? controller;
 
-  const AuthTextField({
+  const TWTextField({
     super.key, required this.hintText, this.textInputType, this.icon, this.validator, this.controller
   });
 

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:image_cropper/image_cropper.dart';
 
 class TWSelectFile extends StatefulWidget {
 
@@ -55,6 +56,7 @@ class _TWSelectFileState extends State<TWSelectFile> {
         border: InputBorder.none
       ),
       child: InkWell(
+
         onTapUp: (_) async {
           final FilePickerResult? result = await FilePicker.platform.pickFiles(
             type: widget.fileType,
@@ -64,8 +66,37 @@ class _TWSelectFileState extends State<TWSelectFile> {
       
           if(result != null){
             _file = File(result.files.single.path!);
+
+          if(widget.fileType == FileType.image){
+            
+            final croppedFile = await ImageCropper().cropImage(
+                  sourcePath: _file!.path,
+                  aspectRatio: const CropAspectRatio(ratioX: 1.0, ratioY: 1.0),
+                  aspectRatioPresets: [
+                    CropAspectRatioPreset.square,
+                  ],
+                  uiSettings: [
+                    AndroidUiSettings(
+                        toolbarTitle: 'Cropper',
+                        toolbarColor: Colors.grey.shade700,
+                        toolbarWidgetColor: Colors.white,
+                        initAspectRatio: CropAspectRatioPreset.original,
+                        lockAspectRatio: false),
+                  ],
+                );
+            
+            if (croppedFile != null) {
+              final String? prevName = result.names.first;
+              _file = File(croppedFile.path)..rename('$prevName cropped');
+              String size = await _fileSizeStr(_file); 
+              setState(() => _message = '${result.names.first} - $size' );
+            }
+
+          }
+          else{
             String size = await _fileSizeStr(_file); 
             setState(() => _message = '${result.names.first} - $size' );
+          }
           }
           else{
             _file = null;

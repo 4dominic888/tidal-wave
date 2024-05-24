@@ -84,7 +84,7 @@ class _TWSelectFileState extends State<TWSelectFile> {
                         ],
                         uiSettings: [
                           AndroidUiSettings(
-                            toolbarTitle: 'Cropper',
+                            toolbarTitle: 'Recortar imagen',
                             toolbarColor: Colors.grey.shade700,
                             toolbarWidgetColor: Colors.white,
                             initAspectRatio: CropAspectRatioPreset.square,
@@ -94,13 +94,11 @@ class _TWSelectFileState extends State<TWSelectFile> {
                       );
                   
                   if (croppedFile != null) {
-                    final String? prevName = result.names.first;
-                    _file = File(croppedFile.path)..rename('$prevName cropped');
+                    _file = File(croppedFile.path);
                     String size = await _fileSizeStr(_file);
                     _showImage = true;
                     setState(() => _message = '${result.names.first} - $size' );
                   }
-          
                 }
                 else{
                   String size = await _fileSizeStr(_file);
@@ -142,10 +140,13 @@ class _TWSelectFileState extends State<TWSelectFile> {
               Column(
                 children: [
                   const SizedBox(height: 20),
-                  Image.file(
-                    _file!,
-                    width: 300,
-                    height: 300,
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.file(
+                      _file!,
+                      width: 200,
+                      height: 200,
+                    ),
                   ),
                 ],
               )

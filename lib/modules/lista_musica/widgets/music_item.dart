@@ -49,7 +49,7 @@ class MusicItem extends StatelessWidget {
             Expanded(
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                child: Text(music.artista, style: TextStyle(color: Colors.blue.shade100, fontSize: 12))
+                child: Text(music.artistasStr, style: TextStyle(color: Colors.blue.shade100, fontSize: 12))
               ),
             ),
             const SizedBox(width: 30),

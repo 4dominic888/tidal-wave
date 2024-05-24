@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tidal_wave/bloc/user_cubit.dart';
@@ -7,6 +8,7 @@ import 'package:tidal_wave/modules/home_page/screens/tw_account_nav.dart';
 import 'package:tidal_wave/modules/home_page/screens/tw_home_nav.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/tw_drawer.dart';
 import 'package:tidal_wave/modules/subir_musica/screens/upload_music_screen.dart';
+import 'package:tidal_wave/services/repositories/tw_user_repository.dart';
 
 class HomePageScreen extends StatefulWidget {
   const HomePageScreen({super.key});
@@ -43,6 +45,20 @@ class _HomePageScreenState extends State<HomePageScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    FirebaseAuth.instance.authStateChanges().listen((user) async {
+      if (user?.uid != null) {
+        final twur = TWUserRepository();
+        final result = await twur.getOne(user!.uid);
+        // ignore: use_build_context_synchronously
+        context.read<UserCubit>().user = result.data;
+      }
+      else{
+        context.read<UserCubit>().user = null;
+      }
+      setState(() {});
+    });
+
     _drawerOptions.clear();
 
     if(context.read<UserCubit>().state == null){

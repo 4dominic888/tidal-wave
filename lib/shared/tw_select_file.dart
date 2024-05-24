@@ -1,9 +1,11 @@
+// ignore_for_file: use_build_context_synchronously
 import 'dart:io';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:tidal_wave/shared/controllers/tw_select_file_controller.dart';
+import 'package:tidal_wave/shared/popup_message.dart';
 
 class TWSelectFile extends StatefulWidget {
 
@@ -12,6 +14,7 @@ class TWSelectFile extends StatefulWidget {
   final String labelText;
   final String? Function(File? value)? validator;
   final TWSelectFileController? controller;
+  final int megaBytesLimit;
 
   ///* Mostrar imagen solo si el tipo de archivo es una imagen
   final bool? showImage;
@@ -21,6 +24,7 @@ class TWSelectFile extends StatefulWidget {
     required this.message,
     required this.fileType,
     required this.labelText,
+    required this.megaBytesLimit,
     this.showImage = false,
     this.validator,
     this.controller,
@@ -86,34 +90,45 @@ class _TWSelectFileState extends State<TWSelectFile> {
                     _file = File(result.files.single.path!);
               
                     if(widget.fileType == FileType.image){
-                      
                       final croppedFile = await ImageCropper().cropImage(
-                            sourcePath: _file!.path,
-                            aspectRatio: const CropAspectRatio(ratioX: 1.0, ratioY: 1.0),
-                            aspectRatioPresets: [
-                              CropAspectRatioPreset.square,
-                            ],
-                            uiSettings: [
-                              AndroidUiSettings(
-                                toolbarTitle: 'Recortar imagen',
-                                toolbarColor: Colors.grey.shade700,
-                                toolbarWidgetColor: Colors.white,
-                                initAspectRatio: CropAspectRatioPreset.square,
-                                lockAspectRatio: true
-                              ),
-                            ],
-                          );
-                      
+                        sourcePath: _file!.path,
+                        aspectRatio: const CropAspectRatio(ratioX: 1.0, ratioY: 1.0),
+                        aspectRatioPresets: [
+                          CropAspectRatioPreset.square,
+                        ],
+                        uiSettings: [
+                          AndroidUiSettings(
+                            toolbarTitle: 'Recortar imagen',
+                            toolbarColor: Colors.grey.shade700,
+                            toolbarWidgetColor: Colors.white,
+                            initAspectRatio: CropAspectRatioPreset.square,
+                            lockAspectRatio: true
+                          ),
+                        ],
+                      );
+
                       if (croppedFile != null) {
                         _file = File(croppedFile.path);
-                        String size = await _fileSizeStr(_file);
-                        _showImage = true;
-                        setState(() => _message = '${result.names.first} - $size' );
+
+                        if(_file!.lengthSync() >= widget.megaBytesLimit*1000000){
+                          await showDialog(context: context, builder: (context) => PopupMessage(title: 'Advertencia', description: 'El archivo no debe ser mayor a ${widget.megaBytesLimit} MB'));
+                        }
+                        else{
+                          String size = await _fileSizeStr(_file);
+                          _showImage = true;
+                          setState(() => _message = '${result.names.first} - $size' );
+                        }
                       }
                     }
                     else{
-                      String size = await _fileSizeStr(_file);
-                      setState(() => _message = '${result.names.first} - $size' );
+
+                      if(_file!.lengthSync() >= widget.megaBytesLimit*1000000){
+                        await showDialog(context: context, builder: (context) => PopupMessage(title: 'Advertencia', description: 'El archivo no debe ser mayor a ${widget.megaBytesLimit} MB'));
+                      }
+                      else{
+                        String size = await _fileSizeStr(_file);
+                        setState(() => _message = '${result.names.first} - $size' );
+                      }
                     }
                   }
                   else{
@@ -155,10 +170,18 @@ class _TWSelectFileState extends State<TWSelectFile> {
                       const SizedBox(height: 20),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(10),
-                        child: Image.file(
-                          _file!,
-                          width: 200,
-                          height: 200,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors.grey.shade800,
+                              width: 10,
+                            )
+                          ),
+                          child: Image.file(
+                            _file!,
+                            width: 200,
+                            height: 200,
+                          ),
                         ),
                       ),
                     ],

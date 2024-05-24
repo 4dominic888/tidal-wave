@@ -49,13 +49,14 @@ class UploadMusicScreen extends StatelessWidget {
                 )
               ),
 
-              //* Musica file
+              //* Imagen de musica
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 child: TWSelectFile(
                   labelText: 'Imagen de musica (Opcional)',
                   message: 'Selecciona una imagen',
                   fileType: FileType.image,
+                  showImage: true,
                 )
               ),
 

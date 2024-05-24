@@ -10,8 +10,11 @@ class TWSelectFile extends StatefulWidget {
   final FileType fileType;
   final String labelText;
 
+  ///* Mostrar imagen solo si el tipo de archivo es una imagen
+  final bool? showImage;
+
   const TWSelectFile({
-    super.key, required this.message, required this.fileType, required this.labelText,
+    super.key, required this.message, required this.fileType, required this.labelText, this.showImage = false,
   });
 
   @override
@@ -21,7 +24,8 @@ class TWSelectFile extends StatefulWidget {
 class _TWSelectFileState extends State<TWSelectFile> {
 
   late String _message;
-  late File? _file;
+  late bool _showImage = false;
+  File? _file;
 
   @override
   void initState() {
@@ -55,76 +59,98 @@ class _TWSelectFileState extends State<TWSelectFile> {
         labelText: widget.labelText,
         border: InputBorder.none
       ),
-      child: InkWell(
-
-        onTapUp: (_) async {
-          final FilePickerResult? result = await FilePicker.platform.pickFiles(
-            type: widget.fileType,
-            allowMultiple: false,
-            withReadStream: true
-          );
-      
-          if(result != null){
-            _file = File(result.files.single.path!);
-
-          if(widget.fileType == FileType.image){
-            
-            final croppedFile = await ImageCropper().cropImage(
-                  sourcePath: _file!.path,
-                  aspectRatio: const CropAspectRatio(ratioX: 1.0, ratioY: 1.0),
-                  aspectRatioPresets: [
-                    CropAspectRatioPreset.square,
-                  ],
-                  uiSettings: [
-                    AndroidUiSettings(
-                        toolbarTitle: 'Cropper',
-                        toolbarColor: Colors.grey.shade700,
-                        toolbarWidgetColor: Colors.white,
-                        initAspectRatio: CropAspectRatioPreset.original,
-                        lockAspectRatio: false),
-                  ],
-                );
-            
-            if (croppedFile != null) {
-              final String? prevName = result.names.first;
-              _file = File(croppedFile.path)..rename('$prevName cropped');
-              String size = await _fileSizeStr(_file); 
-              setState(() => _message = '${result.names.first} - $size' );
-            }
-
-          }
-          else{
-            String size = await _fileSizeStr(_file); 
-            setState(() => _message = '${result.names.first} - $size' );
-          }
-          }
-          else{
-            _file = null;
-            setState(() => _message = widget.message);
-          }
-      
-        },
-        child: Container(
-          width: MediaQuery.of(context).size.width,
-          height: 80,
-          color: Colors.grey.shade900,
-          child: DottedBorder(
-            color: Colors.grey.shade600,
-            strokeCap: StrokeCap.butt,
-            strokeWidth: 2,
-            dashPattern: const [10,5],
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 18.0, right: 18.0),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Text(_message, 
-                    style: TextStyle(color: Colors.grey.shade500, fontWeight: FontWeight.bold)),
+      child: Column(
+        children: [
+          
+          //* Selectable file
+          InkWell(
+            onTapUp: (_) async {
+              final FilePickerResult? result = await FilePicker.platform.pickFiles(
+                type: widget.fileType,
+                allowMultiple: false,
+                withReadStream: true
+              );
+          
+              if(result != null){
+                _file = File(result.files.single.path!);
+          
+                if(widget.fileType == FileType.image){
+                  
+                  final croppedFile = await ImageCropper().cropImage(
+                        sourcePath: _file!.path,
+                        aspectRatio: const CropAspectRatio(ratioX: 1.0, ratioY: 1.0),
+                        aspectRatioPresets: [
+                          CropAspectRatioPreset.square,
+                        ],
+                        uiSettings: [
+                          AndroidUiSettings(
+                            toolbarTitle: 'Cropper',
+                            toolbarColor: Colors.grey.shade700,
+                            toolbarWidgetColor: Colors.white,
+                            initAspectRatio: CropAspectRatioPreset.square,
+                            lockAspectRatio: true
+                          ),
+                        ],
+                      );
+                  
+                  if (croppedFile != null) {
+                    final String? prevName = result.names.first;
+                    _file = File(croppedFile.path)..rename('$prevName cropped');
+                    String size = await _fileSizeStr(_file);
+                    _showImage = true;
+                    setState(() => _message = '${result.names.first} - $size' );
+                  }
+          
+                }
+                else{
+                  String size = await _fileSizeStr(_file);
+                  setState(() => _message = '${result.names.first} - $size' );
+                }
+              }
+              else{
+                _file = null;
+                setState(() => _message = widget.message);
+              }
+          
+            },
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              height: 80,
+              color: Colors.grey.shade900,
+              child: DottedBorder(
+                color: Colors.grey.shade600,
+                strokeCap: StrokeCap.butt,
+                strokeWidth: 2,
+                dashPattern: const [10,5],
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 18.0, right: 18.0),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Text(_message, 
+                        style: TextStyle(color: Colors.grey.shade500, fontWeight: FontWeight.bold)),
+                    ),
+                  )
                 ),
-              )
+              ),
             ),
           ),
-        ),
+
+          //* Imagen si lo hubiera
+          if(widget.showImage! && widget.fileType == FileType.image && _showImage)
+            if(_file != null)
+              Column(
+                children: [
+                  const SizedBox(height: 20),
+                  Image.file(
+                    _file!,
+                    width: 300,
+                    height: 300,
+                  ),
+                ],
+              )
+          else const SizedBox.shrink()
+        ],
       ),
     );
   }

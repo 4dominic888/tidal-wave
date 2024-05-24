@@ -3,7 +3,7 @@ import 'package:tidal_wave/modules/reproductor_musica/classes/musica.dart';
 class StaticMusic {
     static List<Music> musicas = [
       Music(
-        index: 0,
+        0,
         titulo: 'Babaroque (WHAT Ver.)',
         artista: 'cYsmix',
         musica: Uri.parse('asset:/assets/music/cYsmix - Babaroque (WHAT Ver.).mp3'),
@@ -12,7 +12,7 @@ class StaticMusic {
         duration: const Duration(minutes: 1, seconds: 11)
       ),
       Music(
-        index: 1,
+        1,
         titulo: 'Phone Me First',
         artista: 'cYsmix',
         musica: Uri.parse('asset:/assets/music/cYsmix - Phone Me First.mp3'),
@@ -21,7 +21,7 @@ class StaticMusic {
         duration: const Duration(minutes: 2, seconds: 47)
       ),
       Music(
-        index: 2,
+        2,
         titulo: 'Eight O\'Eigh',
         artista: 'Demonicity',
         musica: Uri.parse('asset:/assets/music/Demonicity - Eight O\'Eight.mp3'),
@@ -31,7 +31,7 @@ class StaticMusic {
       ),
       //* Primera musica sacada de firebase
       Music(
-        index: 3,
+        3,
         titulo: 'Oye Mujer',
         artista: 'Ke Personajes',
         musica: Uri.parse('https://firebasestorage.googleapis.com/v0/b/loginapp-2b19d.appspot.com/o/Musica%2FKe%20Personajes%20-%20Oye%20Mujer.mp3?alt=media&token=eee7faf5-74c3-4cb4-a654-077824f4a477'),

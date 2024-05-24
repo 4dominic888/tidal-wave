@@ -6,6 +6,7 @@ import 'package:tidal_wave/modules/autenticacion_usuario/screens/register_screen
 import 'package:tidal_wave/modules/home_page/screens/tw_account_nav.dart';
 import 'package:tidal_wave/modules/home_page/screens/tw_home_nav.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/tw_drawer.dart';
+import 'package:tidal_wave/modules/subir_musica/screens/upload_music_screen.dart';
 
 class HomePageScreen extends StatefulWidget {
   const HomePageScreen({super.key});
@@ -46,19 +47,15 @@ class _HomePageScreenState extends State<HomePageScreen> {
 
     if(context.read<UserCubit>().state == null){
       _drawerOptions.addAll([
-        {"Iniciar sesion": (){
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
-        }},
-        {"Registrarse": () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen()));
-        }}
+        { "Iniciar sesion": () => Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginScreen())) },
+        { "Registrarse":    () => Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen())) }
       ]);
     }
     else{
       _drawerOptions.addAll([
         {"Canciones favoritas": (){}},
         {"Historial de canciones": (){}},
-        {"Sube tu canción": (){}},
+        { "Sube tu canción": () => Navigator.push(context, MaterialPageRoute(builder: (context) => const UploadMusicScreen())) },
       ]);
     }
     _drawerOptions.add({

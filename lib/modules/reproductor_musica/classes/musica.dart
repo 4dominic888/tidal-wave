@@ -2,23 +2,24 @@ import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 
 class Music {
-  int index;
-  String titulo;
-  String artista;
-  Uri? imagen;
-  Uri musica;
+  final int _index;
+  final String titulo;
+  final String artista;
+  final Uri? imagen;
+  final Uri musica;
+  final Duration duration;
   bool? favorito = false;
-  Duration duration;
 
-  Music({
-    required this.index,
+  Music(int? index,{
     required this.titulo,
     required this.artista,
     required this.musica,
     required this.duration,
     this.imagen,
     this.favorito,
-  });
+  }) : _index = index ?? -1;
+
+  int get index => _index;
 
   String get durationString {
     String formattedDuration = '';

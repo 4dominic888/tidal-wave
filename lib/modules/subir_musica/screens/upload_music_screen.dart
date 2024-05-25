@@ -1,10 +1,10 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:audio_duration/audio_duration.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:tidal_wave/modules/reproductor_musica/classes/musica.dart';
 import 'package:tidal_wave/services/firebase_storage_service.dart';
 import 'package:tidal_wave/services/repositories/tw_music_repository.dart';
@@ -29,30 +29,35 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
   final _artistController = TextEditingController();
   final _musicController = TWSelectFileController();
   final _imageController = TWSelectFileController();
+  bool _onLoad = false;
 
   void onSubmit() async {
     if(_formKey.currentState!.validate()){
+      setState(() =>_onLoad = true);
+
       final String uuid = const Uuid().v4();
-      final bool hasImage = _imageController.value == null;
-      final musicUploadResult = await FirebaseStorageService.uploadFile('music', 'm-$uuid', _musicController.value!);
+      final bool hasImage = _imageController.value != null;
       late final Result<String> imageUploadResult;
+
+      final musicUploadResult = await FirebaseStorageService.uploadFile('music', 'm-$uuid', _musicController.value!);
 
       if (!musicUploadResult.onSuccess) {
         showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: musicUploadResult.errorMessage!));
+        setState(() =>_onLoad = false);
         return;
       }
 
-      if (_imageController.value != null) {
+      if (hasImage) {
         imageUploadResult = await FirebaseStorageService.uploadFile('music-thumb', 'i-$uuid', _imageController.value!);
         if(!imageUploadResult.onSuccess){
           FirebaseStorageService.deleteFileWithURL(musicUploadResult.data!);
           showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: imageUploadResult.errorMessage!));
+          setState(() =>_onLoad = false);
           return;
         }
       }
 
-      final player = AudioPlayer();
-      final duration = await player.setFilePath(_musicController.value!.path);
+      final int durationMs = await AudioDuration.getAudioDuration(_musicController.value!.path) ?? 0;
 
       Music music = Music.byUID(
         -1,
@@ -60,7 +65,7 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
         artistas: [_artistController.text],
         musica: Uri.parse(musicUploadResult.data!),
         imagen: Uri.parse(imageUploadResult.data!),
-        duration: duration!,
+        duration: Duration(milliseconds: durationMs),
         stars: 0,
         uploadAt: Timestamp.now(),
         userId: FirebaseAuth.instance.currentUser!.uid,
@@ -74,10 +79,12 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
           FirebaseStorageService.deleteFileWithURL(imageUploadResult.data!);
         }
         showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: finalResult.errorMessage!));
+        setState(() =>_onLoad = false);
         return;
       }
 
       showDialog(context: context, builder: (context) => const PopupMessage(title: 'Exito', description: 'La imagen ha sido enviada con exito'));
+      setState(() =>_onLoad = false);
     }
   }
 
@@ -146,7 +153,7 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
                     fileType: FileType.audio,
                     megaBytesLimit: 20,
                     validator: (value) {
-                      if(value == null){
+                      if(_musicController.value == null){
                         return "Archivo no proporcionado";
                       }
                       return null;
@@ -167,7 +174,7 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
                   )
                 ),
           
-                //* Login button
+                //* Upload music button
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   child: ElevatedButton(
@@ -179,6 +186,12 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
                     child: const Text('Subir musica')
                   ),
                 ),
+
+                //* Circular progress indicator
+                _onLoad ? const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: Center(child: CircularProgressIndicator(color: Colors.blueAccent)),
+                ) : const SizedBox.shrink()
             ],
           ),
         ),

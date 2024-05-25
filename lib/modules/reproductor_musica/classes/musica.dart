@@ -85,7 +85,8 @@ class Music {
     return {
       "title": titulo,
       "artist": jsonEncode(artistas),
-      "musicUri": musica,
+      "musicUri": musica.toString(),
+      "artUri": imagen.toString(),
       "duration": duration.inMilliseconds,
       "stars": stars,
       "upload_at": uploadAt,

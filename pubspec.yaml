@@ -29,6 +29,7 @@ dependencies:
   image_cropper: ^6.0.0
   uuid: ^4.4.0
   firebase_storage: ^11.7.6
+  audio_duration: ^0.0.3
   
 
 dev_dependencies:

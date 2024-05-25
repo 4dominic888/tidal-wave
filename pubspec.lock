@@ -17,6 +17,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.11.0"
+  audio_duration:
+    dependency: "direct main"
+    description:
+      name: audio_duration
+      sha256: "746e6e881860cca64a81cb594adff925b9582b310523ce455148f08e11cab227"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.3"
   audio_service:
     dependency: transitive
     description:

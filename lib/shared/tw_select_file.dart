@@ -85,11 +85,17 @@ class _TWSelectFileState extends State<TWSelectFile> {
                     allowMultiple: false,
                     withReadStream: true
                   );
-              
-                  if(result != null){
-                    _file = File(result.files.single.path!);
-              
-                    if(widget.fileType == FileType.image){
+
+                  if(result == null){
+                    _file = null;
+                    widget.controller?.setValue = _file;
+                    return;
+                  }
+
+                  _file = File(result.files.single.path!);
+                  widget.controller?.setValue = _file;
+
+                  if (widget.fileType == FileType.image) {
                       final croppedFile = await ImageCropper().cropImage(
                         sourcePath: _file!.path,
                         aspectRatio: const CropAspectRatio(ratioX: 1.0, ratioY: 1.0),
@@ -107,37 +113,27 @@ class _TWSelectFileState extends State<TWSelectFile> {
                         ],
                       );
 
-                      if (croppedFile != null) {
-                        _file = File(croppedFile.path);
+                      if(croppedFile == null){
+                        _file = null;
+                        widget.controller?.setValue = _file;
+                        return;
+                      }
 
-                        if(_file!.lengthSync() >= widget.megaBytesLimit*1000000){
-                          await showDialog(context: context, builder: (context) => PopupMessage(title: 'Advertencia', description: 'El archivo no debe ser mayor a ${widget.megaBytesLimit} MB'));
-                        }
-                        else{
-                          String size = await _fileSizeStr(_file);
-                          _showImage = true;
-                          setState(() => _message = '${result.names.first} - $size' );
-                        }
-                      }
-                    }
-                    else{
-
-                      if(_file!.lengthSync() >= widget.megaBytesLimit*1000000){
-                        await showDialog(context: context, builder: (context) => PopupMessage(title: 'Advertencia', description: 'El archivo no debe ser mayor a ${widget.megaBytesLimit} MB'));
-                      }
-                      else{
-                        String size = await _fileSizeStr(_file);
-                        setState(() => _message = '${result.names.first} - $size' );
-                      }
-                    }
+                      _file = File(croppedFile.path);
+                      _showImage = true;
+                      widget.controller?.setValue = _file;
                   }
-                  else{
+
+                  if(_file!.lengthSync() >= widget.megaBytesLimit*1000000){
+                    await showDialog(context: context, builder: (context) => PopupMessage(title: 'Advertencia', description: 'El archivo no debe ser mayor a ${widget.megaBytesLimit} MB'));
                     _file = null;
-                    setState(() => _message = widget.message);
+                    widget.controller?.setValue = _file;
+                    return;
                   }
+                  
+                  String size = await _fileSizeStr(_file);
+                  setState(() => _message = '${result.names.first} - $size');
 
-                  widget.controller?.setValue = _file;
-              
                 },
                 child: Container(
                   width: MediaQuery.of(context).size.width,

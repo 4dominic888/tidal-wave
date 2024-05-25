@@ -11,7 +11,7 @@ class FirebaseAuthService {
   static Future<Result<TWUser>> registerUser(TWUser twUser, String password) async{
     try {
       final userCredential = await _auth.createUserWithEmailAndPassword(email: twUser.email, password: password);
-      return await _twUserRepository.setOne(twUser, userCredential.user!.uid);
+      return await _twUserRepository.addOne(twUser, userCredential.user!.uid);
     } on FirebaseAuthException catch (e) {
       if(e.code == "email-already-in-use"){
         return Result.error('El email proporcionado ya ha sido registrado, intente con otro.');

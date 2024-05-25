@@ -1,12 +1,92 @@
-import 'dart:io';
+// ignore_for_file: use_build_context_synchronously
 
-import 'package:dotted_border/dotted_border.dart';
+import 'package:audio_duration/audio_duration.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:tidal_wave/modules/reproductor_musica/classes/musica.dart';
+import 'package:tidal_wave/services/firebase_storage_service.dart';
+import 'package:tidal_wave/services/repositories/tw_music_repository.dart';
+import 'package:tidal_wave/shared/controllers/tw_select_file_controller.dart';
+import 'package:tidal_wave/shared/popup_message.dart';
+import 'package:tidal_wave/shared/result.dart';
+import 'package:tidal_wave/shared/tw_select_file.dart';
 import 'package:tidal_wave/shared/tw_text_field.dart';
+import 'package:uuid/uuid.dart';
 
-class UploadMusicScreen extends StatelessWidget {
+class UploadMusicScreen extends StatefulWidget {
   const UploadMusicScreen({super.key});
+
+  @override
+  State<UploadMusicScreen> createState() => _UploadMusicScreenState();
+}
+
+class _UploadMusicScreenState extends State<UploadMusicScreen> {
+
+  final _formKey = GlobalKey<FormState>();
+  final _titleController = TextEditingController();
+  final _artistController = TextEditingController();
+  final _musicController = TWSelectFileController();
+  final _imageController = TWSelectFileController();
+  bool _onLoad = false;
+
+  void onSubmit() async {
+    if(_formKey.currentState!.validate()){
+      setState(() =>_onLoad = true);
+
+      final String uuid = const Uuid().v4();
+      final bool hasImage = _imageController.value != null;
+      late final Result<String> imageUploadResult;
+
+      final musicUploadResult = await FirebaseStorageService.uploadFile('music', 'm-$uuid', _musicController.value!);
+
+      if (!musicUploadResult.onSuccess) {
+        showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: musicUploadResult.errorMessage!));
+        setState(() =>_onLoad = false);
+        return;
+      }
+
+      if (hasImage) {
+        imageUploadResult = await FirebaseStorageService.uploadFile('music-thumb', 'i-$uuid', _imageController.value!);
+        if(!imageUploadResult.onSuccess){
+          FirebaseStorageService.deleteFileWithURL(musicUploadResult.data!);
+          showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: imageUploadResult.errorMessage!));
+          setState(() =>_onLoad = false);
+          return;
+        }
+      }
+
+      final int durationMs = await AudioDuration.getAudioDuration(_musicController.value!.path) ?? 0;
+
+      Music music = Music.byUID(
+        -1,
+        titulo: _titleController.text,
+        artistas: [_artistController.text],
+        musica: Uri.parse(musicUploadResult.data!),
+        imagen: Uri.parse(imageUploadResult.data!),
+        duration: Duration(milliseconds: durationMs),
+        stars: 0,
+        uploadAt: Timestamp.now(),
+        userId: FirebaseAuth.instance.currentUser!.uid,
+      );
+
+      final finalResult = await TWMusicRepository().addOne(music, uuid);
+
+      if (!finalResult.onSuccess) {
+        FirebaseStorageService.deleteFileWithURL(musicUploadResult.data!);
+        if(hasImage) {
+          FirebaseStorageService.deleteFileWithURL(imageUploadResult.data!);
+        }
+        showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: finalResult.errorMessage!));
+        setState(() =>_onLoad = false);
+        return;
+      }
+
+      showDialog(context: context, builder: (context) => const PopupMessage(title: 'Exito', description: 'La imagen ha sido enviada con exito'));
+      setState(() =>_onLoad = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,162 +97,114 @@ class UploadMusicScreen extends StatelessWidget {
         foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-
-              //* Titulo
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: TWTextField(
-                  hintText: 'Titulo',
-                  textInputType: TextInputType.emailAddress,
-                  icon: Icon(Icons.text_fields_rounded),
-                ),
-              ),
-
-              //* Artista
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: TWTextField(
-                  hintText: 'Artista',
-                  textInputType: TextInputType.emailAddress,
-                  icon: Icon(Icons.person_2_sharp),
-                ),
-              ),
-
-              //* Musica file
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: TWSelectFile(
-                  labelText: 'Musica',
-                  message: 'Selecciona el archivo de musica',
-                  fileType: FileType.audio,
-                )
-              ),
-
-              //* Musica file
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: TWSelectFile(
-                  labelText: 'Imagen de musica (Opcional)',
-                  message: 'Selecciona una imagen',
-                  fileType: FileType.image,
-                )
-              ),
-
-              //* Login button
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey,
-                    foregroundColor: Colors.white
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+          
+                //* Titulo
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: TWTextField(
+                    controller: _titleController,
+                    hintText: 'Titulo',
+                    textInputType: TextInputType.emailAddress,
+                    icon: const Icon(Icons.text_fields_rounded),
+                    validator: (value) {
+                      if(value == null || value.trim().isEmpty){
+                        return "Campo no proporcionado";
+                      }
+                      if(value.length <= 2 || value.length > 50){
+                        return "El campo debe ser mayor a 2 y menor a 50 caracteres";
+                      }
+                      return null;
+                    },
                   ),
-                  onPressed: (){},
-                  child: const Text('Subir musica')
                 ),
-              ),
-
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class TWSelectFile extends StatefulWidget {
-
-  final String message;
-  final FileType fileType;
-  final String labelText;
-
-  const TWSelectFile({
-    super.key, required this.message, required this.fileType, required this.labelText,
-  });
-
-  @override
-  State<TWSelectFile> createState() => _TWSelectFileState();
-}
-
-class _TWSelectFileState extends State<TWSelectFile> {
-
-  late String _message;
-  late File? _file;
-
-  @override
-  void initState() {
-    super.initState();
-    _message = widget.message;
-  }
-
-  Future<String> _fileSizeStr(File? file) async {
-    if (file == null) {
-      return '0 B';
-    }
-
-    int bytes = await file.length();
-
-    if (bytes > 1000000) {
-      return '${(bytes/1000000).toStringAsFixed(2)} MB';
-    }
-
-    if (bytes > 1000) {
-      return '${(bytes/1000).toStringAsFixed(2)} KB';
-    }
-
-    return '$bytes B';
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return InputDecorator(
-      decoration: InputDecoration(
-        labelStyle: TextStyle(color: Colors.grey.shade500),
-        labelText: widget.labelText,
-        border: InputBorder.none
-      ),
-      child: InkWell(
-        onTapUp: (_) async {
-          final FilePickerResult? result = await FilePicker.platform.pickFiles(
-            type: widget.fileType,
-            allowMultiple: false,
-            withReadStream: true
-          );
-      
-          if(result != null){
-            _file = File(result.files.single.path!);
-            String size = await _fileSizeStr(_file); 
-            setState(() => _message = '${result.names.first} - $size' );
-          }
-          else{
-            _file = null;
-            setState(() => _message = widget.message);
-          }
-      
-        },
-        child: Container(
-          width: MediaQuery.of(context).size.width,
-          height: 80,
-          color: Colors.grey.shade900,
-          child: DottedBorder(
-            color: Colors.grey.shade600,
-            strokeCap: StrokeCap.butt,
-            strokeWidth: 2,
-            dashPattern: const [10,5],
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 18.0, right: 18.0),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Text(_message, 
-                    style: TextStyle(color: Colors.grey.shade500, fontWeight: FontWeight.bold)),
+          
+                //* Artista
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: TWTextField(
+                    controller: _artistController,
+                    hintText: 'Artista',
+                    textInputType: TextInputType.emailAddress,
+                    icon: const Icon(Icons.person_2_sharp),
+                    validator: (value) {
+                      if(value == null || value.trim().isEmpty){
+                        return "Campo no proporcionado";
+                      }
+                      if(value.length <= 2 || value.length > 50){
+                        return "El campo debe ser mayor a 2 y menor a 50 caracteres";
+                      }
+                      return null;
+                    },
+                  ),
                 ),
-              )
-            ),
+          
+                //* Musica file
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: TWSelectFile(
+                    controller: _musicController,
+                    labelText: 'Musica',
+                    message: 'Selecciona el archivo de musica',
+                    fileType: FileType.audio,
+                    megaBytesLimit: 20,
+                    validator: (value) {
+                      if(_musicController.value == null){
+                        return "Archivo no proporcionado";
+                      }
+                      return null;
+                    },
+                  )
+                ),
+          
+                //* Imagen de musica
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: TWSelectFile(
+                    controller: _imageController,
+                    labelText: 'Imagen de musica (Opcional)',
+                    message: 'Selecciona una imagen',
+                    fileType: FileType.image,
+                    megaBytesLimit: 10,
+                    showImage: true,
+                  )
+                ),
+          
+                //* Upload music button
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey,
+                      foregroundColor: Colors.white
+                    ),
+                    onPressed: onSubmit,
+                    child: const Text('Subir musica')
+                  ),
+                ),
+
+                //* Circular progress indicator
+                _onLoad ? const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: Center(child: CircularProgressIndicator(color: Colors.blueAccent)),
+                ) : const SizedBox.shrink()
+            ],
           ),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _artistController.dispose();
+    _musicController.dispose();
+    _imageController.dispose();
+    super.dispose();
   }
 }

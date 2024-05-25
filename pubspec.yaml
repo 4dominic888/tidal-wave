@@ -26,6 +26,10 @@ dependencies:
   cloud_firestore: ^4.17.4
   dotted_border: ^2.1.0
   file_picker: ^8.0.3
+  image_cropper: ^6.0.0
+  uuid: ^4.4.0
+  firebase_storage: ^11.7.6
+  audio_duration: ^0.0.3
   
 
 dev_dependencies:

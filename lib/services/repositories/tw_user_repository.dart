@@ -30,19 +30,13 @@ class TWUserRepository extends RepositoryBase<TWUser> {
   }
 
   @override
-  Future<Result<TWUser>> addOne(TWUser data) async {
+  Future<Result<TWUser>> addOne(TWUser data, String? id) async {
     try {
-      await context.addOne(collectionName, data.toJson());
-      return Result.sucess(data);
-    } on Exception catch (e) {
-      return Result.error('Ha ocurrido un error: $e');
-    }
-  }
-
-  @override
-  Future<Result<TWUser>> setOne(TWUser data, String id) async {
-    try {
-      await context.setOne(collectionName, data.toJson(), id);
+      if(id == null){
+        await context.addOne(collectionName, data.toJson());
+      } else{
+        await context.setOne(collectionName, data.toJson(), id);
+      }
       return Result.sucess(data);
     } on Exception catch (e) {
       return Result.error('Ha ocurrido un error: $e');

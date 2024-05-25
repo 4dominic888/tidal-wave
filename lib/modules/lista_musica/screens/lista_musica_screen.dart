@@ -47,7 +47,7 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
                   return true;
                 }
                 return element.titulo.toLowerCase().contains(value.toLowerCase().trim()) ||
-                      element.artista.toLowerCase().contains(value.toLowerCase().trim());
+                      element.artistasStr.toLowerCase().contains(value.toLowerCase().trim());
 
               }).toList();              
             });

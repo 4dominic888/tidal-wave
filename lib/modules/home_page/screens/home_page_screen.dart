@@ -1,13 +1,16 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tidal_wave/bloc/music_cubit.dart';
 import 'package:tidal_wave/bloc/user_cubit.dart';
 import 'package:tidal_wave/modules/autenticacion_usuario/screens/login_screen.dart';
 import 'package:tidal_wave/modules/autenticacion_usuario/screens/register_screen.dart';
 import 'package:tidal_wave/modules/home_page/screens/tw_account_nav.dart';
 import 'package:tidal_wave/modules/home_page/screens/tw_home_nav.dart';
+import 'package:tidal_wave/modules/lista_musica/screens/lista_musica_screen.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/tw_drawer.dart';
 import 'package:tidal_wave/modules/subir_musica/screens/upload_music_screen.dart';
+import 'package:tidal_wave/services/repositories/tw_music_repository.dart';
 import 'package:tidal_wave/services/repositories/tw_user_repository.dart';
 
 class HomePageScreen extends StatefulWidget {
@@ -71,7 +74,12 @@ class _HomePageScreenState extends State<HomePageScreen> {
       _drawerOptions.addAll([
         {"Canciones favoritas": (){}},
         {"Historial de canciones": (){}},
-        { "Sube tu canción": () => Navigator.push(context, MaterialPageRoute(builder: (context) => const UploadMusicScreen())) },
+        {"Sube tu canción": () => Navigator.push(context, MaterialPageRoute(builder: (context) => const UploadMusicScreen())) },
+        {"Lista old": () async {
+          final tempList = await TWMusicRepository().getAll();
+          // ignore: use_build_context_synchronously
+          Navigator.push(context, MaterialPageRoute(builder: (context) => ListaMusicaScreen(listado: tempList.data ?? [])));
+        }}
       ]);
     }
     _drawerOptions.add({
@@ -114,5 +122,11 @@ class _HomePageScreenState extends State<HomePageScreen> {
         ),
         child: _currentScreen(_selectedIndex)),
     );
+  }
+
+  @override
+  void dispose() {
+    context.read<MusicCubit>().stopMusic(() {});
+    super.dispose();
   }
 }

@@ -28,9 +28,17 @@ class TWMusicRepository extends RepositoryBase<Music> {
   }
 
   @override
-  Future<Result<List<Music>>> getAll([bool Function(Map<String, dynamic> p1)? where, int limit = 10]) {
-    // TODO: implement getAll
-    throw UnimplementedError();
+  Future<Result<List<Music>>> getAll([bool Function(Map<String, dynamic> p1)? where, int limit = 10]) async {
+    try {
+      int index = -1;
+      final data = await context.getAll(collectionName, where, limit);
+      return Result.sucess(data.map((e) {
+        index++;
+        return Music.fromJson(e,index);
+      } ).toList());
+    } on Exception catch (e) {
+      return Result.error('Ha ocurrido un error: $e');
+    }
   }
 
   @override

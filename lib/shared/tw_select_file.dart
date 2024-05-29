@@ -114,12 +114,13 @@ class _TWSelectFileState extends State<TWSelectFile> {
                       );
 
                       if(croppedFile == null){
+                        await croppedFile!.readAsBytes();
                         _file = null;
                         widget.controller?.setValue = _file;
                         return;
                       }
 
-                      _file = File(croppedFile.path);
+                      await _file!.writeAsBytes(await croppedFile.readAsBytes());
                       _showImage = true;
                       widget.controller?.setValue = _file;
                   }

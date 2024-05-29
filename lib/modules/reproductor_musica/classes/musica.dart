@@ -39,9 +39,6 @@ class Music {
   }) : _index = index ?? -1;  
 
   factory Music.fromJson(Map<String,dynamic> json, int? index){
-
-    print(json);
-    
     return Music(index ?? -1,
       titulo: json['title'],
       artistas: json['artist'] is Iterable ? List.from(json['artist']) : [],

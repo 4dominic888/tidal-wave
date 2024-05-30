@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:async';
+
 import 'package:audio_duration/audio_duration.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
@@ -29,6 +31,10 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
   final _artistController = TextEditingController();
   final _musicController = TWSelectFileController();
   final _imageController = TWSelectFileController();
+
+  final _musicFileUploadStreamController = StreamController<double>();
+  final _imageFileUploadStreamController = StreamController<double>();
+
   bool _onLoad = false;
 
   void onSubmit() async {
@@ -39,7 +45,11 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
       final bool hasImage = _imageController.value != null;
       late final Result<String> imageUploadResult;
 
-      final musicUploadResult = await FirebaseStorageService.uploadFile('music', 'm-$uuid', _musicController.value!);
+      final musicUploadResult = await FirebaseStorageService.uploadFile('music', 'm-$uuid', _musicController.value!, onLoad: (value) {
+        _musicFileUploadStreamController.sink.add(
+          value.bytesTransferred / value.totalBytes
+        );
+      });
 
       if (!musicUploadResult.onSuccess) {
         showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: musicUploadResult.errorMessage!));
@@ -48,7 +58,11 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
       }
 
       if (hasImage) {
-        imageUploadResult = await FirebaseStorageService.uploadFile('music-thumb', 'i-$uuid', _imageController.value!);
+        imageUploadResult = await FirebaseStorageService.uploadFile('music-thumb', 'i-$uuid', _imageController.value!, onLoad: (value) {
+          _imageFileUploadStreamController.sink.add(
+            value.bytesTransferred / value.totalBytes
+          );
+        },);
         if(!imageUploadResult.onSuccess){
           FirebaseStorageService.deleteFileWithURL(musicUploadResult.data!);
           showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: imageUploadResult.errorMessage!));
@@ -83,7 +97,7 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
         return;
       }
 
-      showDialog(context: context, builder: (context) => const PopupMessage(title: 'Exito', description: 'La imagen ha sido enviada con exito'));
+      showDialog(context: context, builder: (context) => const PopupMessage(title: 'Exito', description: 'La cancion ha sido subida con exito a los servidores de tidal wave'));
       setState(() =>_onLoad = false);
     }
   }
@@ -142,7 +156,7 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
                     },
                   ),
                 ),
-          
+                
                 //* Musica file
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -152,7 +166,7 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
                     message: 'Selecciona el archivo de musica',
                     fileType: FileType.audio,
                     megaBytesLimit: 20,
-                    validator: (value) {
+                    validator: (_) {
                       if(_musicController.value == null){
                         return "Archivo no proporcionado";
                       }
@@ -160,7 +174,26 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
                     },
                   )
                 ),
-          
+
+                //* Progress bar music file
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 20.0, right: 20.0),
+                  child: StreamBuilder<double>(
+                    stream: _musicFileUploadStreamController.stream,
+                    builder: (context, snapshot) {
+                      if (snapshot.data != null && snapshot.data! > 0 && snapshot.data! < 1) {
+                        return LinearProgressIndicator(
+                          value: snapshot.data,
+                          color: snapshot.data! >= 1 ? Colors.green : Colors.blueAccent,
+                        );
+                      }
+                      else{
+                        return const SizedBox.shrink();
+                      }
+                    }
+                  ),
+                ),
+
                 //* Imagen de musica
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -173,7 +206,26 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
                     showImage: true,
                   )
                 ),
-          
+
+                //* Progress bar image file
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 20.0, right: 20.0),
+                  child: StreamBuilder<double>(
+                    stream: _imageFileUploadStreamController.stream,
+                    builder: (context, snapshot) {
+                      if (snapshot.data != null && snapshot.data! > 0 && snapshot.data! < 1) {
+                        return LinearProgressIndicator(
+                          value: snapshot.data,
+                          color: snapshot.data! >= 1 ? Colors.green : Colors.blueAccent,
+                        );
+                      }
+                      else{
+                        return const SizedBox.shrink();
+                      }
+                    }
+                  ),
+                ),
+
                 //* Upload music button
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -182,7 +234,7 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
                       backgroundColor: Colors.grey,
                       foregroundColor: Colors.white
                     ),
-                    onPressed: onSubmit,
+                    onPressed: _onLoad ? null : onSubmit,
                     child: const Text('Subir musica')
                   ),
                 ),
@@ -205,6 +257,9 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
     _artistController.dispose();
     _musicController.dispose();
     _imageController.dispose();
+
+    _musicFileUploadStreamController.close();
+    _imageFileUploadStreamController.close();
     super.dispose();
   }
 }

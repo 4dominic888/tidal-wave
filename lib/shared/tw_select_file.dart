@@ -116,7 +116,6 @@ class _TWSelectFileState extends State<TWSelectFile> {
                     _file = File(croppedFile.path);
                     _showImage = true;
                     widget.controller?.setValue = _file;
-
                   }
                   else{
                     final FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -126,6 +125,7 @@ class _TWSelectFileState extends State<TWSelectFile> {
 
                     if(result == null){
                       _file = null;
+
                       widget.controller?.setValue = _file;
                       return;
                     }

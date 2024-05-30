@@ -6,7 +6,7 @@ import 'package:tidal_wave/bloc/user_cubit.dart';
 import 'package:tidal_wave/shared/tw_text_field.dart';
 import 'package:tidal_wave/shared/popup_message.dart';
 import 'package:tidal_wave/modules/home_page/screens/home_page_screen.dart';
-import 'package:tidal_wave/services/firebase_auth_service.dart';
+import 'package:tidal_wave/services/firebase/firebase_auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

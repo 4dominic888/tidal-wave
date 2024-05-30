@@ -8,7 +8,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:tidal_wave/modules/reproductor_musica/classes/musica.dart';
-import 'package:tidal_wave/services/firebase_storage_service.dart';
+import 'package:tidal_wave/services/firebase/firebase_storage_service.dart';
 import 'package:tidal_wave/services/repositories/tw_music_repository.dart';
 import 'package:tidal_wave/shared/controllers/tw_select_file_controller.dart';
 import 'package:tidal_wave/shared/popup_message.dart';

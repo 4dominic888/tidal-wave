@@ -179,7 +179,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     backgroundColor: Colors.green,
                     foregroundColor: Colors.white
                   ),
-                  onPressed: onSubmit,
+                  onPressed: _onLoad ? null : onSubmit,
                   child: const Text('Registrarse')
                 ),
               ),

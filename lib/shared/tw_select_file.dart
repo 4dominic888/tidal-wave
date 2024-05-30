@@ -4,6 +4,8 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart';
 import 'package:tidal_wave/shared/controllers/tw_select_file_controller.dart';
 import 'package:tidal_wave/shared/popup_message.dart';
 
@@ -80,48 +82,56 @@ class _TWSelectFileState extends State<TWSelectFile> {
               //* Selectable file
               InkWell(
                 onTapUp: (_) async {
-                  final FilePickerResult? result = await FilePicker.platform.pickFiles(
-                    type: widget.fileType,
-                    allowMultiple: false,
-                    withReadStream: true
-                  );
-
-                  if(result == null){
-                    _file = null;
-                    widget.controller?.setValue = _file;
-                    return;
-                  }
-
-                  _file = File(result.files.single.path!);
-                  widget.controller?.setValue = _file;
-
-                  if (widget.fileType == FileType.image) {
-                      final croppedFile = await ImageCropper().cropImage(
-                        sourcePath: _file!.path,
-                        aspectRatio: const CropAspectRatio(ratioX: 1.0, ratioY: 1.0),
-                        aspectRatioPresets: [
-                          CropAspectRatioPreset.square,
-                        ],
-                        uiSettings: [
-                          AndroidUiSettings(
-                            toolbarTitle: 'Recortar imagen',
-                            toolbarColor: Colors.grey.shade700,
-                            toolbarWidgetColor: Colors.white,
-                            initAspectRatio: CropAspectRatioPreset.square,
-                            lockAspectRatio: true
-                          ),
-                        ],
-                      );
-
-                      if(croppedFile == null){
-                        _file = null;
-                        widget.controller?.setValue = _file;
-                        return;
-                      }
-
-                      _file = File(croppedFile.path);
-                      _showImage = true;
+                  if(widget.fileType == FileType.image){
+                    final result = await ImagePicker().pickImage(source: ImageSource.gallery);
+                    if(result == null) {
+                      _file = null;
                       widget.controller?.setValue = _file;
+                      return;
+                    }
+                    _file = File(result.path);
+
+                    final croppedFile = await ImageCropper().cropImage(
+                      sourcePath: _file!.path,
+                      aspectRatio: const CropAspectRatio(ratioX: 1.0, ratioY: 1.0),
+                      aspectRatioPresets: [
+                        CropAspectRatioPreset.square,
+                      ],
+                      uiSettings: [
+                        AndroidUiSettings(
+                          toolbarTitle: 'Recortar imagen',
+                          toolbarColor: Colors.grey.shade700,
+                          toolbarWidgetColor: Colors.white,
+                          initAspectRatio: CropAspectRatioPreset.square,
+                          lockAspectRatio: true
+                        ),
+                      ],
+                    );
+
+                    if(croppedFile == null){
+                      _file = null;
+                      widget.controller?.setValue = _file;
+                      return;
+                    }
+                    _file = File(croppedFile.path);
+                    _showImage = true;
+                    widget.controller?.setValue = _file;
+
+                  }
+                  else{
+                    final FilePickerResult? result = await FilePicker.platform.pickFiles(
+                      type: widget.fileType,
+                      withData: true
+                    );
+
+                    if(result == null){
+                      _file = null;
+                      widget.controller?.setValue = _file;
+                      return;
+                    }
+
+                    _file = File(result.files.first.path!);
+                    widget.controller?.setValue = _file;
                   }
 
                   if(_file!.lengthSync() >= widget.megaBytesLimit*1000000){
@@ -132,7 +142,7 @@ class _TWSelectFileState extends State<TWSelectFile> {
                   }
                   
                   String size = await _fileSizeStr(_file);
-                  setState(() => _message = '${result.names.first} - $size');
+                  setState(() => _message = '${basename(_file!.path)} - $size');
 
                 },
                 child: Container(
@@ -173,8 +183,8 @@ class _TWSelectFileState extends State<TWSelectFile> {
                               width: 10,
                             )
                           ),
-                          child: Image.file(
-                            _file!,
+                          child: Image.memory(
+                            _file!.readAsBytesSync(),
                             width: 200,
                             height: 200,
                           ),

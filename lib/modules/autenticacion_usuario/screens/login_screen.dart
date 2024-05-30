@@ -102,7 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     backgroundColor: Colors.blue,
                     foregroundColor: Colors.white
                   ),
-                  onPressed: onLogin,
+                  onPressed: _onLoad ? null : onLogin,
                   child: const Text('Iniciar sesión')
                 ),
               ),

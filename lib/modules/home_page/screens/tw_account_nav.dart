@@ -6,7 +6,7 @@ import 'package:tidal_wave/bloc/user_cubit.dart';
 import 'package:tidal_wave/modules/autenticacion_usuario/classes/tw_user.dart';
 import 'package:tidal_wave/modules/autenticacion_usuario/screens/login_screen.dart';
 import 'package:tidal_wave/modules/autenticacion_usuario/screens/register_screen.dart';
-import 'package:tidal_wave/shared/popup_message.dart';
+import 'package:tidal_wave/shared/widgets/popup_message.dart';
 import 'package:tidal_wave/services/firebase/firebase_auth_service.dart';
 
 class TWAccountNav extends StatelessWidget {

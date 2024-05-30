@@ -7,7 +7,7 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 import 'package:tidal_wave/shared/controllers/tw_select_file_controller.dart';
-import 'package:tidal_wave/shared/popup_message.dart';
+import 'package:tidal_wave/shared/widgets/popup_message.dart';
 
 class TWSelectFile extends StatefulWidget {
 

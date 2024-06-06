@@ -1,5 +1,6 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 class TWUser {
   final String username;
@@ -18,7 +19,7 @@ class TWUser {
       type: json['type'],
       email: json['email'],
       createdAt: json['created_at'],
-      pfp: json['pfp']
+      pfp: Uri.parse(json['pfp'])
     );
   }
 
@@ -28,9 +29,11 @@ class TWUser {
       'type': type,
       'email': email,
       'created_at': createdAt,
-      'pfp': pfp
+      'pfp': pfp.toString()
     };
   }
+
+  String get readCreatedAt => createdAt != null ? DateFormat('dd/MM/yyyy HH:mm').format(createdAt!.toDate()) : 'unknown';
 
   @override
   String toString() {
@@ -41,6 +44,15 @@ class TWUser {
       create_at ${createdAt.toString()}
       pfp ${pfp ?? "no pfp"}
     """;
+  }
+
+  TWUser copyWith({String? username, String? type, Uri? pfp, String? email}) { 
+    return TWUser(
+      username: username ?? this.username,
+      type: type ?? this.type,
+      pfp: pfp ?? this.pfp,
+      email: email ?? this.email
+    );
   }
 
 }

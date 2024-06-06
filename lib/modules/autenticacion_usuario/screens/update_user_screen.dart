@@ -111,32 +111,13 @@ class _UpdateUserScreenState extends State<UpdateUserScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   child: TWSelectFile(
                     controller: _pfpController,
+                    loadStreamController: _pfpFileUploadStreamController,
                     labelText: 'Foto de perfil',
                     message: 'Selecciona una imagen',
                     fileType: FileType.image,
                     megaBytesLimit: 10,
                     showImage: true,
                   )
-                ),
-
-                //TODO mover esto xd
-                //* Progress bar pfp file
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 20.0, right: 20.0),
-                  child: StreamBuilder<double>(
-                    stream: _pfpFileUploadStreamController.stream,
-                    builder: (context, snapshot) {
-                      if (snapshot.data != null && snapshot.data! > 0 && snapshot.data! < 1) {
-                        return LinearProgressIndicator(
-                          value: snapshot.data,
-                          color: snapshot.data! >= 1 ? Colors.green : Colors.blueAccent,
-                        );
-                      }
-                      else{
-                        return const SizedBox.shrink();
-                      }
-                    }
-                  ),
                 ),
 
               //* Submit button

@@ -1,11 +1,13 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tidal_wave/bloc/user_cubit.dart';
 import 'package:tidal_wave/modules/autenticacion_usuario/classes/tw_user.dart';
 import 'package:tidal_wave/modules/autenticacion_usuario/screens/login_screen.dart';
 import 'package:tidal_wave/modules/autenticacion_usuario/screens/register_screen.dart';
+import 'package:tidal_wave/modules/autenticacion_usuario/screens/update_user_screen.dart';
 import 'package:tidal_wave/shared/widgets/popup_message.dart';
 import 'package:tidal_wave/services/firebase/firebase_auth_service.dart';
 
@@ -30,6 +32,7 @@ class TWAccountNav extends StatelessWidget {
               CircleAvatar(
                 radius: 50,
                 backgroundColor: Colors.grey.shade400,
+                foregroundImage: snapshot.pfp != null ? CachedNetworkImageProvider(snapshot.pfp!.toString()) : null,
               ),
         
               const SizedBox(height: 10),
@@ -53,7 +56,7 @@ class TWAccountNav extends StatelessWidget {
                       color: Colors.grey.shade100.withOpacity(0.1)
                     )
                   ),
-                  children: userFields(snapshot.type, snapshot.email, snapshot.createdAt!.toDate().toString()).map((e) => TableRow(
+                  children: userFields(snapshot.type, snapshot.email, snapshot.readCreatedAt).map((e) => TableRow(
                     decoration: BoxDecoration(
                       color: Colors.black.withOpacity(0.4),
                       border: Border.all(color: Colors.grey.shade100.withOpacity(0.1))
@@ -85,10 +88,16 @@ class TWAccountNav extends StatelessWidget {
                     foregroundColor: Colors.white
                   ), child: const Text('Cambiar contraseña')),
         
-                  ElevatedButton(onPressed: null, style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    foregroundColor: Colors.white
-                  ), child: const Text('Editar cuenta')),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent,
+                      foregroundColor: Colors.white
+                    ),
+                    child: const Text('Editar cuenta'),
+                    onPressed: () {
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => const UpdateUserScreen()));
+                    },
+                  ),
         
                   ElevatedButton(onPressed: (){
                     showDialog(context: context, builder: (context) => 

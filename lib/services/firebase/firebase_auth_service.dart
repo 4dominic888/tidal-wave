@@ -42,5 +42,22 @@ class FirebaseAuthService {
     await _auth.signOut();
   }
 
-  //* Mas funciones relacionados a la cuenta de usuario
+  static Future<Result<String>> updateNormalInfo(TWUser newUser) async {
+    try {
+      final Result<TWUser> result = await _twUserRepository.updateOne(newUser, _auth.currentUser!.uid);
+      if(!result.onSuccess) throw Exception(result.errorMessage);
+      return Result.sucess('Se han actualizado sus datos con exito');
+    } catch (e) {
+      return Result.error(e.toString());
+    }
+  }
+
+  static Future<void> deleteUser() async{
+    await _auth.currentUser!.delete();
+  }
+
+  static Future<void> updateEmail(String newEmail) async{
+    await _auth.currentUser!.verifyBeforeUpdateEmail(newEmail);
+  }
+
 }

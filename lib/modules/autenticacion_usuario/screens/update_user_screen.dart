@@ -22,12 +22,18 @@ class UpdateUserScreen extends StatefulWidget {
 class _UpdateUserScreenState extends State<UpdateUserScreen> {
 
   final _formKey = GlobalKey<FormState>();
-  final _usernameController = TextEditingController();
+  late final TextEditingController _usernameController;
   final _pfpController = TWSelectFileController();
 
   final _pfpFileUploadStreamController = StreamController<double>();
   
   bool _onLoad = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _usernameController = TextEditingController(text: context.read<UserCubit>().state!.username);
+  }
 
   void onUpdate() async{
     if(_formKey.currentState!.validate()){
@@ -117,6 +123,12 @@ class _UpdateUserScreenState extends State<UpdateUserScreen> {
                     fileType: FileType.image,
                     megaBytesLimit: 10,
                     showImage: true,
+                    validator: (_) {
+                      if(_pfpController.value == null){
+                        return 'Archivo no proporcionado';
+                      }
+                      return null;
+                    },
                   )
                 ),
 

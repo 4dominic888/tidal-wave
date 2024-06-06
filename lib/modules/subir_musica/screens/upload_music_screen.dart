@@ -8,13 +8,13 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:tidal_wave/modules/reproductor_musica/classes/musica.dart';
-import 'package:tidal_wave/services/firebase_storage_service.dart';
+import 'package:tidal_wave/services/firebase/firebase_storage_service.dart';
 import 'package:tidal_wave/services/repositories/tw_music_repository.dart';
 import 'package:tidal_wave/shared/controllers/tw_select_file_controller.dart';
-import 'package:tidal_wave/shared/popup_message.dart';
+import 'package:tidal_wave/shared/widgets/popup_message.dart';
 import 'package:tidal_wave/shared/result.dart';
-import 'package:tidal_wave/shared/tw_select_file.dart';
-import 'package:tidal_wave/shared/tw_text_field.dart';
+import 'package:tidal_wave/shared/widgets/tw_select_file.dart';
+import 'package:tidal_wave/shared/widgets/tw_text_field.dart';
 import 'package:uuid/uuid.dart';
 
 class UploadMusicScreen extends StatefulWidget {
@@ -162,6 +162,7 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   child: TWSelectFile(
                     controller: _musicController,
+                    loadStreamController: _musicFileUploadStreamController,
                     labelText: 'Musica',
                     message: 'Selecciona el archivo de musica',
                     fileType: FileType.audio,
@@ -175,55 +176,18 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
                   )
                 ),
 
-                //* Progress bar music file
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 20.0, right: 20.0),
-                  child: StreamBuilder<double>(
-                    stream: _musicFileUploadStreamController.stream,
-                    builder: (context, snapshot) {
-                      if (snapshot.data != null && snapshot.data! > 0 && snapshot.data! < 1) {
-                        return LinearProgressIndicator(
-                          value: snapshot.data,
-                          color: snapshot.data! >= 1 ? Colors.green : Colors.blueAccent,
-                        );
-                      }
-                      else{
-                        return const SizedBox.shrink();
-                      }
-                    }
-                  ),
-                ),
-
                 //* Imagen de musica
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   child: TWSelectFile(
                     controller: _imageController,
+                    loadStreamController: _imageFileUploadStreamController,
                     labelText: 'Imagen de musica (Opcional)',
                     message: 'Selecciona una imagen',
                     fileType: FileType.image,
                     megaBytesLimit: 10,
                     showImage: true,
                   )
-                ),
-
-                //* Progress bar image file
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 20.0, right: 20.0),
-                  child: StreamBuilder<double>(
-                    stream: _imageFileUploadStreamController.stream,
-                    builder: (context, snapshot) {
-                      if (snapshot.data != null && snapshot.data! > 0 && snapshot.data! < 1) {
-                        return LinearProgressIndicator(
-                          value: snapshot.data,
-                          color: snapshot.data! >= 1 ? Colors.green : Colors.blueAccent,
-                        );
-                      }
-                      else{
-                        return const SizedBox.shrink();
-                      }
-                    }
-                  ),
                 ),
 
                 //* Upload music button

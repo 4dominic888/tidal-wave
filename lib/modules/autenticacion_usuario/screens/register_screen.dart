@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tidal_wave/bloc/user_cubit.dart';
 import 'package:tidal_wave/modules/autenticacion_usuario/classes/tw_user.dart';
-import 'package:tidal_wave/shared/tw_text_field.dart';
-import 'package:tidal_wave/shared/popup_message.dart';
+import 'package:tidal_wave/shared/widgets/tw_text_field.dart';
+import 'package:tidal_wave/shared/widgets/popup_message.dart';
 import 'package:tidal_wave/modules/home_page/screens/home_page_screen.dart';
-import 'package:tidal_wave/services/firebase_auth_service.dart';
+import 'package:tidal_wave/services/firebase/firebase_auth_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -179,7 +179,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     backgroundColor: Colors.green,
                     foregroundColor: Colors.white
                   ),
-                  onPressed: onSubmit,
+                  onPressed: _onLoad ? null : onSubmit,
                   child: const Text('Registrarse')
                 ),
               ),

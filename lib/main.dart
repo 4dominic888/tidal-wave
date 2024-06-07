@@ -1,7 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:just_audio_background/just_audio_background.dart';
 import 'package:tidal_wave/bloc/music_color_cubit.dart';
 import 'package:tidal_wave/bloc/music_cubit.dart';
 import 'package:tidal_wave/bloc/play_list_cubit.dart';
@@ -14,11 +13,6 @@ Future<void> main() async {
   
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform
-  );
-  await JustAudioBackground.init(
-    androidNotificationChannelId: 'com.ryanheise.bg_demon_channel.audio',
-    androidNotificationChannelName: 'Audio playback',
-    androidNotificationOngoing: true
   );
 
   runApp(const MyApp());

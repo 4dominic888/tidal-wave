@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
+import 'package:tidal_wave/shared/utils.dart';
 
 class Music {
   final int _index;
@@ -12,6 +13,7 @@ class Music {
   final double stars;
   final DocumentReference? uploadBy;
   final Timestamp uploadAt;
+  final Duration betterMoment;
   bool? favorito = false;
 
   Music.byUID(int? index,{
@@ -22,6 +24,7 @@ class Music {
     required this.stars,
     required this.uploadAt,
     required String userId,
+    required this.betterMoment,
     this.imagen,
     this.favorito,
   }) : _index = index ?? -1, uploadBy = FirebaseFirestore.instance.collection('Users').doc(userId);
@@ -34,6 +37,7 @@ class Music {
     required this.stars,
     required this.uploadAt,
     required this.uploadBy,
+    required this.betterMoment,
     this.imagen,
     this.favorito,
   }) : _index = index ?? -1;  
@@ -47,7 +51,8 @@ class Music {
       duration: Duration(milliseconds: json['duration'] as int),
       stars: json['stars'] as double,
       uploadAt: json['upload_at'],
-      uploadBy: json['upload_by'] is DocumentReference ? json['upload_by'] as DocumentReference : null
+      uploadBy: json['upload_by'] is DocumentReference ? json['upload_by'] as DocumentReference : null,
+      betterMoment: Duration(milliseconds: json['better_moment'] as int)
     );
   }
 
@@ -70,15 +75,8 @@ class Music {
     return retorno.toString();
   }
 
-  String get durationString {
-    String formattedDuration = '';
-    if (duration.inHours > 0) {
-      formattedDuration += '${duration.inHours}:';
-    }
-    formattedDuration += '${duration.inMinutes.remainder(60).toString().padLeft(2, '0')}:';
-    formattedDuration += duration.inSeconds.remainder(60).toString().padLeft(2, '0');
-    return formattedDuration;
-  }
+  String get durationString => toStringDurationFormat(duration);
+  String get betterMomentString => toStringDurationFormat(betterMoment);
 
   Map<String,dynamic> toJson(){
     return {
@@ -89,7 +87,8 @@ class Music {
       "duration": duration.inMilliseconds,
       "stars": stars,
       "upload_at": uploadAt,
-      "upload_by": uploadBy
+      "upload_by": uploadBy,
+      "better_moment": betterMoment.inMilliseconds
     };
   }
 

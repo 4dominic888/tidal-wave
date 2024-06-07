@@ -83,6 +83,7 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
         stars: 0,
         uploadAt: Timestamp.now(),
         userId: FirebaseAuth.instance.currentUser!.uid,
+        betterMoment: _musicController.musicDuration!
       );
 
       final finalResult = await TWMusicRepository().addOne(music, uuid);

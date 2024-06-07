@@ -22,3 +22,7 @@ String toStringDurationFormat(Duration duration) {
   String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60).abs());
   return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
 }
+
+bool isURL(String cadena) {
+  return cadena.startsWith('http://') || cadena.startsWith('https://');
+}

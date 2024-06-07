@@ -7,6 +7,7 @@ class TWSelectFileController extends ChangeNotifier {
   File? _file;
   /// only if the file is audio
   Duration? musicDuration;
+  Duration? clipMoment;
 
   set setValue(File? file){
     _file = file;

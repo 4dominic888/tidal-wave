@@ -3,11 +3,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:tidal_wave/modules/reproductor_musica/classes/position_data.dart';
+import 'package:tidal_wave/shared/utils.dart';
 
 /// Cubit para la musica escuchada actualmente
 class MusicCubit extends Cubit<AudioPlayer> {
 
-  MusicCubit() :super(AudioPlayer());
+  MusicCubit() :super(AudioPlayer(
+    audioLoadConfiguration: const AudioLoadConfiguration(
+      androidLoadControl: AndroidLoadControl(prioritizeTimeOverSizeThresholds: true)
+    )
+  ));
 
   Stream<PositionData> get positionDataStream {
     final audioPlayer = state;
@@ -49,5 +54,13 @@ class MusicCubit extends Cubit<AudioPlayer> {
       isActive = false;
       toEnd?.call();
     }
+  }
+
+  void playClip(String origin, Duration moment) async {
+    if(isURL(origin)) { await state.setUrl(origin); }
+    else {await state.setFilePath(origin);}
+    state.setVolume(1);
+    await state.setClip(start: moment, end: moment+const Duration(seconds: 5));
+    await state.play();
   }
 }

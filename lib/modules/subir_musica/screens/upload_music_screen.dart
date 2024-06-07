@@ -6,6 +6,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tidal_wave/bloc/music_cubit.dart';
 import 'package:tidal_wave/modules/reproductor_musica/classes/musica.dart';
 import 'package:tidal_wave/modules/subir_musica/widgets/duration_form_field.dart';
 import 'package:tidal_wave/services/firebase/firebase_storage_service.dart';
@@ -173,10 +175,14 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   child: Row(
                     children: [
-                      const Expanded(child: Column(
+                      Expanded(child: Column(
                         children: [
-                          Text('Momento destacado:', style: TextStyle(color: Colors.white)),
-                          Text('Durara 5 segundos segun el tiempo establecido', style: TextStyle(color: Colors.grey, fontSize: 10), textAlign: TextAlign.center),
+                          const Text('Momento destacado:', style: TextStyle(color: Colors.white)),
+                          const Text('Durara 5 segundos segun el tiempo establecido', style: TextStyle(color: Colors.grey, fontSize: 10), textAlign: TextAlign.center),
+                          IconButton(
+                            onPressed: _musicController.musicDuration != null ? () => context.read<MusicCubit>().playClip(_musicController.value!.path, _musicController.clipMoment!) : null,
+                            icon: const Icon(Icons.play_arrow, color: Colors.white)
+                          )
                         ],
                       )),
                       const SizedBox(width: 10),
@@ -186,11 +192,11 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
                           DurationFormField(
                             controller: _bestDurationController,
                             validator: (value) {
-                              final Duration currentDuration = value != null && value.isNotEmpty ? parseDuration(value) : Duration.zero;
-                              _bestDurationController.text = toStringDurationFormat(currentDuration);
+                              _musicController.clipMoment = value != null && value.isNotEmpty ? parseDuration(value) : Duration.zero;
+                              _bestDurationController.text = toStringDurationFormat(_musicController.clipMoment!);
                               if(_musicController.value == null) {return 'Musica no seleccionada';}
                               //* Como el momento destacado de la cancion debe durar 5s, este no debe ser mayor a la duracion de la cancion -5s
-                              if(currentDuration > _musicController.musicDuration! - const Duration(seconds: 5)) {return 'Fuera del limite';}
+                              if(_musicController.clipMoment! > _musicController.musicDuration! - const Duration(seconds: 5)) {return 'Fuera del limite';}
                               return null;
                             },
                           ),

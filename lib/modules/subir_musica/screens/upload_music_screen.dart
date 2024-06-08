@@ -177,7 +177,6 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
                     ,
                   )
                 ),
-
                 //* Duration music to present
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),

@@ -9,15 +9,19 @@ class TWTextField extends StatelessWidget {
   final String? Function(String? value)? validator;
   final TextEditingController? controller;
   final List<TextInputFormatter>? inputFormatters;
+  final bool? enabled ;
+  final void Function(String)? onChanged;
 
   const TWTextField({
-    super.key, required this.hintText, this.textInputType, this.icon, this.validator, this.controller, this.inputFormatters
+    super.key, required this.hintText, this.textInputType, this.icon, this.validator, this.controller, this.inputFormatters, this.onChanged, this.enabled = true
   });
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
       validator: validator,
+      enabled: enabled,
+      onChanged: onChanged,
       controller: controller,
       keyboardType: textInputType,
       obscureText: textInputType==TextInputType.visiblePassword,
@@ -28,11 +32,11 @@ class TWTextField extends StatelessWidget {
       inputFormatters: inputFormatters,
       decoration: InputDecoration(
         suffixIcon: icon,
-        suffixIconColor: Colors.grey,
+        suffixIconColor: enabled! ? Colors.grey : Colors.grey.shade800,
         filled: true,
         fillColor: Colors.grey.shade900,
         hintText: hintText,
-        hintStyle: TextStyle(color: Colors.grey.shade600),
+        hintStyle: TextStyle(color: enabled! ? Colors.grey.shade600 : Colors.grey.shade800),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.0),
           borderSide: const BorderSide(color: Colors.transparent)

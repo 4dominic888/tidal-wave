@@ -7,12 +7,14 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:tidal_wave/bloc/music_cubit.dart';
 import 'package:tidal_wave/modules/reproductor_musica/classes/musica.dart';
 import 'package:tidal_wave/modules/subir_musica/widgets/duration_form_field.dart';
 import 'package:tidal_wave/services/firebase/firebase_storage_service.dart';
 import 'package:tidal_wave/services/repositories/tw_music_repository.dart';
 import 'package:tidal_wave/shared/controllers/tw_select_file_controller.dart';
+import 'package:tidal_wave/shared/music_state_util.dart';
 import 'package:tidal_wave/shared/utils.dart';
 import 'package:tidal_wave/shared/widgets/popup_message.dart';
 import 'package:tidal_wave/shared/result.dart';
@@ -85,7 +87,7 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
         stars: 0,
         uploadAt: Timestamp.now(),
         userId: FirebaseAuth.instance.currentUser!.uid,
-        betterMoment: _musicController.musicDuration!
+        betterMoment: _musicController.clipMoment!
       );
 
       final finalResult = await TWMusicRepository().addOne(music, uuid);
@@ -164,9 +166,15 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
                     megaBytesLimit: 20,
                     validator: (_) {
                       if(_musicController.value == null) {return "Archivo no proporcionado";}
-                      setState(() {});
                       return null;
                     },
+                    onChanged: () => setState(() {
+                      _musicController.clipMoment = Duration.zero;
+                      _bestDurationController.text = "";
+                      context.read<MusicCubit>().setClip(_musicController.value!.path, _musicController.clipMoment ?? Duration.zero);
+                      context.read<MusicCubit>().state.pause();
+                    })
+                    ,
                   )
                 ),
 
@@ -179,29 +187,55 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
                         children: [
                           const Text('Momento destacado:', style: TextStyle(color: Colors.white)),
                           const Text('Durara 5 segundos segun el tiempo establecido', style: TextStyle(color: Colors.grey, fontSize: 10), textAlign: TextAlign.center),
-                          IconButton(
-                            onPressed: _musicController.musicDuration != null ? () => context.read<MusicCubit>().playClip(_musicController.value!.path, _musicController.clipMoment!) : null,
-                            icon: const Icon(Icons.play_arrow, color: Colors.white)
-                          )
+                          if(_musicController.value != null)
+                            StreamBuilder<PlayerState>(
+                              stream: context.read<MusicCubit>().state.playerStateStream,
+                              builder: (context, snapshot) {
+                                if (snapshot.data?.processingState == ProcessingState.completed) {
+                                  context.read<MusicCubit>().setClip(_musicController.value!.path, _musicController.clipMoment ?? Duration.zero);
+                                  context.read<MusicCubit>().state.pause();
+                                }
+                                return IconButton(
+                                  onPressed: MusicStateUtil.playReturns<void Function()>(snapshot.data,
+                                    playCase: context.read<MusicCubit>().state.play,
+                                    stopCase: context.read<MusicCubit>().state.pause,
+                                    playStatic: context.read<MusicCubit>().state.play,
+                                  ),
+                                  icon: MusicStateUtil.playIcon(snapshot.data, color: Colors.white)
+                                );
+                              },
+                            ),
+                          if(_musicController.value != null)
+                            StreamBuilder<Duration>(
+                              stream: context.read<MusicCubit>().state.positionStream.asBroadcastStream(),
+                              builder: (context, snapshot) {
+                                return LinearProgressIndicator(
+                                  value: (snapshot.data?.inMilliseconds ?? 0) / (context.read<MusicCubit>().state.duration?.inMilliseconds ?? 1),
+                                  color: Colors.blueAccent,
+                                );
+                              }
+                            )
                         ],
                       )),
                       const SizedBox(width: 10),
-                      Expanded(child: Column(
-                        children: [
-                          if(_musicController.musicDuration != null) Text('Max: ${toStringDurationFormat(_musicController.musicDuration! - const Duration(seconds: 5))}', style: const TextStyle(color: Colors.grey)),
-                          DurationFormField(
-                            controller: _bestDurationController,
-                            validator: (value) {
-                              _musicController.clipMoment = value != null && value.isNotEmpty ? parseDuration(value) : Duration.zero;
-                              _bestDurationController.text = toStringDurationFormat(_musicController.clipMoment!);
-                              if(_musicController.value == null) {return 'Musica no seleccionada';}
-                              //* Como el momento destacado de la cancion debe durar 5s, este no debe ser mayor a la duracion de la cancion -5s
-                              if(_musicController.clipMoment! > _musicController.musicDuration! - const Duration(seconds: 5)) {return 'Fuera del limite';}
-                              return null;
-                            },
-                          ),
-                        ],
-                      )),
+                      DurationFormField(
+                        topText: _musicController.musicDuration != null ? Text('Max: ${toStringDurationFormat(_musicController.musicDuration! - const Duration(seconds: 5))}', style: const TextStyle(color: Colors.grey)) : null,
+                        controller: _bestDurationController,
+                        enabled: _musicController.value != null,
+                        maxDuration: _musicController.musicDuration != null ? _musicController.musicDuration! - Duration.zero : null,
+                        onChanged: (value) {
+                          print(value);
+                          _musicController.clipMoment = parseDuration(value);
+                          if(_musicController.clipMoment! > _musicController.musicDuration! - const Duration(seconds: 5)) {_musicController.clipMoment = _musicController.musicDuration! - const Duration(seconds: 5);}
+                          _bestDurationController.text = _musicController.clipMoment != Duration.zero ? toStringDurationFormat(_musicController.clipMoment!) : "";
+                        },
+                        validator: (value) {
+                          if(_musicController.value == null) {return 'Musica no seleccionada';}
+                          //* Como el momento destacado de la cancion debe durar 5s, este no debe ser mayor a la duracion de la cancion -5s
+                          if(_musicController.clipMoment! > _musicController.musicDuration! - const Duration(seconds: 5)) {return 'Fuera del limite';}
+                          return null;
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -243,6 +277,12 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void deactivate() {
+    context.read<MusicCubit>().state.pause();
+    super.deactivate();
   }
 
   @override

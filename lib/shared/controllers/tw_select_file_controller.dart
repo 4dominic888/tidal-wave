@@ -14,7 +14,7 @@ class TWSelectFileController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setAudio(File? file) async {
+  Future<void> setAudio(File? file) async {
     _file = file;
     if(file == null) return;
     musicDuration = Duration(milliseconds: (await AudioDuration.getAudioDuration(file.path))!);

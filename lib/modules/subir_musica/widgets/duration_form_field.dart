@@ -1,27 +1,67 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:tidal_wave/shared/utils.dart';
 import 'dart:math' as math;
 
 import 'package:tidal_wave/shared/widgets/tw_text_field.dart';
 
-class DurationFormField extends StatelessWidget {
+class DurationFormField extends StatefulWidget {
 
   final TextEditingController? controller;
   final String? Function(String?)? validator;
+  final void Function(String)? onChanged;
+  final bool? enabled;
+  final Widget? topText;
+  final Duration? maxDuration;
 
-  const DurationFormField({super.key, this.controller, this.validator});
+  const DurationFormField({super.key, this.controller, this.validator, this.onChanged, this.enabled = true, this.topText, this.maxDuration});
 
   @override
+  State<DurationFormField> createState() => _DurationFormFieldState();
+}
+
+class _DurationFormFieldState extends State<DurationFormField> {
+  @override
   Widget build(BuildContext context) {
-    return TWTextField(
-      validator: validator,
-      controller: controller,
-      textInputType: const TextInputType.numberWithOptions(decimal: false),
-      hintText: '00:00:00',
-      inputFormatters: <TextInputFormatter>[
-        TimeTextInputFormatter()
-      ],
-      icon: const Icon(Icons.timer_sharp),
+    return Expanded(
+      child: Column(
+        children: [
+          widget.topText ?? const SizedBox.shrink(),
+          TWTextField(
+            validator: widget.validator,
+            controller: widget.controller,
+            onChanged: widget.onChanged,
+            enabled: widget.enabled,
+            textInputType: const TextInputType.numberWithOptions(decimal: false),
+            hintText: '00:00:00',
+            inputFormatters: <TextInputFormatter>[
+              TimeTextInputFormatter()
+            ],
+            icon: const Icon(Icons.timer_sharp),
+          ),
+          if(widget.enabled!) Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton(onPressed: (){
+                  if(widget.controller != null && widget.maxDuration != null && parseDuration(widget.controller!.text) < widget.maxDuration!){
+                    widget.controller!.text = toStringDurationFormat(parseDuration(widget.controller!.text) + const Duration(seconds: 1));
+                    widget.onChanged!.call(widget.controller!.text);
+                  }
+                }, style: TextButton.styleFrom(foregroundColor: Colors.white, backgroundColor: Colors.white.withOpacity(0.3)), child: const Text('+1')),
+                const SizedBox(width: 10),
+                TextButton(onPressed: (){
+                  if(widget.controller != null && widget.maxDuration != null && parseDuration(widget.controller!.text) > Duration.zero){
+                    widget.controller!.text = toStringDurationFormat(parseDuration(widget.controller!.text) - const Duration(seconds: 1));
+                    widget.onChanged!.call(widget.controller!.text);
+                  }
+                }, style: TextButton.styleFrom(foregroundColor: Colors.white, backgroundColor: Colors.white.withOpacity(0.3)), child: const Text('-1'))
+              ],
+            ),
+          )          
+        ],
+      ),
     );
   }
 }

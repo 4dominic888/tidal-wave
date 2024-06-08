@@ -1,4 +1,7 @@
 Duration parseDuration(String s) {
+
+  if(s.isEmpty) return Duration.zero;
+  
   int hours = 0;
   int minutes = 0;
   int seconds = 0;

@@ -19,6 +19,7 @@ class TWSelectFile extends StatefulWidget {
   final TWSelectFileController? controller;
   final StreamController<double>? loadStreamController;
   final int megaBytesLimit;
+  final void Function()? onChanged;
 
   ///* Mostrar imagen solo si el tipo de archivo es una imagen
   final bool? showImage;
@@ -32,7 +33,7 @@ class TWSelectFile extends StatefulWidget {
     this.loadStreamController,
     this.showImage = false,
     this.validator,
-    this.controller,
+    this.controller, this.onChanged,
   });
 
   @override
@@ -119,7 +120,7 @@ class _TWSelectFileState extends State<TWSelectFile> {
 
     _file = File(result.files.first.path!);
     if(widget.fileType == FileType.audio){
-      widget.controller?.setAudio(_file);
+      await widget.controller?.setAudio(_file);
       return true;
     }
     widget.controller?.setValue = _file;
@@ -151,10 +152,10 @@ class _TWSelectFileState extends State<TWSelectFile> {
                     widget.controller?.setValue = _file;
                     return;
                   }
-                  
                   final String size = await _fileSizeStr(_file);
                   setState(() => _message = '${basename(_file!.path)} - $size');
 
+                  widget.onChanged?.call();
                 },
                 child: Container(
                   width: MediaQuery.of(context).size.width,

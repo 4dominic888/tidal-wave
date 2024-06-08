@@ -19,6 +19,7 @@ class TWSelectFile extends StatefulWidget {
   final TWSelectFileController? controller;
   final StreamController<double>? loadStreamController;
   final int megaBytesLimit;
+  final void Function()? onChanged;
 
   ///* Mostrar imagen solo si el tipo de archivo es una imagen
   final bool? showImage;
@@ -32,7 +33,7 @@ class TWSelectFile extends StatefulWidget {
     this.loadStreamController,
     this.showImage = false,
     this.validator,
-    this.controller,
+    this.controller, this.onChanged,
   });
 
   @override
@@ -68,6 +69,64 @@ class _TWSelectFileState extends State<TWSelectFile> {
     return '$bytes B';
   }
 
+  Future<bool> _saveImage() async {
+    final result = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if(result == null) {
+      _file = null;
+      widget.controller?.setValue = _file;
+      return false;
+    }
+    _file = File(result.path);
+
+    final croppedFile = await ImageCropper().cropImage(
+      sourcePath: _file!.path,
+      aspectRatio: const CropAspectRatio(ratioX: 1.0, ratioY: 1.0),
+      aspectRatioPresets: [
+        CropAspectRatioPreset.square,
+      ],
+      uiSettings: [
+        AndroidUiSettings(
+          toolbarTitle: 'Recortar imagen',
+          toolbarColor: Colors.grey.shade700,
+          toolbarWidgetColor: Colors.white,
+          initAspectRatio: CropAspectRatioPreset.square,
+          lockAspectRatio: true
+        ),
+      ],
+    );
+
+    if(croppedFile == null){
+      _file = null;
+      widget.controller?.setValue = _file;
+      return false;
+    }
+    _file = File(croppedFile.path);
+    _showImage = true;
+    widget.controller?.setValue = _file;
+    return true;
+  }
+
+  Future<bool> _saveFile() async{
+    final FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: widget.fileType,
+      withData: true
+    );
+
+    if(result == null){
+      _file = null;
+      widget.controller?.setValue = _file;
+      return false;
+    }
+
+    _file = File(result.files.first.path!);
+    if(widget.fileType == FileType.audio){
+      await widget.controller?.setAudio(_file);
+      return true;
+    }
+    widget.controller?.setValue = _file;
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
     return FormField<File>(
@@ -84,57 +143,8 @@ class _TWSelectFileState extends State<TWSelectFile> {
               //* Selectable file
               InkWell(
                 onTapUp: (_) async {
-                  if(widget.fileType == FileType.image){
-                    final result = await ImagePicker().pickImage(source: ImageSource.gallery);
-                    if(result == null) {
-                      _file = null;
-                      widget.controller?.setValue = _file;
-                      return;
-                    }
-                    _file = File(result.path);
-
-                    final croppedFile = await ImageCropper().cropImage(
-                      sourcePath: _file!.path,
-                      aspectRatio: const CropAspectRatio(ratioX: 1.0, ratioY: 1.0),
-                      aspectRatioPresets: [
-                        CropAspectRatioPreset.square,
-                      ],
-                      uiSettings: [
-                        AndroidUiSettings(
-                          toolbarTitle: 'Recortar imagen',
-                          toolbarColor: Colors.grey.shade700,
-                          toolbarWidgetColor: Colors.white,
-                          initAspectRatio: CropAspectRatioPreset.square,
-                          lockAspectRatio: true
-                        ),
-                      ],
-                    );
-
-                    if(croppedFile == null){
-                      _file = null;
-                      widget.controller?.setValue = _file;
-                      return;
-                    }
-                    _file = File(croppedFile.path);
-                    _showImage = true;
-                    widget.controller?.setValue = _file;
-                  }
-                  else{
-                    final FilePickerResult? result = await FilePicker.platform.pickFiles(
-                      type: widget.fileType,
-                      withData: true
-                    );
-
-                    if(result == null){
-                      _file = null;
-
-                      widget.controller?.setValue = _file;
-                      return;
-                    }
-
-                    _file = File(result.files.first.path!);
-                    widget.controller?.setValue = _file;
-                  }
+                  if(widget.fileType == FileType.image && await _saveImage() == false) {return;}
+                  else if(await _saveFile() == false) {return;}
 
                   if(_file!.lengthSync() >= widget.megaBytesLimit*1000000){
                     await showDialog(context: context, builder: (context) => PopupMessage(title: 'Advertencia', description: 'El archivo no debe ser mayor a ${widget.megaBytesLimit} MB'));
@@ -142,10 +152,10 @@ class _TWSelectFileState extends State<TWSelectFile> {
                     widget.controller?.setValue = _file;
                     return;
                   }
-                  
-                  String size = await _fileSizeStr(_file);
+                  final String size = await _fileSizeStr(_file);
                   setState(() => _message = '${basename(_file!.path)} - $size');
 
+                  widget.onChanged?.call();
                 },
                 child: Container(
                   width: MediaQuery.of(context).size.width,

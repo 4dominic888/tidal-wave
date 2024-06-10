@@ -87,7 +87,7 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
         stars: 0,
         uploadAt: Timestamp.now(),
         userId: FirebaseAuth.instance.currentUser!.uid,
-        betterMoment: _musicController.clipMoment!
+        betterMoment: _musicController.clipMoment ?? Duration.zero
       );
 
       final finalResult = await TWMusicRepository().addOne(music, uuid);
@@ -181,62 +181,65 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
                 //* Duration music to present
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: Row(
-                    children: [
-                      Expanded(child: Column(
+                  child: Builder(
+                    builder: (context) {
+                      return Row(
                         children: [
-                          const Text('Momento destacado:', style: TextStyle(color: Colors.white)),
-                          const Text('Durara 5 segundos segun el tiempo establecido', style: TextStyle(color: Colors.grey, fontSize: 10), textAlign: TextAlign.center),
-                          if(_musicController.value != null)
-                            StreamBuilder<PlayerState>(
-                              stream: context.read<MusicCubit>().state.playerStateStream,
-                              builder: (context, snapshot) {
-                                if (snapshot.data?.processingState == ProcessingState.completed) {
-                                  context.read<MusicCubit>().setClip(_musicController.value!.path, _musicController.clipMoment ?? Duration.zero);
-                                  context.read<MusicCubit>().state.pause();
-                                }
-                                return IconButton(
-                                  onPressed: MusicStateUtil.playReturns<void Function()>(snapshot.data,
-                                    playCase: context.read<MusicCubit>().state.play,
-                                    stopCase: context.read<MusicCubit>().state.pause,
-                                    playStatic: context.read<MusicCubit>().state.play,
-                                  ),
-                                  icon: MusicStateUtil.playIcon(snapshot.data, color: Colors.white)
-                                );
-                              },
-                            ),
-                          if(_musicController.value != null)
-                            StreamBuilder<Duration>(
-                              stream: context.read<MusicCubit>().state.positionStream.asBroadcastStream(),
-                              builder: (context, snapshot) {
-                                return LinearProgressIndicator(
-                                  value: (snapshot.data?.inMilliseconds ?? 0) / (context.read<MusicCubit>().state.duration?.inMilliseconds ?? 1),
-                                  color: Colors.blueAccent,
-                                );
-                              }
-                            )
+                          Expanded(child: Column(
+                            children: [
+                              const Text('Momento destacado:', style: TextStyle(color: Colors.white)),
+                              const Text('Durara 5 segundos segun el tiempo establecido', style: TextStyle(color: Colors.grey, fontSize: 10), textAlign: TextAlign.center),
+                              if(_musicController.value != null)
+                                StreamBuilder<PlayerState>(
+                                  stream: context.read<MusicCubit>().state.playerStateStream,
+                                  builder: (context, snapshot) {
+                                    if (snapshot.data?.processingState == ProcessingState.completed) {
+                                      context.read<MusicCubit>().setClip(_musicController.value!.path, _musicController.clipMoment ?? Duration.zero);
+                                      context.read<MusicCubit>().state.pause();
+                                    }
+                                    return IconButton(
+                                      onPressed: MusicStateUtil.playReturns<void Function()>(snapshot.data,
+                                        playCase: context.read<MusicCubit>().state.play,
+                                        stopCase: context.read<MusicCubit>().state.pause,
+                                        playStatic: context.read<MusicCubit>().state.play,
+                                      ),
+                                      icon: MusicStateUtil.playIcon(snapshot.data, color: Colors.white)
+                                    );
+                                  },
+                                ),
+                              if(_musicController.value != null)
+                                StreamBuilder<Duration>(
+                                  stream: context.read<MusicCubit>().state.positionStream.asBroadcastStream(),
+                                  builder: (context, snapshot) {
+                                    return LinearProgressIndicator(
+                                      value: (snapshot.data?.inMilliseconds ?? 0) / (context.read<MusicCubit>().state.duration?.inMilliseconds ?? 1),
+                                      color: Colors.blueAccent,
+                                    );
+                                  }
+                                )
+                            ],
+                          )),
+                          const SizedBox(width: 10),
+                          DurationFormField(
+                            topText: _musicController.musicDuration != null ? Text('Max: ${toStringDurationFormat(_musicController.musicDuration! - const Duration(seconds: 5))}', style: const TextStyle(color: Colors.grey)) : null,
+                            controller: _bestDurationController,
+                            enabled: _musicController.value != null,
+                            maxDuration: _musicController.musicDuration != null ? _musicController.musicDuration! - Duration.zero : null,
+                            onChanged: (value) {
+                              _musicController.clipMoment = parseDuration(value);
+                              if(_musicController.clipMoment! > _musicController.musicDuration! - const Duration(seconds: 5)) {_musicController.clipMoment = _musicController.musicDuration! - const Duration(seconds: 5);}
+                              _bestDurationController.text = _musicController.clipMoment != Duration.zero ? toStringDurationFormat(_musicController.clipMoment!) : "";
+                            },
+                            validator: (value) {
+                              if(_musicController.value == null) {return 'Musica no seleccionada';}
+                              //* Como el momento destacado de la cancion debe durar 5s, este no debe ser mayor a la duracion de la cancion -5s
+                              if(_musicController.clipMoment! > _musicController.musicDuration! - const Duration(seconds: 5)) {return 'Fuera del limite';}
+                              return null;
+                            },
+                          ),
                         ],
-                      )),
-                      const SizedBox(width: 10),
-                      DurationFormField(
-                        topText: _musicController.musicDuration != null ? Text('Max: ${toStringDurationFormat(_musicController.musicDuration! - const Duration(seconds: 5))}', style: const TextStyle(color: Colors.grey)) : null,
-                        controller: _bestDurationController,
-                        enabled: _musicController.value != null,
-                        maxDuration: _musicController.musicDuration != null ? _musicController.musicDuration! - Duration.zero : null,
-                        onChanged: (value) {
-                          print(value);
-                          _musicController.clipMoment = parseDuration(value);
-                          if(_musicController.clipMoment! > _musicController.musicDuration! - const Duration(seconds: 5)) {_musicController.clipMoment = _musicController.musicDuration! - const Duration(seconds: 5);}
-                          _bestDurationController.text = _musicController.clipMoment != Duration.zero ? toStringDurationFormat(_musicController.clipMoment!) : "";
-                        },
-                        validator: (value) {
-                          if(_musicController.value == null) {return 'Musica no seleccionada';}
-                          //* Como el momento destacado de la cancion debe durar 5s, este no debe ser mayor a la duracion de la cancion -5s
-                          if(_musicController.clipMoment! > _musicController.musicDuration! - const Duration(seconds: 5)) {return 'Fuera del limite';}
-                          return null;
-                        },
-                      ),
-                    ],
+                      );
+                    }
                   ),
                 ),
 

@@ -56,10 +56,13 @@ class MusicCubit extends Cubit<AudioPlayer> {
     }
   }
 
-  void setClip(String origin, Duration moment) async {
-    if(isURL(origin)) { await state.setUrl(origin); }
-    else {await state.setFilePath(origin);}
-    state.setVolume(1);
+  Future<void> setClip(String origin, Duration moment) async {
+    if(isURL(origin)) { 
+      await state.setUrl(origin);
+    }
+    else {
+      await state.setFilePath(origin);
+    }
     await state.setClip(start: moment, end: moment+const Duration(seconds: 5));
   }
 }

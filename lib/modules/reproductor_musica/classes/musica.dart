@@ -4,6 +4,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:tidal_wave/shared/utils.dart';
 
 class Music {
+  final String? uuid;
   final int _index;
   final String titulo;
   final List<String> artistas;
@@ -25,6 +26,7 @@ class Music {
     required this.uploadAt,
     required String userId,
     required this.betterMoment,
+    this.uuid,
     this.imagen,
     this.favorito,
   }) : _index = index ?? -1, uploadBy = FirebaseFirestore.instance.collection('Users').doc(userId);
@@ -38,12 +40,14 @@ class Music {
     required this.uploadAt,
     required this.uploadBy,
     required this.betterMoment,
+    this.uuid,
     this.imagen,
     this.favorito,
   }) : _index = index ?? -1;  
 
   factory Music.fromJson(Map<String,dynamic> json, int? index){
     return Music(index ?? -1,
+      uuid: json['uuid'],
       titulo: json['title'],
       artistas: json['artist'] is Iterable ? List.from(json['artist']) : [],
       musica: Uri.parse(json['musicUri'] as String),

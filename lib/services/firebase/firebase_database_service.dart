@@ -5,12 +5,12 @@ class FireBaseDatabaseService {
 
   Future<List<Map<String,dynamic>>> getAll(String collectionName, [bool Function(Map<String, dynamic>)? where, int limit = 10]) async{
     final query = await db.collection(collectionName).limit(limit).get();
-    return query.docs.map((d) => d.data()).where(where ?? (_) => true).toList();
+    return query.docs.map((d) => d.data()..addAll({"uuid": d.id})).where(where ?? (_) => true).toList();
   }
 
   Future<Map<String, dynamic>?> getOne(String collectionName, String id) async{
       final query = await db.collection(collectionName).doc(id).get();
-      return query.data();
+      return query.data()?..addAll({"uuid": query.id});
   }
 
   Future<void> addOne(String collectionName, Map<String, dynamic> data) async{

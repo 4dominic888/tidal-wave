@@ -6,6 +6,7 @@ import 'package:tidal_wave/bloc/user_cubit.dart';
 import 'package:tidal_wave/modules/autenticacion_usuario/screens/login_screen.dart';
 import 'package:tidal_wave/modules/autenticacion_usuario/screens/register_screen.dart';
 import 'package:tidal_wave/modules/home_page/screens/tw_account_nav.dart';
+import 'package:tidal_wave/modules/home_page/screens/tw_find_nav.dart';
 import 'package:tidal_wave/modules/home_page/screens/tw_home_nav.dart';
 import 'package:tidal_wave/modules/lista_musica/screens/lista_musica_screen.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/tw_drawer.dart';
@@ -30,7 +31,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
   Widget _currentScreen(int index){
     switch (index) {
       case 0: return const TWHomeNav();
-      case 1: return const Center(child: Icon(Icons.search));
+      case 1: return const TwFindNav();
       case 2: return const Center(child: Icon(Icons.library_music));
       case 3: return const TWAccountNav();
       default: return const SizedBox.shrink();

@@ -143,8 +143,12 @@ class _TWSelectFileState extends State<TWSelectFile> {
               //* Selectable file
               InkWell(
                 onTapUp: (_) async {
-                  if(widget.fileType == FileType.image && await _saveImage() == false) {return;}
-                  else if(await _saveFile() == false) {return;}
+                  if(widget.fileType == FileType.image){
+                    if(!await _saveImage()) {return;}
+                  }
+                  else{
+                    if(!await _saveFile()) {return;}
+                  }
 
                   if(_file!.lengthSync() >= widget.megaBytesLimit*1000000){
                     await showDialog(context: context, builder: (context) => PopupMessage(title: 'Advertencia', description: 'El archivo no debe ser mayor a ${widget.megaBytesLimit} MB'));

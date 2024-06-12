@@ -81,9 +81,10 @@ class _TWSelectFileState extends State<TWSelectFile> {
     final croppedFile = await ImageCropper().cropImage(
       sourcePath: _file!.path,
       aspectRatio: const CropAspectRatio(ratioX: 1.0, ratioY: 1.0),
-      aspectRatioPresets: [
-        CropAspectRatioPreset.square,
-      ],
+      //! Quedo deprecado lol      
+      // aspectRatioPresets: [
+      //   CropAspectRatioPreset.square,
+      // ],
       uiSettings: [
         AndroidUiSettings(
           toolbarTitle: 'Recortar imagen',

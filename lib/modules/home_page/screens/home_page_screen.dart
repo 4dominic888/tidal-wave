@@ -8,7 +8,7 @@ import 'package:tidal_wave/modules/autenticacion_usuario/screens/register_screen
 import 'package:tidal_wave/modules/home_page/screens/tw_account_nav.dart';
 import 'package:tidal_wave/modules/home_page/screens/tw_find_nav.dart';
 import 'package:tidal_wave/modules/home_page/screens/tw_home_nav.dart';
-import 'package:tidal_wave/modules/home_page/screens/tw_user_list.dart';
+import 'package:tidal_wave/modules/home_page/screens/tw_user_list_nav.dart';
 import 'package:tidal_wave/modules/lista_musica/screens/lista_musica_screen.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/tw_drawer.dart';
 import 'package:tidal_wave/modules/subir_musica/screens/upload_music_screen.dart';
@@ -33,7 +33,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
     switch (index) {
       case 0: return const TWHomeNav();
       case 1: return const TwFindNav();
-      case 2: return const TWUserList();
+      case 2: return const TWUserListNav();
       case 3: return const TWAccountNav();
       default: return const SizedBox.shrink();
     }

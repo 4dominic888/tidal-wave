@@ -5,14 +5,14 @@ import 'package:tidal_wave/modules/home_page/classes/music_list.dart';
 import 'package:tidal_wave/modules/home_page/screens/create_user_list_screen.dart';
 import 'package:tidal_wave/modules/home_page/widgets/tw_music_list_view_item.dart';
 
-class TWUserList extends StatefulWidget {
-  const TWUserList({super.key});
+class TWUserListNav extends StatefulWidget {
+  const TWUserListNav({super.key});
 
   @override
-  State<TWUserList> createState() => _TWUserListState();
+  State<TWUserListNav> createState() => _TWUserListNavState();
 }
 
-class _TWUserListState extends State<TWUserList> {
+class _TWUserListNavState extends State<TWUserListNav> {
 
   static final _buttonsController = GroupButtonController(selectedIndex: 0);
   static final _buttonsOptions = ['Mis listas', 'Otras listas'];

@@ -22,7 +22,7 @@ class TWMusicRepository extends RepositoryBase<Music> {
   }
 
   @override
-  Future<Result<List<Music>>> getAll([List<String> queryArray = const [], bool Function(Map<String, dynamic> query)? where, int limit = 10]) async {
+  Future<Result<List<Music>>> getAll({List<String> queryArray = const [], bool Function(Map<String, dynamic> query)? where, int limit = 10}) async {
     try {
       int index = -1;
       final data = await context.getAll(collectionName, queryArray, where, limit);

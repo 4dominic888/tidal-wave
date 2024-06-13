@@ -20,7 +20,7 @@ class TWMusicListRepository extends RepositoryBase<MusicList>{
   }
 
   @override
-  Future<Result<List<MusicList>>> getAll([List<String> queryArray = const [], bool Function(Map<String, dynamic> p1)? where, int limit = 10]) {
+  Future<Result<List<MusicList>>> getAll({List<String> queryArray = const [], bool Function(Map<String, dynamic> p1)? where, int limit = 10}) {
     // TODO: implement getAll
     throw UnimplementedError();
   }

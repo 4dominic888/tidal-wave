@@ -7,7 +7,7 @@ class TWUserRepository extends RepositoryBase<TWUser> {
   String get collectionName => 'Users';
 
   @override
-  Future<Result<List<TWUser>>> getAll([List<String> queryArray = const [], bool Function(Map<String, dynamic>)? where, int limit = 10]) async{
+  Future<Result<List<TWUser>>> getAll({List<String> queryArray = const [], bool Function(Map<String, dynamic>)? where, int limit = 10}) async{
     try {
       final data = await context.getAll(collectionName, queryArray, where, limit);
       return Result.sucess(data.map((e) => TWUser.fromJson(e)).toList());

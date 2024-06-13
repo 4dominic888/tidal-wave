@@ -8,22 +8,6 @@ import 'package:tidal_wave/modules/home_page/widgets/tw_music_list_view_item.dar
 class TWUserList extends StatefulWidget {
   const TWUserList({super.key});
 
-  //TODO de esta forma se debe obtener las listas privadas y publicas
-  static final List<MusicList> _publicTest = [
-    MusicList(id: 'a12dasd1',name: 'Favoritos', description: 'Mi lista de canciones piolarda',  type: 'public', musics: []),
-    MusicList(id: 'ddsd331',name: 'Basado list', description: 'Pura musica basada',  type: 'public', musics: []),
-    MusicList(id: '3232asdasd',name: 'Sad list', description: 'Musica para awitarse :(',  type: 'public', musics: []),
-    MusicList(id: '312dasdasd123',name: 'Memes', description: 'Musica chistosas sacadas de memes maybe xd aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',  type: 'public', musics: []),
-  ];
-
-  static final List<MusicList> _privateTest = [
-    MusicList(id: 'a1adasdasdasdas',name: 'Cosas', description: 'Canciones anime',  type: 'private', musics: []),
-    MusicList(id: 'a1adasdasdasdas',name: 'Jazz Simple', description: 'Musica relajante',  type: '[r]', musics: []),
-    MusicList(id: 'a1adasdasdasdas',name: 'REGETON', description: 'NOOO',  type: 'asdasdadasd', musics: []),
-  ];
-
-  static final _finalListTest = [..._privateTest, ..._publicTest];
-
   @override
   State<TWUserList> createState() => _TWUserListState();
 }
@@ -32,6 +16,7 @@ class _TWUserListState extends State<TWUserList> {
 
   static final _buttonsController = GroupButtonController(selectedIndex: 0);
   static final _buttonsOptions = ['Mis listas', 'Otras listas'];
+  final _finalListTest = <MusicList>[];
 
   Widget _userList() => Expanded(
     child: Column(
@@ -69,9 +54,9 @@ class _TWUserListState extends State<TWUserList> {
             shrinkWrap: true,
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             scrollDirection: Axis.vertical,
-            itemCount: TWUserList._finalListTest.length,
+            itemCount: _finalListTest.length,
             itemBuilder: (context, index) {
-              final item = TWUserList._finalListTest[index];
+              final item = _finalListTest[index];
               return TWMusicListViewItem(item: item);
             },
           ),

@@ -35,6 +35,19 @@ class TWMusicRepository extends RepositoryBase<Music> {
     }
   }
 
+  Future<Result<List<Music>>> getAllByReferences(List<String> references, {bool Function(Map<String, dynamic> query)? where, int limit = 10}) async {
+    try {
+      int index = -1;
+      final data = await context.getAllByReferences(references);
+      return Result.sucess(data.map((e) {
+        index++;
+        return Music.fromJson(e,index);
+      } ).toList());
+    } on Exception catch (e) {
+      return Result.error('Ha ocurrido un error: $e');
+    }
+  }
+
   @override
   Future<Result> deleteOne(String id, [List<String> queryArray = const []]) {
     // TODO: implement deleteOne

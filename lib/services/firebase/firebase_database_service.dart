@@ -11,19 +11,35 @@ class FireBaseDatabaseService {
       retorno = (retorno as CollectionReference<Map<String, dynamic>>).doc(queryArray[iterator]);
       iterator++;
       retorno = (retorno as DocumentReference<Map<String, dynamic>>).collection(queryArray[iterator]);
-      retorno++;
+      iterator++;
     }
     return retorno;
   }
 
   Future<List<Map<String,dynamic>>> getAll(String collectionName, [List<String> queryArray = const [], bool Function(Map<String, dynamic>)? where, int limit = 10]) async{
     final query = await _getSubCollection(collectionName, queryArray).limit(limit).get();
+    if(query.docs.isEmpty) return [];
     return query.docs.map((d) => d.data()..addAll({"uuid": d.id})).where(where ?? (_) => true).toList();
+  }
+
+  Future<List<Map<String,dynamic>>> getAllByReferences(List<String> references) async{
+    final returnList = <Map<String,dynamic>>[];
+    for (int i = 0; i < returnList.length; i++) {
+      final temp = await getOneByReference(references[i]);
+      if(temp == null) continue;
+      returnList[i] = temp;
+    }
+    return returnList;
   }
 
   Future<Map<String, dynamic>?> getOne(String collectionName, String id, [List<String> queryArray = const []]) async{
     final query = await _getSubCollection(collectionName, queryArray).doc(id).get();
     return query.data()?..addAll({"uuid": query.id});
+  }
+
+  Future<Map<String, dynamic>?> getOneByReference(String reference) async{
+    final query = await db.doc(reference).get();
+    return query.data()!..addAll({"uuid": query.id});
   }
 
   Future<void> addOne(String collectionName, Map<String, dynamic> data, [List<String> queryArray = const []]) async{

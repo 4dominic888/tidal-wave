@@ -46,24 +46,24 @@ class _HomePageScreenState extends State<HomePageScreen> {
     {'Cuenta': const Icon(Icons.account_box)}
   ];
 
+  Future<void> validateAndGetUser(User? user) async {
+    if (user?.uid != null) {
+      final twur = TWUserRepository();
+      final result = await twur.getOne(user!.uid);
+      if(!mounted) return;
+      context.read<UserCubit>().user = result.data;
+    }
+    else{
+      context.read<UserCubit>().user = null;
+    }    
+  }
+
   final List<Map<String, void Function()>> _drawerOptions = [];
 
   @override
   Widget build(BuildContext context) {
 
-    FirebaseAuth.instance.authStateChanges().listen((user) async {
-      if (user?.uid != null) {
-        final twur = TWUserRepository();
-        final result = await twur.getOne(user!.uid);
-        // ignore: use_build_context_synchronously
-        context.read<UserCubit>().user = result.data;
-      }
-      else{
-        if(!context.mounted) return;
-        context.read<UserCubit>().user = null;
-      }
-      setState(() {});
-    });
+    FirebaseAuth.instance.authStateChanges().listen((user) async => await validateAndGetUser(user));
 
     _drawerOptions.clear();
 
@@ -100,7 +100,8 @@ class _HomePageScreenState extends State<HomePageScreen> {
         toolbarHeight: 0,
         elevation: 0,
       ),
-        drawer: TWDrawer(options: _drawerOptions),
+      drawer: TWDrawer(options: _drawerOptions),
+      onDrawerChanged: (isOpened) => setState(() {}),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:tidal_wave/modules/home_page/classes/music_list.dart';
+import 'package:tidal_wave/modules/lista_musica/screens/lista_musica_screen.dart';
+import 'package:tidal_wave/services/repositories/tw_music_repository.dart';
+import 'package:tidal_wave/shared/widgets/popup_message.dart';
 
 class TWMusicListViewItem extends StatelessWidget {
   const TWMusicListViewItem({
@@ -8,6 +11,15 @@ class TWMusicListViewItem extends StatelessWidget {
   });
 
   final MusicList item;
+
+  IconData typeIcon(String type){
+    switch (type) {
+      case 'public-list': return Icons.public;
+      case 'private-list': return Icons.lock;
+      case 'offline-list': return Icons.visibility_off;
+      default: return Icons.help_outline;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,9 +33,9 @@ class TWMusicListViewItem extends StatelessWidget {
             Expanded(
               flex: 6,
               child: Container(
-                decoration: const BoxDecoration(
-                  image: DecorationImage(image: 
-                    NetworkImage('https://firebasestorage.googleapis.com/v0/b/tidal-wave-service.appspot.com/o/music-thumb%2Fi-3d4f492b-a80d-4235-8985-09f3c648cbe1?alt=media&token=02dd6ad8-255a-43fd-b8cc-01c7a54c44fa'),
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: item.image != null ? Image.network(item.image.toString()).image : Image.asset('assets/placeholder/music-placeholder.png').image,
                     fit: BoxFit.cover
                   )
                 ),
@@ -38,7 +50,11 @@ class TWMusicListViewItem extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Text(item.name, style: const TextStyle(color: Colors.white, fontSize: 20.0, fontWeight: FontWeight.bold)),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Text(item.name, style: const TextStyle(color: Colors.white, fontSize: 20.0, fontWeight: FontWeight.bold))
+                    ),
+                    Icon(typeIcon(item.type), color: Colors.white, size: 15),
                     Text('${item.musics.length} canciones', style: TextStyle(color: Colors.grey.shade200)),
                     Expanded(
                       child: Container(
@@ -55,7 +71,18 @@ class TWMusicListViewItem extends StatelessWidget {
             ),
             Expanded(
               flex: 4,
-              child: IconButton(onPressed: (){}, icon: const Icon(Icons.play_arrow, color: Colors.white))
+              child: IconButton(icon: const Icon(Icons.play_arrow, color: Colors.white), onPressed: () async {
+                final result = await TWMusicRepository().getAllByReferences(item.musics);
+                if(!context.mounted) return;
+                if(!result.onSuccess){
+                  showDialog(context: context, builder: (context) => PopupMessage(
+                    title: 'Error',
+                    description: result.errorMessage!
+                  ));
+                  return;
+                }
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => ListaMusicaScreen(listado: result.data!)));
+              })
             )
           ],
         ),

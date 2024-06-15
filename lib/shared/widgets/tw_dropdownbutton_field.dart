@@ -4,7 +4,7 @@ class TWDropdownbuttonField extends StatefulWidget {
 
   final Icon? icon;
   final String label;
-  final List<String> items;
+  final List<Map<String, String>> items;
   final TextEditingController? controller;
 
   const TWDropdownbuttonField({super.key, required this.label, required this.items, this.controller, this.icon});
@@ -43,8 +43,8 @@ class _TWDropdownbuttonFieldState extends State<TWDropdownbuttonField> {
         ),
       ),
       items: widget.items.map((e) => DropdownMenuItem<String>(
-        value: e,
-        child: Text(e, style: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.normal)),
+        value: e.values.first,
+        child: Text(e.keys.first, style: TextStyle(color: Colors.grey.shade600, fontWeight: FontWeight.normal)),
       )).toList(),
       onChanged: (value) => setState(() {widget.controller?.text = value!;}),
       validator: (value) {

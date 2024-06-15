@@ -3,10 +3,16 @@ import 'dart:async';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
+import 'package:tidal_wave/modules/home_page/classes/music_list.dart';
+import 'package:tidal_wave/services/firebase/firebase_storage_service.dart';
+import 'package:tidal_wave/services/repositories/tw_music_list_repository.dart';
 import 'package:tidal_wave/shared/controllers/tw_select_file_controller.dart';
+import 'package:tidal_wave/shared/result.dart';
+import 'package:tidal_wave/shared/widgets/popup_message.dart';
 import 'package:tidal_wave/shared/widgets/tw_dropdownbutton_field.dart';
 import 'package:tidal_wave/shared/widgets/tw_select_file.dart';
 import 'package:tidal_wave/shared/widgets/tw_text_field.dart';
+import 'package:uuid/uuid.dart';
 
 class CreateUserListScreen extends StatefulWidget {
   const CreateUserListScreen({super.key});
@@ -29,8 +35,43 @@ class _CreateUserListScreenState extends State<CreateUserListScreen> {
   //bool _onLoad = false;
 
   void onSubmit() async{
-    if(_btnController.currentState == ButtonState.error){_btnController.reset(); return;}
     if(_formKey.currentState!.validate()){
+
+      final String uuid = const Uuid().v4();
+      late final Result<String> imageUploadResult;
+      if(_imageController.value != null){
+        imageUploadResult = await FirebaseStorageService.uploadFile('list-thumb', 'l-$uuid', _imageController.value!, onLoad: (value) {
+          _imageFileUploadStreamController.sink.add(
+            value.bytesTransferred / value.totalBytes
+          );
+        });
+      }
+      if(!mounted) return;
+
+      if(!imageUploadResult.onSuccess){
+        showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: imageUploadResult.errorMessage!));
+        _btnController.error();
+        return;
+      }
+
+      final MusicList musicList = MusicList.toSend(
+        name: _nameController.text,
+        description: _descriptionController.text.trim().isNotEmpty ? _descriptionController.text : 'No proporcionado',
+        type: _typeListController.text,
+        image: Uri.parse(imageUploadResult.data!)
+      );
+
+      final musicListResult = await TWMusicListRepository().addOne(musicList, null);
+      if(!musicListResult.onSuccess){
+        if(_imageController.value != null) {FirebaseStorageService.deleteFileWithURL(imageUploadResult.data!);}
+        if(!mounted) return;
+        showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: musicListResult.errorMessage!));
+        _btnController.error();
+        return;
+      }
+
+      if(!mounted) return;
+      showDialog(context: context, builder: (context) => const PopupMessage(title: 'Exito', description: 'La lista ha sido creada satisfactoriamente'));
       _btnController.success();
       return;
     }
@@ -84,7 +125,7 @@ class _CreateUserListScreenState extends State<CreateUserListScreen> {
                   controller: _typeListController,
                   label: 'Tipo de lista',
                   icon: const Icon(Icons.type_specimen_rounded),
-                  items: const ['Publico', 'Privado', 'Offline'],
+                  items: const [{'Publico':'public-list'}, {'Privado':'private-list'}, {'Offline':'offline-list'}],
                 )
               ),
 

@@ -22,12 +22,12 @@ class FireBaseDatabaseService {
     return query.docs.map((d) => d.data()..addAll({"uuid": d.id})).where(where ?? (_) => true).toList();
   }
 
-  Future<List<Map<String,dynamic>>> getAllByReferences(List<String> references) async{
-    final returnList = <Map<String,dynamic>>[];
-    for (int i = 0; i < returnList.length; i++) {
+  Future<List<Map<String,dynamic>>> getAllByReferences(List<DocumentReference> references) async{
+    var returnList = <Map<String,dynamic>>[];
+    for (int i = 0; i < references.length; i++) {
       final temp = await getOneByReference(references[i]);
       if(temp == null) continue;
-      returnList[i] = temp;
+      returnList.add(temp);
     }
     return returnList;
   }
@@ -37,8 +37,8 @@ class FireBaseDatabaseService {
     return query.data()?..addAll({"uuid": query.id});
   }
 
-  Future<Map<String, dynamic>?> getOneByReference(String reference) async{
-    final query = await db.doc(reference).get();
+  Future<Map<String, dynamic>?> getOneByReference(DocumentReference reference) async{
+    final query = await db.doc(reference.path).get();
     return query.data()!..addAll({"uuid": query.id});
   }
 

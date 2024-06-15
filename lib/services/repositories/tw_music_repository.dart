@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tidal_wave/modules/reproductor_musica/classes/musica.dart';
 import 'package:tidal_wave/services/repositories/repository_base.dart';
 import 'package:tidal_wave/shared/result.dart';
@@ -35,7 +36,7 @@ class TWMusicRepository extends RepositoryBase<Music> {
     }
   }
 
-  Future<Result<List<Music>>> getAllByReferences(List<String> references, {bool Function(Map<String, dynamic> query)? where, int limit = 10}) async {
+  Future<Result<List<Music>>> getAllByReferences(List<DocumentReference<Map<String, dynamic>>> references, {bool Function(Map<String, dynamic> query)? where, int limit = 10}) async {
     try {
       int index = -1;
       final data = await context.getAllByReferences(references);

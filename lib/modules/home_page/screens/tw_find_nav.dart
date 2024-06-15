@@ -1,14 +1,19 @@
 import 'dart:async';
+import 'dart:ui';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:tidal_wave/bloc/music_cubit.dart';
+import 'package:tidal_wave/modules/home_page/classes/music_list.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/icon_button_music.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/text_field_find.dart';
 import 'package:tidal_wave/modules/reproductor_musica/classes/musica.dart';
+import 'package:tidal_wave/services/repositories/tw_music_list_repository.dart';
 import 'package:tidal_wave/services/repositories/tw_music_repository.dart';
 import 'package:tidal_wave/shared/music_state_util.dart';
+import 'package:tidal_wave/shared/widgets/popup_message.dart';
 
 class TwFindNav extends StatefulWidget {
   const TwFindNav({super.key});
@@ -118,6 +123,56 @@ class MusicElementView extends StatelessWidget {
 
   const MusicElementView({super.key, required this.item, this.onPlay, this.selected = const [false]});
 
+  Future<void> addMusicToList(BuildContext context, Music music) async {
+    final listResult = await TWMusicListRepository().getAllListForUser(FirebaseAuth.instance.currentUser!.uid);
+    if(!listResult.onSuccess) {
+      PopupDialog(title: 'Error', description: listResult.errorMessage!);
+      return;
+    }
+    final List<MusicList> listas = listResult.data!;
+    if(!context.mounted) return;
+    showDialog(context: context, builder: (context) => AlertDialog(
+      title: const Text('Elige una lista', style: TextStyle(color: Colors.white)),
+      backgroundColor: Colors.grey.shade900,
+      content: StatefulBuilder(
+        builder: (context, setState) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: MediaQuery.of(context).size.width,
+                height: 200,
+                child: ListView(
+                  scrollDirection: Axis.vertical,
+                  children: listas.map((e) => 
+                  ListTile(
+                    title: Text(e.name, style: const TextStyle(color: Colors.white)),
+                    onTap: () async {
+                      final result = await TWMusicListRepository().addMusic(
+                        musicUUID: music.uuid!,
+                        userId: FirebaseAuth.instance.currentUser!.uid,
+                        listId: e.id,
+                        listType: e.type
+                      );
+                      if(!result.onSuccess){
+                        showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: result.errorMessage!));
+                      }
+                      else{
+                        showDialog(context: context, builder: (context) => PopupMessage(title: 'Exito', description: 'Se agrego correctamente la musica a la lista', onClose: () {
+                          Navigator.of(context).pop();
+                        }));
+                      }
+                    },
+                  )).toList(),
+                ),
+              ),
+            ],
+          );
+        }
+      ),
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -131,9 +186,56 @@ class MusicElementView extends StatelessWidget {
       child: Stack(
         children: [
           Ink.image(
-            image: NetworkImage(item.imagen.toString()),
+            image: item.imagen != null ? Image.network(item.imagen!.toString()).image : Image.asset('assets/placeholder/music-placeholder.png').image,
             child: InkWell(
-              onTap: () => print(item.uuid),
+              onTap: () async {
+                final uploadUserName = await item.uploadAtName;
+                if(!context.mounted) return;
+                showModalBottomSheet(context: context,backgroundColor: Colors.grey.shade800, builder: (context) {
+                  return SizedBox(
+                    height: 200,
+                    child: Stack(
+                      children: [
+                        item.imagen != null ? Image.network(
+                          item.imagen.toString(),
+                          width: MediaQuery.of(context).size.width,
+                          fit: BoxFit.cover,
+                        ) : 
+                        Image.asset('assets/placeholder/music-placeholder.png', 
+                          width: MediaQuery.of(context).size.width,
+                          fit: BoxFit.cover,
+                        ),
+                        BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+                          child: Container(color: Colors.grey.shade900.withOpacity(0.7)),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(32.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              SingleChildScrollView(scrollDirection: Axis.horizontal ,child: Text(item.titulo, style: const TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold))),
+                              SingleChildScrollView(scrollDirection: Axis.horizontal ,child: Text(item.artistasStr, style: const TextStyle(color: Colors.white, fontSize: 15))),
+                              SingleChildScrollView(scrollDirection: Axis.horizontal ,child: Text('Subido por: $uploadUserName', style: const TextStyle(color: Colors.white, fontSize: 15))),
+                              const SizedBox(height: 10),
+                              Expanded(
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    ElevatedButton(onPressed: () async => await addMusicToList(context, item), child: const Text('Agregar a lista')),
+                                    const Spacer(),
+                                    ElevatedButton(onPressed: (){}, child: const Text('Descargar'))
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    )
+                  );
+                });
+              },
             ),
           ),
           Column(

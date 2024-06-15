@@ -12,7 +12,7 @@ class Music {
   final Uri musica;
   final Duration duration;
   final double stars;
-  final DocumentReference? uploadBy;
+  final DocumentReference uploadBy;
   final Timestamp uploadAt;
   final Duration betterMoment;
   bool? favorito = false;
@@ -55,7 +55,7 @@ class Music {
       duration: Duration(milliseconds: json['duration'] as int),
       stars: json['stars'] as double,
       uploadAt: json['upload_at'],
-      uploadBy: json['upload_by'] is DocumentReference ? json['upload_by'] as DocumentReference : null,
+      uploadBy: FirebaseFirestore.instance.doc((json['upload_by'] as DocumentReference).path),
       betterMoment: Duration(milliseconds: json['better_moment'] as int)
     );
   }
@@ -81,6 +81,11 @@ class Music {
 
   String get durationString => toStringDurationFormat(duration);
   String get betterMomentString => toStringDurationFormat(betterMoment);
+  Future<String> get uploadAtName async {
+    final user = await uploadBy.get();
+    return (user.data() as Map<String, dynamic>)['username'];
+  }
+
 
   Map<String,dynamic> toJson(){
     return {

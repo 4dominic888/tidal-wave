@@ -8,6 +8,7 @@ import 'package:tidal_wave/modules/autenticacion_usuario/screens/register_screen
 import 'package:tidal_wave/modules/home_page/screens/tw_account_nav.dart';
 import 'package:tidal_wave/modules/home_page/screens/tw_find_nav.dart';
 import 'package:tidal_wave/modules/home_page/screens/tw_home_nav.dart';
+import 'package:tidal_wave/modules/home_page/screens/tw_user_list_nav.dart';
 import 'package:tidal_wave/modules/lista_musica/screens/lista_musica_screen.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/tw_drawer.dart';
 import 'package:tidal_wave/modules/subir_musica/screens/upload_music_screen.dart';
@@ -32,7 +33,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
     switch (index) {
       case 0: return const TWHomeNav();
       case 1: return const TwFindNav();
-      case 2: return const Center(child: Icon(Icons.library_music));
+      case 2: return const TWUserListNav();
       case 3: return const TWAccountNav();
       default: return const SizedBox.shrink();
     }
@@ -45,23 +46,24 @@ class _HomePageScreenState extends State<HomePageScreen> {
     {'Cuenta': const Icon(Icons.account_box)}
   ];
 
+  Future<void> validateAndGetUser(User? user) async {
+    if (user?.uid != null) {
+      final twur = TWUserRepository();
+      final result = await twur.getOne(user!.uid);
+      if(!mounted) return;
+      context.read<UserCubit>().user = result.data;
+    }
+    else{
+      context.read<UserCubit>().user = null;
+    }    
+  }
+
   final List<Map<String, void Function()>> _drawerOptions = [];
 
   @override
   Widget build(BuildContext context) {
 
-    FirebaseAuth.instance.authStateChanges().listen((user) async {
-      if (user?.uid != null) {
-        final twur = TWUserRepository();
-        final result = await twur.getOne(user!.uid);
-        // ignore: use_build_context_synchronously
-        context.read<UserCubit>().user = result.data;
-      }
-      else{
-        context.read<UserCubit>().user = null;
-      }
-      setState(() {});
-    });
+    FirebaseAuth.instance.authStateChanges().listen((user) async => await validateAndGetUser(user));
 
     _drawerOptions.clear();
 
@@ -78,7 +80,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
         {"Sube tu canción": () => Navigator.push(context, MaterialPageRoute(builder: (context) => const UploadMusicScreen())) },
         {"Lista old": () async {
           final tempList = await TWMusicRepository().getAll();
-          // ignore: use_build_context_synchronously
+          if(!context.mounted) return;
           Navigator.push(context, MaterialPageRoute(builder: (context) => ListaMusicaScreen(listado: tempList.data ?? [])));
         }}
       ]);
@@ -98,7 +100,8 @@ class _HomePageScreenState extends State<HomePageScreen> {
         toolbarHeight: 0,
         elevation: 0,
       ),
-        drawer: TWDrawer(options: _drawerOptions),
+      drawer: TWDrawer(options: _drawerOptions),
+      onDrawerChanged: (isOpened) => setState(() {}),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,

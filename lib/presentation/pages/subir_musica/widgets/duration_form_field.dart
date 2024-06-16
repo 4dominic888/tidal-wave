@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:tidal_wave/shared/function_utils.dart';
+import 'package:tidal_wave/presentation/utils/function_utils.dart';
 import 'dart:math' as math;
 
 import 'package:tidal_wave/presentation/global_widgets/tw_text_field.dart';

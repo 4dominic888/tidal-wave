@@ -14,8 +14,8 @@ import 'package:tidal_wave/presentation/pages/subir_musica/widgets/duration_form
 import 'package:tidal_wave/services/firebase/firebase_storage_service.dart';
 import 'package:tidal_wave/services/repositories/tw_music_repository.dart';
 import 'package:tidal_wave/presentation/controllers/tw_select_file_controller.dart';
-import 'package:tidal_wave/shared/music_state_util.dart';
-import 'package:tidal_wave/shared/function_utils.dart';
+import 'package:tidal_wave/presentation/utils/music_state_util.dart';
+import 'package:tidal_wave/presentation/utils/function_utils.dart';
 import 'package:tidal_wave/presentation/global_widgets/popup_message.dart';
 import 'package:tidal_wave/shared/result.dart';
 import 'package:tidal_wave/presentation/global_widgets/tw_select_file.dart';

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tidal_wave/shared/color_util.dart';
+import 'package:tidal_wave/presentation/utils/color_util.dart';
 
 /// Cubit para guardar colores importantes autogenerados
 class MusicColorCubit extends Cubit<ImportantColors> {

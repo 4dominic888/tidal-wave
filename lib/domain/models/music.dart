@@ -1,7 +1,7 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:tidal_wave/shared/function_utils.dart';
+import 'package:tidal_wave/presentation/utils/function_utils.dart';
 
 class Music {
   final String? uuid;

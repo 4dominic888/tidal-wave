@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:super_tooltip/super_tooltip.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
-import 'package:tidal_wave/shared/music_state_util.dart';
+import 'package:tidal_wave/presentation/utils/music_state_util.dart';
 
 class VolumeControl extends StatefulWidget {
 

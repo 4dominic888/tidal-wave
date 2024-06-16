@@ -9,7 +9,7 @@ import 'package:tidal_wave/domain/models/position_data.dart';
 import 'package:tidal_wave/presentation/pages/reproductor_musica/widgets/controls.dart';
 import 'package:tidal_wave/presentation/pages/reproductor_musica/widgets/fav_button.dart';
 import 'package:tidal_wave/presentation/pages/reproductor_musica/widgets/media_meta_data.dart';
-import 'package:tidal_wave/shared/color_util.dart';
+import 'package:tidal_wave/presentation/utils/color_util.dart';
 
 class ReproductorMusicaScreen extends StatefulWidget {
   

@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:tidal_wave/presentation/pages/reproductor_musica/widgets/volume_control.dart';
-import 'package:tidal_wave/shared/music_state_util.dart';
+import 'package:tidal_wave/presentation/utils/music_state_util.dart';
 
 class Controls extends StatelessWidget {
   final AudioPlayer audioPlayer;

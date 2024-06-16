@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tidal_wave/domain/models/music.dart';
 import 'package:tidal_wave/services/repositories/repository_base.dart';
-import 'package:tidal_wave/shared/result.dart';
+import 'package:tidal_wave/data/result.dart';
 
 class TWMusicRepository extends RepositoryBase<Music> {
   

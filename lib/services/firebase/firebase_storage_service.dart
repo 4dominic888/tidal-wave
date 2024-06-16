@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:tidal_wave/shared/result.dart';
+import 'package:tidal_wave/data/result.dart';
 
 class FirebaseStorageService {
   

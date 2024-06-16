@@ -1,5 +1,5 @@
 import 'package:tidal_wave/services/firebase/firebase_database_service.dart';
-import 'package:tidal_wave/shared/result.dart';
+import 'package:tidal_wave/data/result.dart';
 
 abstract class RepositoryBase<T> {
 

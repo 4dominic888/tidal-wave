@@ -1,6 +1,6 @@
 import 'package:tidal_wave/domain/models/tw_user.dart';
 import 'package:tidal_wave/services/repositories/repository_base.dart';
-import 'package:tidal_wave/shared/result.dart';
+import 'package:tidal_wave/data/result.dart';
 
 class TWUserRepository extends RepositoryBase<TWUser> {
   @override

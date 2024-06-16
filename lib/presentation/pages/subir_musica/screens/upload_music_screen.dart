@@ -17,7 +17,7 @@ import 'package:tidal_wave/presentation/controllers/tw_select_file_controller.da
 import 'package:tidal_wave/presentation/utils/music_state_util.dart';
 import 'package:tidal_wave/presentation/utils/function_utils.dart';
 import 'package:tidal_wave/presentation/global_widgets/popup_message.dart';
-import 'package:tidal_wave/shared/result.dart';
+import 'package:tidal_wave/data/result.dart';
 import 'package:tidal_wave/presentation/global_widgets/tw_select_file.dart';
 import 'package:tidal_wave/presentation/global_widgets/tw_text_field.dart';
 import 'package:uuid/uuid.dart';

@@ -7,7 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tidal_wave/presentation/bloc/user_cubit.dart';
 import 'package:tidal_wave/services/firebase/firebase_auth_service.dart';
 import 'package:tidal_wave/services/firebase/firebase_storage_service.dart';
-import 'package:tidal_wave/shared/controllers/tw_select_file_controller.dart';
+import 'package:tidal_wave/presentation/controllers/tw_select_file_controller.dart';
 import 'package:tidal_wave/shared/widgets/popup_message.dart';
 import 'package:tidal_wave/shared/widgets/tw_select_file.dart';
 import 'package:tidal_wave/shared/widgets/tw_text_field.dart';

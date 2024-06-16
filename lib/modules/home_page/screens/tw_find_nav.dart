@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:tidal_wave/bloc/music_cubit.dart';
+import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
 import 'package:tidal_wave/modules/home_page/classes/music_list.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/icon_button_music.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/text_field_find.dart';

@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tidal_wave/bloc/music_cubit.dart';
-import 'package:tidal_wave/bloc/user_cubit.dart';
+import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
+import 'package:tidal_wave/presentation/bloc/user_cubit.dart';
 import 'package:tidal_wave/modules/autenticacion_usuario/screens/login_screen.dart';
 import 'package:tidal_wave/modules/autenticacion_usuario/screens/register_screen.dart';
 import 'package:tidal_wave/modules/home_page/screens/tw_account_nav.dart';

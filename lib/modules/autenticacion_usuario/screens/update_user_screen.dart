@@ -4,7 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tidal_wave/bloc/user_cubit.dart';
+import 'package:tidal_wave/presentation/bloc/user_cubit.dart';
 import 'package:tidal_wave/services/firebase/firebase_auth_service.dart';
 import 'package:tidal_wave/services/firebase/firebase_storage_service.dart';
 import 'package:tidal_wave/shared/controllers/tw_select_file_controller.dart';

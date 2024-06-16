@@ -1,7 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tidal_wave/bloc/user_cubit.dart';
+import 'package:tidal_wave/presentation/bloc/user_cubit.dart';
 import 'package:tidal_wave/modules/autenticacion_usuario/classes/tw_user.dart';
 import 'package:tidal_wave/shared/widgets/tw_text_field.dart';
 import 'package:tidal_wave/shared/widgets/popup_message.dart';

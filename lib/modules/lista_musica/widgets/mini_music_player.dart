@@ -3,7 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:tidal_wave/bloc/music_cubit.dart';
+import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
 import 'package:tidal_wave/modules/reproductor_musica/screens/reproductor_musica_screen.dart';
 import 'package:tidal_wave/shared/music_state_util.dart';
 class MiniMusicPlayer extends StatelessWidget {

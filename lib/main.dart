@@ -1,10 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tidal_wave/bloc/music_color_cubit.dart';
-import 'package:tidal_wave/bloc/music_cubit.dart';
-import 'package:tidal_wave/bloc/play_list_cubit.dart';
-import 'package:tidal_wave/bloc/user_cubit.dart';
+import 'package:tidal_wave/presentation/bloc/music_color_cubit.dart';
+import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
+import 'package:tidal_wave/presentation/bloc/play_list_cubit.dart';
+import 'package:tidal_wave/presentation/bloc/user_cubit.dart';
 import 'package:tidal_wave/firebase_options.dart';
 import 'package:tidal_wave/modules/home_page/screens/home_page_screen.dart';
 

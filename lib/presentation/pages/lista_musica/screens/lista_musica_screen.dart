@@ -4,11 +4,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
 import 'package:tidal_wave/presentation/bloc/play_list_cubit.dart';
-import 'package:tidal_wave/modules/lista_musica/widgets/icon_button_music.dart';
-import 'package:tidal_wave/modules/lista_musica/widgets/mini_music_player.dart';
-import 'package:tidal_wave/modules/lista_musica/widgets/music_item.dart';
-import 'package:tidal_wave/modules/lista_musica/widgets/text_field_find.dart';
-import 'package:tidal_wave/modules/lista_musica/widgets/title_container.dart';
+import 'package:tidal_wave/presentation/pages/lista_musica/widgets/icon_button_music.dart';
+import 'package:tidal_wave/presentation/pages/lista_musica/widgets/mini_music_player.dart';
+import 'package:tidal_wave/presentation/pages/lista_musica/widgets/music_item.dart';
+import 'package:tidal_wave/presentation/pages/lista_musica/widgets/text_field_find.dart';
+import 'package:tidal_wave/presentation/pages/lista_musica/widgets/title_container.dart';
 import 'package:tidal_wave/domain/models/music.dart';
 class ListaMusicaScreen extends StatefulWidget {
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tidal_wave/modules/reproductor_musica/widgets/media_meta_data.dart';
+import 'package:tidal_wave/presentation/pages/reproductor_musica/widgets/media_meta_data.dart';
 
 class TWHomeNav extends StatelessWidget {
   const TWHomeNav({super.key});

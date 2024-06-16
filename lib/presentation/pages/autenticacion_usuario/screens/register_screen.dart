@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tidal_wave/presentation/bloc/user_cubit.dart';
 import 'package:tidal_wave/domain/models/tw_user.dart';
+import 'package:tidal_wave/presentation/pages/home_page/screens/home_page_screen.dart';
 import 'package:tidal_wave/shared/widgets/tw_text_field.dart';
 import 'package:tidal_wave/shared/widgets/popup_message.dart';
-import 'package:tidal_wave/modules/home_page/screens/home_page_screen.dart';
 import 'package:tidal_wave/services/firebase/firebase_auth_service.dart';
 
 class RegisterScreen extends StatefulWidget {

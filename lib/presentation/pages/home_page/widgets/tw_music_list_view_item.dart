@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tidal_wave/domain/models/music_list.dart';
 import 'package:tidal_wave/presentation/pages/lista_musica/screens/lista_musica_screen.dart';
 import 'package:tidal_wave/services/repositories/tw_music_repository.dart';
-import 'package:tidal_wave/shared/widgets/popup_message.dart';
+import 'package:tidal_wave/presentation/global_widgets/popup_message.dart';
 
 class TWMusicListViewItem extends StatelessWidget {
   const TWMusicListViewItem({

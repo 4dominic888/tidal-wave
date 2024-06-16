@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:tidal_wave/shared/function_utils.dart';
 import 'dart:math' as math;
 
-import 'package:tidal_wave/shared/widgets/tw_text_field.dart';
+import 'package:tidal_wave/presentation/global_widgets/tw_text_field.dart';
 
 class DurationFormField extends StatefulWidget {
 

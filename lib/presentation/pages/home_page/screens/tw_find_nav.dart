@@ -13,7 +13,7 @@ import 'package:tidal_wave/domain/models/music.dart';
 import 'package:tidal_wave/services/repositories/tw_music_list_repository.dart';
 import 'package:tidal_wave/services/repositories/tw_music_repository.dart';
 import 'package:tidal_wave/shared/music_state_util.dart';
-import 'package:tidal_wave/shared/widgets/popup_message.dart';
+import 'package:tidal_wave/presentation/global_widgets/popup_message.dart';
 
 class TwFindNav extends StatefulWidget {
   const TwFindNav({super.key});

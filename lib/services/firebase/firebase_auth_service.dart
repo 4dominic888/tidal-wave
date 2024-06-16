@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:tidal_wave/modules/autenticacion_usuario/classes/tw_user.dart';
+import 'package:tidal_wave/domain/models/tw_user.dart';
 import 'package:tidal_wave/services/repositories/tw_user_repository.dart';
 import 'package:tidal_wave/shared/result.dart';
 

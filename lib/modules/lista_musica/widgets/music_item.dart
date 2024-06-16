@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/icon_button_music.dart';
-import 'package:tidal_wave/modules/reproductor_musica/classes/musica.dart';
+import 'package:tidal_wave/domain/models/music.dart';
 import 'package:tidal_wave/shared/music_state_util.dart';
 
 class MusicItem extends StatelessWidget {

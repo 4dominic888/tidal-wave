@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tidal_wave/presentation/bloc/user_cubit.dart';
-import 'package:tidal_wave/modules/autenticacion_usuario/classes/tw_user.dart';
+import 'package:tidal_wave/domain/models/tw_user.dart';
 import 'package:tidal_wave/shared/widgets/tw_text_field.dart';
 import 'package:tidal_wave/shared/widgets/popup_message.dart';
 import 'package:tidal_wave/modules/home_page/screens/home_page_screen.dart';

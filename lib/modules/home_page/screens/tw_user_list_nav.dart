@@ -2,7 +2,7 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:group_button/group_button.dart';
-import 'package:tidal_wave/modules/home_page/classes/music_list.dart';
+import 'package:tidal_wave/domain/models/music_list.dart';
 import 'package:tidal_wave/modules/home_page/screens/create_user_list_screen.dart';
 import 'package:tidal_wave/modules/home_page/widgets/tw_music_list_view_item.dart';
 import 'package:tidal_wave/services/repositories/tw_music_list_repository.dart';

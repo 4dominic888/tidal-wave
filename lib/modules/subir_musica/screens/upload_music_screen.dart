@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
-import 'package:tidal_wave/modules/reproductor_musica/classes/musica.dart';
+import 'package:tidal_wave/domain/models/music.dart';
 import 'package:tidal_wave/modules/subir_musica/widgets/duration_form_field.dart';
 import 'package:tidal_wave/services/firebase/firebase_storage_service.dart';
 import 'package:tidal_wave/services/repositories/tw_music_repository.dart';

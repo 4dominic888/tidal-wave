@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:tidal_wave/modules/home_page/classes/music_list.dart';
+import 'package:tidal_wave/domain/models/music_list.dart';
 import 'package:tidal_wave/services/repositories/repository_base.dart';
 import 'package:tidal_wave/shared/result.dart';
 

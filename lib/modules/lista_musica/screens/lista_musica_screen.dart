@@ -9,7 +9,7 @@ import 'package:tidal_wave/modules/lista_musica/widgets/mini_music_player.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/music_item.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/text_field_find.dart';
 import 'package:tidal_wave/modules/lista_musica/widgets/title_container.dart';
-import 'package:tidal_wave/modules/reproductor_musica/classes/musica.dart';
+import 'package:tidal_wave/domain/models/music.dart';
 class ListaMusicaScreen extends StatefulWidget {
 
   final List<Music> listado;

@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:tidal_wave/presentation/bloc/music_color_cubit.dart';
 import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
-import 'package:tidal_wave/modules/reproductor_musica/classes/position_data.dart';
+import 'package:tidal_wave/domain/models/position_data.dart';
 import 'package:tidal_wave/modules/reproductor_musica/widgets/controls.dart';
 import 'package:tidal_wave/modules/reproductor_musica/widgets/fav_button.dart';
 import 'package:tidal_wave/modules/reproductor_musica/widgets/media_meta_data.dart';

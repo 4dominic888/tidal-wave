@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:tidal_wave/modules/reproductor_musica/classes/position_data.dart';
+import 'package:tidal_wave/domain/models/position_data.dart';
 import 'package:tidal_wave/shared/utils.dart';
 
 /// Cubit para la musica escuchada actualmente

@@ -4,7 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tidal_wave/presentation/bloc/user_cubit.dart';
-import 'package:tidal_wave/modules/autenticacion_usuario/classes/tw_user.dart';
+import 'package:tidal_wave/domain/models/tw_user.dart';
 import 'package:tidal_wave/modules/autenticacion_usuario/screens/login_screen.dart';
 import 'package:tidal_wave/modules/autenticacion_usuario/screens/register_screen.dart';
 import 'package:tidal_wave/modules/autenticacion_usuario/screens/update_user_screen.dart';

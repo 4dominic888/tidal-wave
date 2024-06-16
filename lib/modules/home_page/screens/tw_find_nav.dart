@@ -254,6 +254,8 @@ class MusicElementView extends StatelessWidget {
                           icon: selected!.first ? 
                             snapshot.data?.processingState == ProcessingState.loading ? const Icon(Icons.watch_later, color: Colors.white) : MusicStateUtil.playIcon(snapshot.data, color: Colors.white) :
                             const Icon(Icons.play_arrow_rounded, color: Colors.white),
+
+
                           onTap: selected!.first ? MusicStateUtil.playReturns(snapshot.data,
                             playCase: context.read<MusicCubit>().state.play,
                             stopCase: context.read<MusicCubit>().state.pause,
@@ -270,6 +272,8 @@ class MusicElementView extends StatelessWidget {
                               await context.read<MusicCubit>().state.play();
                             },
                         );
+
+                        
                       }
                     ),
                   ),

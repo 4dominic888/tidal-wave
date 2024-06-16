@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 
+/// Clase para cambiar poder cambiar el estado de un icon o funcion en base al estado de la musica
 class MusicStateUtil {
   static T playReturns<T>(PlayerState? playerState, {required T playCase, required T stopCase, required T playStatic}){
     final processingState = playerState?.processingState;

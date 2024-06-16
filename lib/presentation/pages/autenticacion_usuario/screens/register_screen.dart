@@ -6,7 +6,7 @@ import 'package:tidal_wave/domain/models/tw_user.dart';
 import 'package:tidal_wave/presentation/pages/home_page/screens/home_page_screen.dart';
 import 'package:tidal_wave/presentation/global_widgets/tw_text_field.dart';
 import 'package:tidal_wave/presentation/global_widgets/popup_message.dart';
-import 'package:tidal_wave/services/firebase/firebase_auth_service.dart';
+import 'package:tidal_wave/data/dataSources/firebase/firebase_auth_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});

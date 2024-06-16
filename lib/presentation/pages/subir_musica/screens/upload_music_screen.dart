@@ -11,7 +11,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
 import 'package:tidal_wave/domain/models/music.dart';
 import 'package:tidal_wave/presentation/pages/subir_musica/widgets/duration_form_field.dart';
-import 'package:tidal_wave/services/firebase/firebase_storage_service.dart';
+import 'package:tidal_wave/data/dataSources/firebase/firebase_storage_service.dart';
 import 'package:tidal_wave/services/repositories/tw_music_repository.dart';
 import 'package:tidal_wave/presentation/controllers/tw_select_file_controller.dart';
 import 'package:tidal_wave/presentation/utils/music_state_util.dart';

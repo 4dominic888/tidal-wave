@@ -5,8 +5,8 @@ import 'package:group_button/group_button.dart';
 import 'package:tidal_wave/domain/models/music_list.dart';
 import 'package:tidal_wave/presentation/pages/home_page/screens/create_user_list_screen.dart';
 import 'package:tidal_wave/presentation/pages/home_page/widgets/tw_music_list_view_item.dart';
-import 'package:tidal_wave/services/repositories/repository_implement_base.dart';
-import 'package:tidal_wave/services/repositories/tw_music_list_repository.dart';
+import 'package:tidal_wave/data/repositories/repository_implement_base.dart';
+import 'package:tidal_wave/data/repositories/tw_music_list_repository.dart';
 
 class TWUserListNav extends StatefulWidget {
   const TWUserListNav({super.key});

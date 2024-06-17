@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tidal_wave/domain/models/music.dart';
-import 'package:tidal_wave/services/repositories/repository_implement_base.dart';
+import 'package:tidal_wave/data/repositories/repository_implement_base.dart';
 import 'package:tidal_wave/data/result.dart';
 
 typedef T = Music;

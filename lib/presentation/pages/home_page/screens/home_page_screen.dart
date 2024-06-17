@@ -12,9 +12,9 @@ import 'package:tidal_wave/presentation/pages/home_page/screens/tw_account_nav.d
 import 'package:tidal_wave/presentation/pages/home_page/screens/tw_find_nav.dart';
 import 'package:tidal_wave/presentation/pages/home_page/screens/tw_home_nav.dart';
 import 'package:tidal_wave/presentation/pages/home_page/screens/tw_user_list_nav.dart';
-import 'package:tidal_wave/services/repositories/repository_implement_base.dart';
-import 'package:tidal_wave/services/repositories/tw_music_repository.dart';
-import 'package:tidal_wave/services/repositories/tw_user_repository.dart';
+import 'package:tidal_wave/data/repositories/repository_implement_base.dart';
+import 'package:tidal_wave/data/repositories/tw_music_repository.dart';
+import 'package:tidal_wave/data/repositories/tw_user_repository.dart';
 
 class HomePageScreen extends StatefulWidget {
   const HomePageScreen({super.key});

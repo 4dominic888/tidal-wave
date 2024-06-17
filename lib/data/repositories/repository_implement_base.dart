@@ -1,6 +1,6 @@
 import 'package:tidal_wave/data/dataSources/firebase/firebase_database_service.dart';
 import 'package:tidal_wave/data/result.dart';
-import 'package:tidal_wave/services/repositories/database_service.dart';
+import 'package:tidal_wave/data/repositories/database_service.dart';
 
 enum TypeDataBase{
   /// Base de datos online en la nube, backend de google

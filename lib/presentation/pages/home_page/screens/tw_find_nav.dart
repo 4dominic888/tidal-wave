@@ -10,9 +10,9 @@ import 'package:tidal_wave/domain/models/music_list.dart';
 import 'package:tidal_wave/presentation/pages/lista_musica/widgets/icon_button_music.dart';
 import 'package:tidal_wave/presentation/pages/lista_musica/widgets/text_field_find.dart';
 import 'package:tidal_wave/domain/models/music.dart';
-import 'package:tidal_wave/services/repositories/repository_implement_base.dart';
-import 'package:tidal_wave/services/repositories/tw_music_list_repository.dart';
-import 'package:tidal_wave/services/repositories/tw_music_repository.dart';
+import 'package:tidal_wave/data/repositories/repository_implement_base.dart';
+import 'package:tidal_wave/data/repositories/tw_music_list_repository.dart';
+import 'package:tidal_wave/data/repositories/tw_music_repository.dart';
 import 'package:tidal_wave/presentation/utils/music_state_util.dart';
 import 'package:tidal_wave/presentation/global_widgets/popup_message.dart';
 

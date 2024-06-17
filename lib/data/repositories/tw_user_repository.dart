@@ -1,5 +1,5 @@
 import 'package:tidal_wave/domain/models/tw_user.dart';
-import 'package:tidal_wave/services/repositories/repository_implement_base.dart';
+import 'package:tidal_wave/data/repositories/repository_implement_base.dart';
 import 'package:tidal_wave/data/result.dart';
 
 typedef T = TWUser;

@@ -1,42 +1,52 @@
 import 'package:tidal_wave/domain/models/tw_user.dart';
-import 'package:tidal_wave/services/repositories/repository_base.dart';
+import 'package:tidal_wave/services/repositories/repository_implement_base.dart';
 import 'package:tidal_wave/data/result.dart';
 
-class TWUserRepository extends RepositoryBase<TWUser> {
-  @override
-  String get collectionName => 'Users';
+typedef T = TWUser;
+
+/// Toda esta clase se debe usar con firebase
+class TWUserRepository extends RepositoryImplementBase<T> with OnlyFirestoreAction<T> implements Addable<T>, GetOneable<T>, GetAllable<T>, Updatable<T>, Deletable<T>{
+  TWUserRepository(super.type);
 
   @override
-  Future<Result<List<TWUser>>> getAll({List<String> queryArray = const [], bool Function(Map<String, dynamic>)? where, int limit = 10}) async{
+  String get dataset => 'Users';
+
+  @override
+  Future<Result<List<T>>> getAll({List<String> queryArray = const [], bool Function(Map<String, dynamic>)? where, int limit = 10}) async{
     try {
-      final data = await context.getAll(collectionName, queryArray, where, limit);
-      return Result.sucess(data.map((e) => TWUser.fromJson(e)).toList());
+      late final List<Map<String, dynamic>> data;
+      actionOnlyFirestore((firestoreContext) async => data = await firestoreContext.getAll(dataset, queryArray, where, limit));
+      return Result.sucess(data.map((e) => T.fromJson(e)).toList());
     } on Exception catch (e) {
       return Result.error('Ha ocurrido un error: $e');
     }
   }
   
   @override
-  Future<Result<TWUser>> getOne(String id, [List<String> queryArray = const []]) async {
+  Future<Result<T>> getOne(String id, [List<String> queryArray = const []]) async {
     try {
-      final data = await context.getOne(collectionName, id, queryArray);
+      late final Map<String, dynamic>? data;
+      actionOnlyFirestore((firestoreContext) async => data = await firestoreContext.getOne(dataset, id, queryArray));
+
       if (data == null) {
         return Result.error('No se ha encontrado el elemento');
       }
-      return Result.sucess(TWUser.fromJson(data));
+      return Result.sucess(T.fromJson(data!));
     } on Exception catch (e) {
       return Result.error('Ha ocurrido un error: $e');
     }
   }
 
   @override
-  Future<Result<TWUser>> addOne(TWUser data, String? id, [List<String> queryArray = const []]) async {
+  Future<Result<T>> addOne(T data, String? id, [List<String> queryArray = const []]) async {
     try {
-      if(id == null){
-        await context.addOne(collectionName, data.toJson(), queryArray);
-      } else{
-        await context.setOne(collectionName, data.toJson(), id, queryArray);
-      }
+      actionOnlyFirestore((firestoreContext) async {
+        if(id == null){
+          await firestoreContext.addOne(dataset, data.toJson(), queryArray);
+        } else{
+          await firestoreContext.setOne(dataset, data.toJson(), id, queryArray);
+        }
+      });
       return Result.sucess(data);
     } on Exception catch (e) {
       return Result.error('Ha ocurrido un error: $e');
@@ -44,19 +54,20 @@ class TWUserRepository extends RepositoryBase<TWUser> {
   }
     
   @override
-  Future<Result<TWUser>> updateOne(TWUser data, String id, [List<String> queryArray = const []]) async {
+  Future<Result<T>> updateOne(T data, String id, [List<String> queryArray = const []]) async {
     try {
-      final retorno = await context.updateOne(collectionName, data.toJson(), id, queryArray);
-      return Result.sucess(TWUser.fromJson(retorno));
+      late final Map<String, dynamic> retorno;
+      actionOnlyFirestore((firestoreContext) async => retorno = await firestoreContext.updateOne(dataset, data.toJson(), id, queryArray));
+      return Result.sucess(T.fromJson(retorno));
     } on Exception catch (e) {
       return Result.error('Ha ocurrido un error: $e');
     }
   }
   
   @override
-  Future<Result<String>> deleteOne(String id, [List<String> queryArray = const []]) async{
+  Future<Result<String>> deleteOne(String id, [List<String> queryArray = const []]) async {
     try {
-      await context.deleteOne(collectionName, id, queryArray);
+      actionOnlyFirestore((firestoreContext) async => await firestoreContext.deleteOne(dataset, id, queryArray));
       return Result.sucess(id);
     } on Exception catch (e) {
       return Result.error('Ha ocurrido un error: $e');

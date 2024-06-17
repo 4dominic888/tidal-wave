@@ -5,8 +5,8 @@ import 'package:tidal_wave/data/result.dart';
 typedef T = TWUser;
 
 /// Toda esta clase se debe usar con firebase
-class TWUserRepository extends RepositoryImplementBase<T> with OnlyFirestoreAction<T> implements Addable<T>, GetOneable<T>, GetAllable<T>, Updatable<T>, Deletable{
-  TWUserRepository(super.type);
+class TWUserRepositoryImplement extends RepositoryImplementBase<T> with OnlyFirestoreAction<T> implements Addable<T>, GetOneable<T>, GetAllable<T>, Updatable<T>, Deletable{
+  TWUserRepositoryImplement(super.type);
 
   @override
   String get dataset => 'Users';

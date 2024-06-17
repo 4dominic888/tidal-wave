@@ -13,7 +13,7 @@ import 'package:tidal_wave/domain/models/music.dart';
 import 'package:tidal_wave/presentation/pages/subir_musica/widgets/duration_form_field.dart';
 import 'package:tidal_wave/data/dataSources/firebase/firebase_storage_service.dart';
 import 'package:tidal_wave/data/repositories/repository_implement_base.dart';
-import 'package:tidal_wave/data/repositories/tw_music_repository.dart';
+import 'package:tidal_wave/data/repositories/tw_music_repository_implement.dart';
 import 'package:tidal_wave/presentation/controllers/tw_select_file_controller.dart';
 import 'package:tidal_wave/presentation/utils/music_state_util.dart';
 import 'package:tidal_wave/presentation/utils/function_utils.dart';
@@ -91,7 +91,7 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
         betterMoment: _musicController.clipMoment ?? Duration.zero
       );
 
-      final finalResult = await TWMusicRepository(TypeDataBase.firestore).addOne(music, uuid);
+      final finalResult = await TWMusicRepositoryImplement(TypeDataBase.firestore).addOne(music, uuid);
 
       if (!finalResult.onSuccess) {
         FirebaseStorageService.deleteFileWithURL(musicUploadResult.data!);

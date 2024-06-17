@@ -5,9 +5,9 @@ import 'package:tidal_wave/data/repositories/repository_implement_base.dart';
 import 'package:tidal_wave/data/result.dart';
 
 typedef T = MusicList;
-class TWMusicListRepository extends RepositoryImplementBase<T> implements Addable<T>, GetOneable<T>, Updatable<T>, Deletable{
+class TWMusicListRepositoryImplement extends RepositoryImplementBase<T> implements Addable<T>, GetOneable<T>, Updatable<T>, Deletable{
 
-  TWMusicListRepository(super.type);
+  TWMusicListRepositoryImplement(super.type);
 
   @override
   String get dataset => 'User-List-Musics';

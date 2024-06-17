@@ -11,8 +11,8 @@ import 'package:tidal_wave/presentation/pages/lista_musica/widgets/icon_button_m
 import 'package:tidal_wave/presentation/pages/lista_musica/widgets/text_field_find.dart';
 import 'package:tidal_wave/domain/models/music.dart';
 import 'package:tidal_wave/data/repositories/repository_implement_base.dart';
-import 'package:tidal_wave/data/repositories/tw_music_list_repository.dart';
-import 'package:tidal_wave/data/repositories/tw_music_repository.dart';
+import 'package:tidal_wave/data/repositories/tw_music_list_repository_implement.dart';
+import 'package:tidal_wave/data/repositories/tw_music_repository_implement.dart';
 import 'package:tidal_wave/presentation/utils/music_state_util.dart';
 import 'package:tidal_wave/presentation/global_widgets/popup_message.dart';
 
@@ -41,7 +41,7 @@ class _TwFindNavState extends State<TwFindNav> {
   }
 
   Future<List<Music>> listOfMusic() async {
-    final result = await TWMusicRepository(TypeDataBase.firestore).getAll();
+    final result = await TWMusicRepositoryImplement(TypeDataBase.firestore).getAll();
     if(result.onSuccess){return result.data!.toList();}
     throw Exception(result.errorMessage);
   }
@@ -125,7 +125,7 @@ class MusicElementView extends StatelessWidget {
   const MusicElementView({super.key, required this.item, this.onPlay, this.selected = const [false]});
 
   Future<void> addMusicToList(BuildContext context, Music music) async {
-    final listResult = await TWMusicListRepository(TypeDataBase.firestore).getAllListForUser(FirebaseAuth.instance.currentUser!.uid);
+    final listResult = await TWMusicListRepositoryImplement(TypeDataBase.firestore).getAllListForUser(FirebaseAuth.instance.currentUser!.uid);
     if(!listResult.onSuccess) {
       PopupDialog(title: 'Error', description: listResult.errorMessage!);
       return;
@@ -149,7 +149,7 @@ class MusicElementView extends StatelessWidget {
                   ListTile(
                     title: Text(e.name, style: const TextStyle(color: Colors.white)),
                     onTap: () async {
-                      final result = await TWMusicListRepository(TypeDataBase.firestore).addMusic(
+                      final result = await TWMusicListRepositoryImplement(TypeDataBase.firestore).addMusic(
                         musicUUID: music.uuid!,
                         userId: FirebaseAuth.instance.currentUser!.uid,
                         listId: e.id,

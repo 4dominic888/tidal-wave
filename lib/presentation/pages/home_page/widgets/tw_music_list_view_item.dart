@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tidal_wave/domain/models/music_list.dart';
 import 'package:tidal_wave/presentation/pages/lista_musica/screens/lista_musica_screen.dart';
+import 'package:tidal_wave/services/repositories/repository_implement_base.dart';
 import 'package:tidal_wave/services/repositories/tw_music_repository.dart';
 import 'package:tidal_wave/presentation/global_widgets/popup_message.dart';
 
@@ -27,7 +28,7 @@ class TWMusicListViewItem extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: () async {
-          final result = await TWMusicRepository().getAllByReferences(item.musics);
+          final result = await TWMusicRepository(TypeDataBase.firestore).getAllByReferences(item.musics);
           if(!context.mounted) return;
           if(!context.mounted) return;
           if(!result.onSuccess){

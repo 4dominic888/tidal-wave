@@ -1,12 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tidal_wave/domain/models/tw_user.dart';
+import 'package:tidal_wave/services/repositories/repository_implement_base.dart';
 import 'package:tidal_wave/services/repositories/tw_user_repository.dart';
 import 'package:tidal_wave/data/result.dart';
 
 class FirebaseAuthService {
   
   static final FirebaseAuth _auth = FirebaseAuth.instance;
-  static final TWUserRepository _twUserRepository = TWUserRepository();
+  static final TWUserRepository _twUserRepository = TWUserRepository(TypeDataBase.firestore);
 
   static Future<Result<TWUser>> registerUser(TWUser twUser, String password) async{
     try {

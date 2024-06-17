@@ -63,8 +63,8 @@ abstract class Updatable<T>{
   Future<Result<T>> updateOne(T data, String id);
 }
 
-abstract class Deletable<T>{
-  Future<Result<dynamic>> deleteOne(String id);
+abstract class Deletable{
+  Future<Result<String>> deleteOne(String id);
 }
 
 mixin OnlyFirestoreAction<T> on RepositoryImplementBase<T> {

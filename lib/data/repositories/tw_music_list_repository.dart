@@ -5,7 +5,7 @@ import 'package:tidal_wave/data/repositories/repository_implement_base.dart';
 import 'package:tidal_wave/data/result.dart';
 
 typedef T = MusicList;
-class TWMusicListRepository extends RepositoryImplementBase<T> implements Addable<T>, GetOneable<T>, Updatable<T>, Deletable<T>{
+class TWMusicListRepository extends RepositoryImplementBase<T> implements Addable<T>, GetOneable<T>, Updatable<T>, Deletable{
 
   TWMusicListRepository(super.type);
 
@@ -108,7 +108,7 @@ class TWMusicListRepository extends RepositoryImplementBase<T> implements Addabl
   }
 
   @override
-  Future<Result> deleteOne(String id, [List<String> queryArray = const []]) {
+  Future<Result<String>> deleteOne(String id, [List<String> queryArray = const []]) {
     // TODO: implement deleteOne
     throw UnimplementedError();
   }

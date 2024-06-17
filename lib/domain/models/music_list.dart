@@ -12,8 +12,8 @@ class MusicList {
 
   MusicList.toSend({required this.name, required this.description, required this.type, this.image}): id = '', musics=[];
 
-  factory MusicList.fromJson(Map<String,dynamic> json, String uuid, String type) => MusicList(
-    id: uuid,
+  factory MusicList.fromJson(Map<String,dynamic> json, String type) => MusicList(
+    id: json['uuid'],
     name: json['name'],
     description: json['description'],
     type: type,

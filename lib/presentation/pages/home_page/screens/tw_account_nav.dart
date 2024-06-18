@@ -1,18 +1,16 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
+import 'package:tidal_wave/domain/use_case/interfaces/authentication_manager_use_case.dart';
 import 'package:tidal_wave/presentation/bloc/user_cubit.dart';
 import 'package:tidal_wave/domain/models/tw_user.dart';
 import 'package:tidal_wave/presentation/pages/autenticacion_usuario/screens/login_screen.dart';
 import 'package:tidal_wave/presentation/pages/autenticacion_usuario/screens/register_screen.dart';
 import 'package:tidal_wave/presentation/pages/autenticacion_usuario/screens/update_user_screen.dart';
 import 'package:tidal_wave/presentation/global_widgets/popup_message.dart';
-import 'package:tidal_wave/data/dataSources/firebase/firebase_auth_service.dart';
 
 class TWAccountNav extends StatelessWidget {
-
   const TWAccountNav({super.key});
 
   static List<Map<String, String>> userFields(String type, String email, String timeStamp) => [
@@ -105,7 +103,8 @@ class TWAccountNav extends StatelessWidget {
                         title: 'Advertencia',
                         description: '¿Estás seguro de que quieres cerrar sesión?',
                         onOK: () async {
-                          await FirebaseAuthService.exitAccout();
+                          await GetIt.I<AuthenticationManagerUseCase>().salirDeLaCuenta();
+                          if(!context.mounted) return;
                           context.read<UserCubit>().user = null;
                           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
                         },

@@ -2,11 +2,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
+import 'package:tidal_wave/domain/use_case/interfaces/authentication_manager_use_case.dart';
 import 'package:tidal_wave/presentation/bloc/user_cubit.dart';
 import 'package:tidal_wave/presentation/pages/home_page/screens/home_page_screen.dart';
 import 'package:tidal_wave/presentation/global_widgets/tw_text_field.dart';
 import 'package:tidal_wave/presentation/global_widgets/popup_message.dart';
-import 'package:tidal_wave/data/dataSources/firebase/firebase_auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -24,13 +25,13 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
 
   bool _onLoad = false;
+  final _authenticationUseCase = GetIt.I<AuthenticationManagerUseCase>();
 
 
   void onLogin() async {
     if(_formKey.currentState!.validate()){
       setState(() =>_onLoad = true);
-      
-      final result = await FirebaseAuthService.loginUser(_emailController.text, _passwordController.text);
+      final result = await _authenticationUseCase.iniciarSesion(_emailController.text, _passwordController.text);
       setState(() =>_onLoad = false);
       if (result.onSuccess) {
         context.read<UserCubit>().user = result.data!;

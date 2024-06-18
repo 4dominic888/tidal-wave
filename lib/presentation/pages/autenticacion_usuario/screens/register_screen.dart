@@ -1,12 +1,13 @@
 // ignore_for_file: use_build_context_synchronously
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
+import 'package:tidal_wave/domain/use_case/interfaces/authentication_manager_use_case.dart';
 import 'package:tidal_wave/presentation/bloc/user_cubit.dart';
 import 'package:tidal_wave/domain/models/tw_user.dart';
 import 'package:tidal_wave/presentation/pages/home_page/screens/home_page_screen.dart';
 import 'package:tidal_wave/presentation/global_widgets/tw_text_field.dart';
 import 'package:tidal_wave/presentation/global_widgets/popup_message.dart';
-import 'package:tidal_wave/data/dataSources/firebase/firebase_auth_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -32,6 +33,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _verifyPasswordController = TextEditingController();
 
   bool _onLoad = false;
+  final _authenticationUseCase = GetIt.I<AuthenticationManagerUseCase>();
 
   void onSubmit() async{
     if (_formKey.currentState!.validate()) {
@@ -43,7 +45,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         email: _emailController.text
       );
 
-      final result = await FirebaseAuthService.registerUser(user, _passwordController.text);
+      final result = await _authenticationUseCase.registrarse(user, _passwordController.text);
       setState(() =>_onLoad = false);
 
       if (result.onSuccess) {

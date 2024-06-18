@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,12 +5,13 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:tidal_wave/domain/use_case/interfaces/music_manager_use_case.dart';
 import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
 import 'package:tidal_wave/domain/models/music.dart';
 import 'package:tidal_wave/presentation/pages/subir_musica/widgets/duration_form_field.dart';
 import 'package:tidal_wave/data/dataSources/firebase/firebase_storage_service.dart';
-import 'package:tidal_wave/data/repositories/music_repository_implement.dart';
 import 'package:tidal_wave/presentation/controllers/tw_select_file_controller.dart';
 import 'package:tidal_wave/presentation/utils/music_state_util.dart';
 import 'package:tidal_wave/presentation/utils/function_utils.dart';
@@ -40,6 +39,9 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
 
   final _musicFileUploadStreamController = StreamController<double>();
   final _imageFileUploadStreamController = StreamController<double>();
+
+  final _musicManagerUseCase = GetIt.I<MusicManagerUseCase>();
+
 
   bool _onLoad = false;
 
@@ -71,6 +73,7 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
         },);
         if(!imageUploadResult.onSuccess){
           FirebaseStorageService.deleteFileWithURL(musicUploadResult.data!);
+          if(!mounted) return;
           showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: imageUploadResult.errorMessage!));
           setState(() =>_onLoad = false);
           return;
@@ -90,18 +93,20 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
         betterMoment: _musicController.clipMoment ?? Duration.zero
       );
 
-      final finalResult = await MusicRepositoryImplement().addOne(music, uuid);
+      final finalResult = await _musicManagerUseCase.agregarMusica(music, id: uuid, type: TypeOfOrigin.global);
 
       if (!finalResult.onSuccess) {
         FirebaseStorageService.deleteFileWithURL(musicUploadResult.data!);
         if(hasImage) {
           FirebaseStorageService.deleteFileWithURL(imageUploadResult.data!);
         }
+        if(!mounted) return;
         showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: finalResult.errorMessage!));
         setState(() =>_onLoad = false);
         return;
       }
-
+      
+      if(!mounted) return;
       showDialog(context: context, builder: (context) => const PopupMessage(title: 'Exito', description: 'La cancion ha sido subida con exito a los servidores de tidal wave'));
       setState(() =>_onLoad = false);
     }

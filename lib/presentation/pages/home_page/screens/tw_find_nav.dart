@@ -4,14 +4,15 @@ import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:tidal_wave/domain/use_case/interfaces/music_manager_use_case.dart';
+import 'package:tidal_wave/domain/use_case/interfaces/play_list_manager_use_case.dart';
 import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
 import 'package:tidal_wave/domain/models/music_list.dart';
 import 'package:tidal_wave/presentation/pages/lista_musica/widgets/icon_button_music.dart';
 import 'package:tidal_wave/presentation/pages/lista_musica/widgets/text_field_find.dart';
 import 'package:tidal_wave/domain/models/music.dart';
-import 'package:tidal_wave/data/repositories/music_list_repository_implement.dart';
-import 'package:tidal_wave/data/repositories/music_repository_implement.dart';
 import 'package:tidal_wave/presentation/utils/music_state_util.dart';
 import 'package:tidal_wave/presentation/global_widgets/popup_message.dart';
 
@@ -21,6 +22,10 @@ class TwFindNav extends StatefulWidget {
   @override
   State<TwFindNav> createState() => _TwFindNavState();
 }
+
+final _musicListManagerUseCase = GetIt.I<PlayListManagerUseCase>();
+final _musicManagerUseCase = GetIt.I<MusicManagerUseCase>();
+
 
 class _TwFindNavState extends State<TwFindNav> {
 
@@ -40,7 +45,7 @@ class _TwFindNavState extends State<TwFindNav> {
   }
 
   Future<List<Music>> listOfMusic() async {
-    final result = await MusicRepositoryImplement().getAll();
+    final result = await _musicManagerUseCase.obtenerCancionesPublicas();
     if(result.onSuccess){return result.data!.toList();}
     throw Exception(result.errorMessage);
   }
@@ -124,7 +129,7 @@ class MusicElementView extends StatelessWidget {
   const MusicElementView({super.key, required this.item, this.onPlay, this.selected = const [false]});
 
   Future<void> addMusicToList(BuildContext context, Music music) async {
-    final listResult = await MusicListRepositoryImplement().getAllListForUser(FirebaseAuth.instance.currentUser!.uid);
+    final listResult = await _musicListManagerUseCase.obtenerListasDeUsuarioActual();
     if(!listResult.onSuccess) {
       PopupDialog(title: 'Error', description: listResult.errorMessage!);
       return;
@@ -148,12 +153,13 @@ class MusicElementView extends StatelessWidget {
                   ListTile(
                     title: Text(e.name, style: const TextStyle(color: Colors.white)),
                     onTap: () async {
-                      final result = await MusicListRepositoryImplement().addMusic(
+                      final result = await _musicListManagerUseCase.agregarMusicaALista(
                         musicUUID: music.uuid!,
                         userId: FirebaseAuth.instance.currentUser!.uid,
                         listId: e.id,
                         listType: e.type
                       );
+                      if(!context.mounted) return;
                       if(!result.onSuccess){
                         showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: result.errorMessage!));
                       }

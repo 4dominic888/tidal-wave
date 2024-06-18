@@ -2,10 +2,11 @@ import 'dart:async';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
 import 'package:tidal_wave/domain/models/music_list.dart';
 import 'package:tidal_wave/data/dataSources/firebase/firebase_storage_service.dart';
-import 'package:tidal_wave/data/repositories/music_list_repository_implement.dart';
+import 'package:tidal_wave/domain/use_case/interfaces/play_list_manager_use_case.dart';
 import 'package:tidal_wave/presentation/controllers/tw_select_file_controller.dart';
 import 'package:tidal_wave/data/result.dart';
 import 'package:tidal_wave/presentation/global_widgets/popup_message.dart';
@@ -32,7 +33,7 @@ class _CreateUserListScreenState extends State<CreateUserListScreen> {
   
   final _imageFileUploadStreamController = StreamController<double>();
 
-  //bool _onLoad = false;
+  final PlayListManagerUseCase _playListManagerUseCase = GetIt.I<PlayListManagerUseCase>();
 
   void onSubmit() async{
     if(_formKey.currentState!.validate()){
@@ -61,7 +62,7 @@ class _CreateUserListScreenState extends State<CreateUserListScreen> {
         image: Uri.parse(imageUploadResult.data!)
       );
 
-      final musicListResult = await MusicListRepositoryImplement().addOne(musicList, null);
+      final musicListResult = await _playListManagerUseCase.agregarLista(musicList, null);
       if(!musicListResult.onSuccess){
         if(_imageController.value != null) {FirebaseStorageService.deleteFileWithURL(imageUploadResult.data!);}
         if(!mounted) return;
@@ -71,7 +72,7 @@ class _CreateUserListScreenState extends State<CreateUserListScreen> {
       }
 
       if(!mounted) return;
-      showDialog(context: context, builder: (context) => const PopupMessage(title: 'Exito', description: 'La lista ha sido creada satisfactoriamente'));
+      showDialog(context: context, builder: (context) => PopupMessage(title: 'Exito', description: musicListResult.data!));
       _btnController.success();
       return;
     }

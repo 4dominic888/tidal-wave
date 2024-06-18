@@ -5,9 +5,9 @@ import 'package:tidal_wave/data/repositories/repository_implement_base.dart';
 import 'package:tidal_wave/data/result.dart';
 import 'package:tidal_wave/domain/repositories/music_list_repository.dart';
 
-class MusicListRepositoryImplement extends RepositoryImplementBase<T> implements MusicListRepository{
-
-  MusicListRepositoryImplement(super.type);
+class MusicListRepositoryImplement extends RepositoryImplementBase with UseFirestore implements MusicListRepository{
+  
+  MusicListRepositoryImplement() : super.firestore();
 
   @override
   String get dataset => 'User-List-Musics';
@@ -15,20 +15,12 @@ class MusicListRepositoryImplement extends RepositoryImplementBase<T> implements
   @override
   Future<Result<T>> addOne(MusicList data, String? id, [List<String> queryArray = const []]) async {
     try {
-      actionDependingToDB(
-        isFireStore: (firestoreContext) async {
-          if(id == null){
-            await firestoreContext.addOne(dataset, data.toJson(), [FirebaseAuth.instance.currentUser!.uid, data.type]);
-          }
-          else{
-            await firestoreContext.setOne(dataset, data.toJson(), id, [FirebaseAuth.instance.currentUser!.uid, data.type]);
-          }
-        },
-        isHive: (){
-          //TODO implementar
-          throw UnimplementedError();
-        }
-      );
+      if(id == null){
+        await firestoreContext.addOne(dataset, data.toJson(), [FirebaseAuth.instance.currentUser!.uid, data.type]);
+      }
+      else{
+        await firestoreContext.setOne(dataset, data.toJson(), id, [FirebaseAuth.instance.currentUser!.uid, data.type]);
+      }
       return Result.sucess(data);
     } on Exception catch (e) {
       return Result.error('Ha ocurrido un error $e');
@@ -38,16 +30,7 @@ class MusicListRepositoryImplement extends RepositoryImplementBase<T> implements
   @override
   Future<Result<List<T>>> getUserListByType(String userId, String type, [bool Function(Map<String, dynamic> p1)? where, int limit = 10]) async {
     try {
-      late final List<Map<String, dynamic>> data;
-      actionDependingToDB(
-        isFireStore: (firestoreContext) async {
-          data = await firestoreContext.getAll(dataset, [userId, type], where, limit);
-        },
-        isHive: (){
-          //TODO implementar
-          throw UnimplementedError();
-        }
-      );
+      final data = await firestoreContext.getAll(dataset, [userId, type], where, limit);
       return Result.sucess(data.map((e) => T.fromJson(e, type)).toList());
     } on Exception catch (e) {
       return Result.error('Ha ocurrido un error: $e');
@@ -69,20 +52,11 @@ class MusicListRepositoryImplement extends RepositoryImplementBase<T> implements
   @override
   Future<Result<String>> addMusic({required String musicUUID, required String userId, required String listId, required String listType}) async {
     try {
-      actionDependingToDB(
-        isFireStore: (firestoreContext) async {
-          DocumentReference<Map<String,dynamic>> musicReference = firestoreContext.db.collection('Musics').doc(musicUUID);
-          final listResult = await getOne(listId, [userId, listType]);
-          if(!listResult.onSuccess) throw Exception(listResult.errorMessage!);
-          listResult.data!.musics.add(musicReference);
-          firestoreContext.updateOne(dataset, listResult.data!.toJson(), listId, [userId, listType]);
-
-        },
-        isHive: (){
-          //TODO implementar
-          throw UnimplementedError();
-        }
-      );
+      DocumentReference<Map<String,dynamic>> musicReference = firestoreContext.db.collection('Musics').doc(musicUUID);
+      final listResult = await getOne(listId, [userId, listType]);
+      if(!listResult.onSuccess) throw Exception(listResult.errorMessage!);
+      listResult.data!.musics.add(musicReference);
+      firestoreContext.updateOne(dataset, listResult.data!.toJson(), listId, [userId, listType]);
       return Result.sucess('Se ha agragado la musica con exito');
     } catch (e) {
       return Result.error('Ha ocurrido un error $e');
@@ -92,18 +66,9 @@ class MusicListRepositoryImplement extends RepositoryImplementBase<T> implements
   @override
   Future<Result<T>> getOne(String id, [List<String> queryArray = const []]) async {
     try {
-      late final Map<String, dynamic>? data;
-      late final Result<T> result;
-      actionDependingToDB(
-        isFireStore: (firestoreContext) async{
-          data = await firestoreContext.getOne(dataset, id, queryArray);
-          result = data != null ? Result.sucess(MusicList.fromJson(data!, queryArray[1])) : Result.error('No se ha encontrado el elemento');
-        },
-        isHive: (){
-          //TODO implementar
-          throw UnimplementedError();
-        }
-      );
+      final data = await firestoreContext.getOne(dataset, id, queryArray);
+      final result = data != null ? Result.sucess(MusicList.fromJson(data, queryArray[1])) : Result<T>.error('No se ha encontrado el elemento');
+      if(!result.onSuccess) throw Exception(result.errorMessage);
       return result;
     } catch (e) {
       return Result.error('Ha ocurrido un error: $e');
@@ -119,16 +84,7 @@ class MusicListRepositoryImplement extends RepositoryImplementBase<T> implements
   @override
   Future<Result<T>> updateOne(MusicList data, String id, [List<String> queryArray = const []]) async {
     try {
-      late final Map<String, dynamic> retorno;
-      actionDependingToDB(
-        isFireStore: (firestoreContext) async {
-          retorno = await firestoreContext.updateOne(dataset, data.toJson(), id, queryArray);
-        },
-        isHive: (){
-          //TODO implementar
-          throw UnimplementedError();
-        }
-      );
+      final retorno = await firestoreContext.updateOne(dataset, data.toJson(), id, queryArray);
       return Result.sucess(T.fromJson(retorno, queryArray[1]));
     } catch (e) {
       return Result.error('Ha ocurrido un error $e');

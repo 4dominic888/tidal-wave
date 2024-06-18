@@ -3,9 +3,9 @@ import 'package:tidal_wave/data/repositories/repository_implement_base.dart';
 import 'package:tidal_wave/data/result.dart';
 import 'package:tidal_wave/domain/repositories/music_repository.dart';
 
-class MusicRepositoryImplement extends RepositoryImplementBase<T> with OnlyFirestoreAction<T> implements MusicRepository {
+class MusicRepositoryImplement extends RepositoryImplementBase with UseFirestore implements MusicRepository {
 
-  MusicRepositoryImplement(super.type);
+  MusicRepositoryImplement() : super.firestore();
 
   @override
   String get dataset => 'Musics';
@@ -13,20 +13,11 @@ class MusicRepositoryImplement extends RepositoryImplementBase<T> with OnlyFires
   @override
   Future<Result<T>> addOne(T data, String? id, [List<String> queryArray = const []]) async {
     try {
-      actionDependingToDB(
-        isFireStore: (firestoreContext) async {
-          if(id == null){
-            await firestoreContext.addOne(dataset, data.toJson(), queryArray);
-          } else{
-            await firestoreContext.setOne(dataset, data.toJson(), id, queryArray);
-          }
-        },
-        isHive: (){
-          //TODO implementar
-          //* Agregar musicas meramente locales
-          throw UnimplementedError();
-        }
-      );
+      if(id == null){
+        await firestoreContext.addOne(dataset, data.toJson(), queryArray);
+      } else{
+        await firestoreContext.setOne(dataset, data.toJson(), id, queryArray);
+      }
       return Result.sucess(data);
     } on Exception catch (e) {
       return Result.error('Ha ocurrido un error: $e');
@@ -37,21 +28,11 @@ class MusicRepositoryImplement extends RepositoryImplementBase<T> with OnlyFires
   Future<Result<List<T>>> getAll({List<String> queryArray = const [], bool Function(Map<String, dynamic> query)? where, int limit = 10}) async {
     try {
       int index = -1;
-      late final List<Map<String, dynamic>> data;
-      actionDependingToDB(
-        isFireStore: (firestoreContext) async {
-          data = await firestoreContext.getAll(dataset, queryArray, where, limit);
-        },
-        isHive: (){
-        //TODO implementar
-        //* No se como maneje esto
-        throw UnimplementedError();          
-        }
-      );
+      final data = await firestoreContext.getAll(dataset, queryArray, where, limit);
       return Result.sucess(data.map((e) {
         index++;
         return T.fromJson(e,index);
-      } ).toList());
+      }).toList());
     } on Exception catch (e) {
       return Result.error('Ha ocurrido un error: $e');
     }
@@ -61,9 +42,7 @@ class MusicRepositoryImplement extends RepositoryImplementBase<T> with OnlyFires
   Future<Result<List<T>>> getAllByReferences(List<DocumentReference<Map<String, dynamic>>> references, {bool Function(Map<String, dynamic> query)? where, int limit = 10}) async {
     try {
       int index = -1;
-      late final List<Map<String, dynamic>> data;
-      actionOnlyFirestore((firestoreContext) async => data = await firestoreContext.getAllByReferences(references));
-
+      final data = await firestoreContext.getAllByReferences(references);
       return Result.sucess(data.map((e) {
         index++;
         return T.fromJson(e,index);

@@ -1,4 +1,4 @@
-import 'package:tidal_wave/data/dataSources/firebase/firebase_database_service.dart';
+import 'package:tidal_wave/data/dataSources/firebase/firestore_database_service.dart';
 import 'package:tidal_wave/data/repositories/database_service.dart';
 
 enum TypeDataBase{
@@ -22,13 +22,13 @@ abstract class RepositoryImplementBase<T> {
 
   /// Accion a realizar dependiendo de la base de datos
   void actionDependingToDB({
-    required void Function(FirebaseDatabaseService firestoreContext) isFireStore,
+    required void Function(FirestoreDatabaseService firestoreContext) isFireStore,
     required void Function() isHive
   }
   ){
     switch (type) {
       case TypeDataBase.firestore: {
-        final context = _context as FirebaseDatabaseService;
+        final context = _context as FirestoreDatabaseService;
         isFireStore.call(context);
         break;
       }
@@ -40,17 +40,17 @@ abstract class RepositoryImplementBase<T> {
 
   RepositoryImplementBase(this.type){
     switch (type) {
-      case TypeDataBase.firestore: _context = FirebaseDatabaseService(); break;
+      case TypeDataBase.firestore: _context = FirestoreDatabaseService(); break;
       default: throw Exception('Tipo de base de datos no valido');
     }
   }
 }
 
 mixin OnlyFirestoreAction<T> on RepositoryImplementBase<T> {
-  void actionOnlyFirestore(void Function(FirebaseDatabaseService firestoreContext) action){
+  void actionOnlyFirestore(void Function(FirestoreDatabaseService firestoreContext) action){
     switch (type) {
       case TypeDataBase.firestore: {
-        final context = _context as FirebaseDatabaseService;
+        final context = _context as FirestoreDatabaseService;
         action.call(context);
         break;
       }

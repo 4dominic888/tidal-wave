@@ -7,7 +7,7 @@ import 'package:tidal_wave/domain/repositories/music_list_repository.dart';
 
 class MusicListRepositoryImplement extends RepositoryImplementBase with UseFirestore implements MusicListRepository{
   
-  MusicListRepositoryImplement() : super.firestore();
+  MusicListRepositoryImplement({required super.databaseService});
 
   @override
   String get dataset => 'User-List-Musics';

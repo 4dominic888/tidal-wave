@@ -1,17 +1,19 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tidal_wave/domain/models/tw_user.dart';
-import 'package:tidal_wave/data/repositories/user_repository_implement.dart';
 import 'package:tidal_wave/data/result.dart';
+import 'package:tidal_wave/domain/repositories/user_repository.dart';
 
 class FirebaseAuthService {
   
   static final FirebaseAuth _auth = FirebaseAuth.instance;
-  static final UserRepositoryImplement _twUserRepository = UserRepositoryImplement();
+  final UserRepository userRepository;
 
-  static Future<Result<TWUser>> registerUser(TWUser twUser, String password) async{
+  FirebaseAuthService(this.userRepository);
+
+  Future<Result<TWUser>> registerUser(TWUser twUser, String password) async{
     try {
       final userCredential = await _auth.createUserWithEmailAndPassword(email: twUser.email, password: password);
-      return await _twUserRepository.addOne(twUser, userCredential.user!.uid);
+      return await userRepository.addOne(twUser, userCredential.user!.uid);
     } on FirebaseAuthException catch (e) {
       if(e.code == "email-already-in-use"){
         return Result.error('El email proporcionado ya ha sido registrado, intente con otro.');
@@ -20,13 +22,13 @@ class FirebaseAuthService {
     }
   }
 
-  static Future<Result<TWUser>> loginUser(String email, String password) async{
+  Future<Result<TWUser>> loginUser(String email, String password) async{
     try {
       UserCredential credential = await _auth.signInWithEmailAndPassword(email: email, password: password);
       if (credential.user == null) {
         return Result.error('El usuario no se ha encontrado');
       }
-      return _twUserRepository.getOne(credential.user!.uid);
+      return userRepository.getOne(credential.user!.uid);
     } on FirebaseAuthException catch (e) {
       if(e.code == "invalid-credential"){
         return Result.error('El email ingresado no ha sido registrado, probablemente te han borrado la cuenta.');
@@ -38,13 +40,13 @@ class FirebaseAuthService {
     }
   }
 
-  static Future<void> exitAccout() async{
+  Future<void> exitAccout() async{
     await _auth.signOut();
   }
 
-  static Future<Result<String>> updateNormalInfo(TWUser newUser) async {
+  Future<Result<String>> updateNormalInfo(TWUser newUser) async {
     try {
-      final Result<TWUser> result = await _twUserRepository.updateOne(newUser, _auth.currentUser!.uid);
+      final Result<TWUser> result = await userRepository.updateOne(newUser, _auth.currentUser!.uid);
       if(!result.onSuccess) throw Exception(result.errorMessage);
       return Result.sucess('Se han actualizado sus datos con exito');
     } catch (e) {
@@ -52,11 +54,21 @@ class FirebaseAuthService {
     }
   }
 
-  static Future<void> deleteUser() async{
+  Future<Result<TWUser>> getCurrentUser() async {
+    try {
+      final userUid = _auth.currentUser?.uid;
+      if (userUid != null) {
+        return await userRepository.getOne(userUid);
+      }
+      return Result.error('No se ha podido obtener la informacion del usuario');
+    } catch (e) {return Result.error(e.toString());}
+  }
+
+  Future<void> deleteUser() async{
     await _auth.currentUser!.delete();
   }
 
-  static Future<void> updateEmail(String newEmail) async{
+  Future<void> updateEmail(String newEmail) async{
     await _auth.currentUser!.verifyBeforeUpdateEmail(newEmail);
   }
 

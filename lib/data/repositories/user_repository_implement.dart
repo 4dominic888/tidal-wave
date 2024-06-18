@@ -5,8 +5,8 @@ import 'package:tidal_wave/domain/repositories/user_repository.dart';
 
 typedef T = TWUser;
 
-class TWUserRepositoryImplement extends RepositoryImplementBase<T> with OnlyFirestoreAction<T> implements UserRepository{
-  TWUserRepositoryImplement(super.type);
+class UserRepositoryImplement extends RepositoryImplementBase<T> with OnlyFirestoreAction<T> implements UserRepository{
+  UserRepositoryImplement(super.type);
 
   @override
   String get dataset => 'Users';

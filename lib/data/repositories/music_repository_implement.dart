@@ -3,9 +3,9 @@ import 'package:tidal_wave/data/repositories/repository_implement_base.dart';
 import 'package:tidal_wave/data/result.dart';
 import 'package:tidal_wave/domain/repositories/music_repository.dart';
 
-class TWMusicRepositoryImplement extends RepositoryImplementBase<T> with OnlyFirestoreAction<T> implements MusicRepository {
+class MusicRepositoryImplement extends RepositoryImplementBase<T> with OnlyFirestoreAction<T> implements MusicRepository {
 
-  TWMusicRepositoryImplement(super.type);
+  MusicRepositoryImplement(super.type);
 
   @override
   String get dataset => 'Musics';

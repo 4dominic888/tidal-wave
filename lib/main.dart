@@ -13,10 +13,9 @@ import 'package:tidal_wave/presentation/pages/home_page/screens/home_page_screen
 Future<void> main() async {
   setupLocator();
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
+  //* Configuracion para persistencia de datos, solo funciona para firestore
   FirebaseFirestore.instance.settings = const Settings(
     persistenceEnabled: true,
     cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED
@@ -30,8 +29,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    //List<Music> playListTest = StaticMusic.musicas;
-
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => MusicCubit()),
@@ -39,24 +36,16 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (_) => MusicColorCubit()),
         BlocProvider(create: (_) => UserCubit())
       ],
-
-      child: Builder(
-        builder: (context) {
-
-          return MaterialApp(
-            title: 'Flutter Demo',
-            debugShowCheckedModeBanner: false,
-            
-            //? Codigo para cambiar la bolita esa de los textos
-            theme: ThemeData(
-              textSelectionTheme: TextSelectionThemeData(
-                selectionHandleColor: Colors.grey.shade400,
-                selectionColor: Colors.grey.shade400.withOpacity(0.4),
-              ),
-            ),
-            home: const HomePageScreen(),
-          );
-        }
+      child: MaterialApp(
+        title: 'Tidal Wave',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          textSelectionTheme: TextSelectionThemeData(
+            selectionHandleColor: Colors.grey.shade400,
+            selectionColor: Colors.grey.shade400.withOpacity(0.4),
+          ),
+        ),
+        home: const HomePageScreen(),
       ),
     );
   }

@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
 import 'package:tidal_wave/domain/models/music_list.dart';
 import 'package:tidal_wave/data/dataSources/firebase/firebase_storage_service.dart';
-import 'package:tidal_wave/data/repositories/repository_implement_base.dart';
 import 'package:tidal_wave/data/repositories/music_list_repository_implement.dart';
 import 'package:tidal_wave/presentation/controllers/tw_select_file_controller.dart';
 import 'package:tidal_wave/data/result.dart';
@@ -62,7 +61,7 @@ class _CreateUserListScreenState extends State<CreateUserListScreen> {
         image: Uri.parse(imageUploadResult.data!)
       );
 
-      final musicListResult = await MusicListRepositoryImplement(TypeDataBase.firestore).addOne(musicList, null);
+      final musicListResult = await MusicListRepositoryImplement().addOne(musicList, null);
       if(!musicListResult.onSuccess){
         if(_imageController.value != null) {FirebaseStorageService.deleteFileWithURL(imageUploadResult.data!);}
         if(!mounted) return;

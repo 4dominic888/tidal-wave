@@ -12,7 +12,6 @@ import 'package:tidal_wave/presentation/pages/home_page/screens/tw_account_nav.d
 import 'package:tidal_wave/presentation/pages/home_page/screens/tw_find_nav.dart';
 import 'package:tidal_wave/presentation/pages/home_page/screens/tw_home_nav.dart';
 import 'package:tidal_wave/presentation/pages/home_page/screens/tw_user_list_nav.dart';
-import 'package:tidal_wave/data/repositories/repository_implement_base.dart';
 import 'package:tidal_wave/data/repositories/music_repository_implement.dart';
 import 'package:tidal_wave/data/repositories/user_repository_implement.dart';
 
@@ -49,7 +48,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
 
   Future<void> validateAndGetUser(User? user) async {
     if (user?.uid != null) {
-      final twur = UserRepositoryImplement(TypeDataBase.firestore);
+      final twur = UserRepositoryImplement();
       final result = await twur.getOne(user!.uid);
       if(!mounted) return;
       context.read<UserCubit>().user = result.data;
@@ -80,7 +79,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
         {"Historial de canciones": (){}},
         {"Sube tu canción": () => Navigator.push(context, MaterialPageRoute(builder: (context) => const UploadMusicScreen())) },
         {"Lista old": () async {
-          final tempList = await MusicRepositoryImplement(TypeDataBase.firestore).getAll();
+          final tempList = await MusicRepositoryImplement().getAll();
           if(!context.mounted) return;
           Navigator.push(context, MaterialPageRoute(builder: (context) => ListaMusicaScreen(listado: tempList.data ?? [])));
         }}

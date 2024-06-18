@@ -4,6 +4,7 @@ import 'package:tidal_wave/data/repositories/database_service.dart';
 class FirestoreDatabaseService extends DatabaseService<Map<String, dynamic>>{
   final FirebaseFirestore db = FirebaseFirestore.instance;
 
+
   @override
   Future<List<Map<String,dynamic>>> getAll(String dataset, [List<String> queryArray = const [], bool Function(Map<String, dynamic>)? where, int limit = 10]) async{
     final query = await _getSubCollection(dataset, queryArray).limit(limit).get();

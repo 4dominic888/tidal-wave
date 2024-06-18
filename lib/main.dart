@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tidal_wave/locator.dart';
 import 'package:tidal_wave/presentation/bloc/music_color_cubit.dart';
 import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
 import 'package:tidal_wave/presentation/bloc/play_list_cubit.dart';
@@ -9,12 +11,16 @@ import 'package:tidal_wave/firebase_options.dart';
 import 'package:tidal_wave/presentation/pages/home_page/screens/home_page_screen.dart';
 
 Future<void> main() async {
+  setupLocator();
   WidgetsFlutterBinding.ensureInitialized();
-  
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform
+    options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true,
+    cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED
+  );
   runApp(const MyApp());
 }
 

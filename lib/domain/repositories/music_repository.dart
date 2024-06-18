@@ -14,7 +14,7 @@ abstract class MusicRepository implements Addable<T>, GetOneable<T>, GetAllable<
   Future<Result<T>> getOne(String id);
 
   @override
-  Future<Result<List<T>>> getAll();
+  Future<Result<List<T>>> getAll({bool Function(Map<String, dynamic> query)? where, int limit = 10});
 
   @override
   Future<Result<T>> updateOne(T data, String id);

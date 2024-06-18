@@ -4,8 +4,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
+import 'package:tidal_wave/domain/use_case/interfaces/authentication_manager_use_case.dart';
 import 'package:tidal_wave/presentation/bloc/user_cubit.dart';
-import 'package:tidal_wave/data/dataSources/firebase/firebase_auth_service.dart';
 import 'package:tidal_wave/data/dataSources/firebase/firebase_storage_service.dart';
 import 'package:tidal_wave/presentation/controllers/tw_select_file_controller.dart';
 import 'package:tidal_wave/presentation/global_widgets/popup_message.dart';
@@ -28,6 +29,7 @@ class _UpdateUserScreenState extends State<UpdateUserScreen> {
   final _pfpFileUploadStreamController = StreamController<double>();
   
   bool _onLoad = false;
+  final _authenticationUseCase = GetIt.I<AuthenticationManagerUseCase>();
 
   @override
   void initState() {
@@ -53,19 +55,19 @@ class _UpdateUserScreenState extends State<UpdateUserScreen> {
         return;
       }
 
-      FirebaseAuthService.updateNormalInfo(context.read<UserCubit>().state!.copyWith(
+      await _authenticationUseCase.actualizarInformacionUsuario(context.read<UserCubit>().state!.copyWith(
           username: _usernameController.text,
           pfp: Uri.parse(pfpResult.data!)
-        )).then((value) {
-          if(!mounted) return;
-          if(!value.onSuccess){
-            setState(() =>_onLoad = false);
-            showDialog(context: context, builder: (context) => PopupMessage(title: 'Ha ocurrido un error', description: value.errorMessage!));
-            return;
-          }
-          showDialog(context: context, builder: (context) => PopupMessage(title: 'Exito', description: value.data!));
-
+      )).then((value) {
+        if(!mounted) return;
+        if(!value.onSuccess){
           setState(() =>_onLoad = false);
+          showDialog(context: context, builder: (context) => PopupMessage(title: 'Ha ocurrido un error', description: value.errorMessage!));
+          return;
+        }
+        showDialog(context: context, builder: (context) => PopupMessage(title: 'Exito', description: value.data!));
+
+        setState(() =>_onLoad = false);
       });
 
     }

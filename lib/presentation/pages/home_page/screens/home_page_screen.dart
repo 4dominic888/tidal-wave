@@ -1,6 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
+import 'package:tidal_wave/domain/use_case/interfaces/authentication_manager_use_case.dart';
+import 'package:tidal_wave/domain/use_case/interfaces/music_manager_use_case.dart';
 import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
 import 'package:tidal_wave/presentation/bloc/user_cubit.dart';
 import 'package:tidal_wave/presentation/pages/autenticacion_usuario/screens/login_screen.dart';
@@ -12,9 +15,6 @@ import 'package:tidal_wave/presentation/pages/home_page/screens/tw_account_nav.d
 import 'package:tidal_wave/presentation/pages/home_page/screens/tw_find_nav.dart';
 import 'package:tidal_wave/presentation/pages/home_page/screens/tw_home_nav.dart';
 import 'package:tidal_wave/presentation/pages/home_page/screens/tw_user_list_nav.dart';
-import 'package:tidal_wave/data/repositories/repository_implement_base.dart';
-import 'package:tidal_wave/data/repositories/music_repository_implement.dart';
-import 'package:tidal_wave/data/repositories/user_repository_implement.dart';
 
 class HomePageScreen extends StatefulWidget {
   const HomePageScreen({super.key});
@@ -26,6 +26,8 @@ class HomePageScreen extends StatefulWidget {
 class _HomePageScreenState extends State<HomePageScreen> {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _authenticationUseCase = GetIt.I<AuthenticationManagerUseCase>();
+  final _musicManagerUseCase = GetIt.I<MusicManagerUseCase>();
 
 
   int _selectedIndex = 0;
@@ -47,16 +49,10 @@ class _HomePageScreenState extends State<HomePageScreen> {
     {'Cuenta': const Icon(Icons.account_box)}
   ];
 
-  Future<void> validateAndGetUser(User? user) async {
-    if (user?.uid != null) {
-      final twur = UserRepositoryImplement(TypeDataBase.firestore);
-      final result = await twur.getOne(user!.uid);
-      if(!mounted) return;
-      context.read<UserCubit>().user = result.data;
-    }
-    else{
-      context.read<UserCubit>().user = null;
-    }    
+  Future<void> validateAndGetUser() async {
+    final result = await _authenticationUseCase.obtenerUsuarioActual();
+    if(!mounted) return;
+    context.read<UserCubit>().user = result.data; 
   }
 
   final List<Map<String, void Function()>> _drawerOptions = [];
@@ -64,7 +60,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
   @override
   Widget build(BuildContext context) {
 
-    FirebaseAuth.instance.authStateChanges().listen((user) async => await validateAndGetUser(user));
+    FirebaseAuth.instance.authStateChanges().listen((user) async => await validateAndGetUser());
 
     _drawerOptions.clear();
 
@@ -80,7 +76,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
         {"Historial de canciones": (){}},
         {"Sube tu canción": () => Navigator.push(context, MaterialPageRoute(builder: (context) => const UploadMusicScreen())) },
         {"Lista old": () async {
-          final tempList = await MusicRepositoryImplement(TypeDataBase.firestore).getAll();
+          final tempList = await _musicManagerUseCase.obtenerCancionesPublicas();
           if(!context.mounted) return;
           Navigator.push(context, MaterialPageRoute(builder: (context) => ListaMusicaScreen(listado: tempList.data ?? [])));
         }}

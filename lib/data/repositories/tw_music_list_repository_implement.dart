@@ -3,9 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tidal_wave/domain/models/music_list.dart';
 import 'package:tidal_wave/data/repositories/repository_implement_base.dart';
 import 'package:tidal_wave/data/result.dart';
+import 'package:tidal_wave/domain/repositories/music_list_repository.dart';
 
-typedef T = MusicList;
-class TWMusicListRepositoryImplement extends RepositoryImplementBase<T> implements Addable<T>, GetOneable<T>, Updatable<T>, Deletable{
+class TWMusicListRepositoryImplement extends RepositoryImplementBase<T> implements MusicListRepository{
 
   TWMusicListRepositoryImplement(super.type);
 
@@ -35,6 +35,7 @@ class TWMusicListRepositoryImplement extends RepositoryImplementBase<T> implemen
     }
   }
 
+  @override
   Future<Result<List<T>>> getUserListByType(String userId, String type, [bool Function(Map<String, dynamic> p1)? where, int limit = 10]) async {
     try {
       late final List<Map<String, dynamic>> data;
@@ -53,6 +54,7 @@ class TWMusicListRepositoryImplement extends RepositoryImplementBase<T> implemen
     }
   }
 
+  @override
   Future<Result<List<T>>> getAllListForUser(String userId, [bool Function(Map<String, dynamic> p1)? where, int limit = 10]) async {
     try {
       final publicList = await getUserListByType(userId, 'public-list');
@@ -64,6 +66,7 @@ class TWMusicListRepositoryImplement extends RepositoryImplementBase<T> implemen
     }
   }
 
+  @override
   Future<Result<String>> addMusic({required String musicUUID, required String userId, required String listId, required String listType}) async {
     try {
       actionDependingToDB(

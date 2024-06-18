@@ -1,5 +1,4 @@
 import 'package:tidal_wave/data/dataSources/firebase/firebase_database_service.dart';
-import 'package:tidal_wave/data/result.dart';
 import 'package:tidal_wave/data/repositories/database_service.dart';
 
 enum TypeDataBase{
@@ -45,26 +44,6 @@ abstract class RepositoryImplementBase<T> {
       default: throw Exception('Tipo de base de datos no valido');
     }
   }
-}
-
-abstract class Addable<T> {
-  Future<Result<T>> addOne(T data, String? id);
-}
-
-abstract class GetAllable<T>{
-  Future<Result<List<T>>> getAll();
-}
-
-abstract class GetOneable<T>{
-  Future<Result<T>> getOne(String id);
-}
-
-abstract class Updatable<T>{
-  Future<Result<T>> updateOne(T data, String id);
-}
-
-abstract class Deletable{
-  Future<Result<String>> deleteOne(String id);
 }
 
 mixin OnlyFirestoreAction<T> on RepositoryImplementBase<T> {

@@ -1,11 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:tidal_wave/domain/models/music.dart';
 import 'package:tidal_wave/data/repositories/repository_implement_base.dart';
 import 'package:tidal_wave/data/result.dart';
+import 'package:tidal_wave/domain/repositories/music_repository.dart';
 
-typedef T = Music;
-
-class TWMusicRepositoryImplement extends RepositoryImplementBase<T> with OnlyFirestoreAction<T> implements Addable<T>, GetOneable<T>, GetAllable<T>, Updatable<T>, Deletable {
+class TWMusicRepositoryImplement extends RepositoryImplementBase<T> with OnlyFirestoreAction<T> implements MusicRepository {
 
   TWMusicRepositoryImplement(super.type);
 
@@ -59,7 +57,7 @@ class TWMusicRepositoryImplement extends RepositoryImplementBase<T> with OnlyFir
     }
   }
 
-  /// Solo para firebase
+  @override
   Future<Result<List<T>>> getAllByReferences(List<DocumentReference<Map<String, dynamic>>> references, {bool Function(Map<String, dynamic> query)? where, int limit = 10}) async {
     try {
       int index = -1;

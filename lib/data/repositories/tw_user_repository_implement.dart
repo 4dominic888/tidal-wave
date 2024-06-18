@@ -1,11 +1,11 @@
 import 'package:tidal_wave/domain/models/tw_user.dart';
 import 'package:tidal_wave/data/repositories/repository_implement_base.dart';
 import 'package:tidal_wave/data/result.dart';
+import 'package:tidal_wave/domain/repositories/user_repository.dart';
 
 typedef T = TWUser;
 
-/// Toda esta clase se debe usar con firebase
-class TWUserRepositoryImplement extends RepositoryImplementBase<T> with OnlyFirestoreAction<T> implements Addable<T>, GetOneable<T>, GetAllable<T>, Updatable<T>, Deletable{
+class TWUserRepositoryImplement extends RepositoryImplementBase<T> with OnlyFirestoreAction<T> implements UserRepository{
   TWUserRepositoryImplement(super.type);
 
   @override
@@ -72,5 +72,11 @@ class TWUserRepositoryImplement extends RepositoryImplementBase<T> with OnlyFire
     } on Exception catch (e) {
       return Result.error('Ha ocurrido un error: $e');
     }
+  }
+
+  @override
+  Future<Result<T>> getLocalUser() {
+    // TODO: implement getLocalUser
+    throw UnimplementedError();
   }
 }

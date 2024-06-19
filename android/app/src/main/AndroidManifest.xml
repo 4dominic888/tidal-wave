@@ -1,7 +1,8 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:tools="http://schemas.android.com/tools" xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>    
     <application
         android:label="tidal_wave"
         android:name="${applicationName}"
@@ -36,13 +37,17 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
         />
 
+        <!-- "SERVICE" element -->
         <service android:name="com.ryanheise.audioservice.AudioService"
             android:foregroundServiceType="mediaPlayback"
-            android:exported="true">
+            android:exported="true"
+            tools:ignore="Instantiatable">
             <intent-filter>
                 <action android:name="android.media.browse.MediaBrowserService"/>
             </intent-filter>
         </service>
+
+        <!-- "RECEIVER" element -->
         <receiver android:name="com.ryanheise.audioservice.MediaButtonReceiver"
             android:exported="true">
             <intent-filter>

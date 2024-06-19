@@ -176,7 +176,7 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
                     onChanged: () => setState(() {
                       _musicController.clipMoment = Duration.zero;
                       _bestDurationController.text = "";
-                      context.read<MusicCubit>().setClip(_musicController.value!.path, _musicController.clipMoment ?? Duration.zero);
+                      context.read<MusicCubit>().setClip(AudioSource.file(_musicController.value!.path), _musicController.clipMoment ?? Duration.zero);
                       context.read<MusicCubit>().state.pause();
                     })
                     ,
@@ -198,7 +198,7 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
                                   stream: context.read<MusicCubit>().state.playerStateStream,
                                   builder: (context, snapshot) {
                                     if (snapshot.data?.processingState == ProcessingState.completed) {
-                                      context.read<MusicCubit>().setClip(_musicController.value!.path, _musicController.clipMoment ?? Duration.zero);
+                                      context.read<MusicCubit>().setClip(AudioSource.file(_musicController.value!.path), _musicController.clipMoment ?? Duration.zero);
                                       context.read<MusicCubit>().state.pause();
                                     }
                                     return IconButton(

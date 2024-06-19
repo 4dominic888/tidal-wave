@@ -1,6 +1,6 @@
-import 'package:audio_service/audio_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:tidal_wave/presentation/utils/function_utils.dart';
 
 class Music {
@@ -107,7 +107,7 @@ class Music {
       id: index,
       title: titulo,
       artist: artistasStr,
-      artUri: imagen
+      artUri: imagen ?? Uri.parse('package:flutter_app/assets/placeholder/music-placeholder.png')
     ));
   }
 }

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:tidal_wave/locator.dart';
 import 'package:tidal_wave/presentation/bloc/music_color_cubit.dart';
 import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
@@ -12,6 +13,12 @@ import 'package:tidal_wave/presentation/pages/home_page/screens/home_page_screen
 Future<void> main() async {
   setupLocator();
   WidgetsFlutterBinding.ensureInitialized();
+
+  await JustAudioBackground.init(
+    androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
+    androidNotificationChannelName: 'Audio playback',
+    androidNotificationOngoing: true,
+  );
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   //* Configuracion para persistencia de datos, solo funciona para firestore

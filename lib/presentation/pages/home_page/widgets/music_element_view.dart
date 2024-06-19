@@ -161,14 +161,14 @@ class MusicElementView extends StatelessWidget {
                             playCase: context.read<MusicCubit>().state.play,
                             stopCase: context.read<MusicCubit>().state.pause,
                             playStatic: () async{
-                              await context.read<MusicCubit>().setClip(item.musica.toString(), item.betterMoment);
+                              await context.read<MusicCubit>().setClip(item.toAudioSource('0'), item.betterMoment);
                               if(!context.mounted) return;
                               await context.read<MusicCubit>().state.play();                              
                             },
                           ) : 
                           () async {
                               onPlay?.call();
-                              await context.read<MusicCubit>().setClip(item.musica.toString(), item.betterMoment);
+                              await context.read<MusicCubit>().setClip(item.toAudioSource('0'), item.betterMoment);
                               if(!context.mounted) return;
                               await context.read<MusicCubit>().state.play();
                             },

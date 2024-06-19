@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:tidal_wave/domain/models/position_data.dart';
-import 'package:tidal_wave/presentation/utils/function_utils.dart';
 
 /// Cubit para la musica escuchada actualmente
 class MusicCubit extends Cubit<AudioPlayer> {
@@ -56,13 +55,15 @@ class MusicCubit extends Cubit<AudioPlayer> {
     }
   }
 
-  Future<void> setClip(String origin, Duration moment) async {
-    if(isURL(origin)) { 
-      await state.setUrl(origin);
-    }
-    else {
-      await state.setFilePath(origin);
-    }
-    await state.setClip(start: moment, end: moment+const Duration(seconds: 5));
+  Future<void> setClip(AudioSource audioSource, Duration moment) async {
+    await state.setAudioSource(
+      ClippingAudioSource(
+        child: audioSource as UriAudioSource,
+        start: moment,
+        end: moment+const Duration(seconds: 5),
+        duration: const Duration(seconds: 5),
+        tag: audioSource.tag
+      )
+    );
   }
 }

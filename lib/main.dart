@@ -47,11 +47,21 @@ class TidalWaveApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Tidal Wave',
         debugShowCheckedModeBanner: false,
+        //* Tema por defecto
         theme: ThemeData(
           textSelectionTheme: TextSelectionThemeData(
             selectionHandleColor: Colors.grey.shade400,
             selectionColor: Colors.grey.shade400.withOpacity(0.4),
           ),
+          dialogTheme: DialogTheme(
+            titleTextStyle: const TextStyle(color: Colors.grey),
+            backgroundColor: Colors.grey.shade900,
+            contentTextStyle: const TextStyle(color: Colors.grey),
+          ),
+          textButtonTheme: TextButtonThemeData(
+            style: ButtonStyle(textStyle: WidgetStateTextStyle.resolveWith((states) => const TextStyle(color: Colors.blueAccent)))
+
+          )
         ),
         home: const HomePageScreen(),
       ),

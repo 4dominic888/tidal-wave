@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
-import 'package:tidal_wave/presentation/bloc/play_list_cubit.dart';
 import 'package:tidal_wave/presentation/pages/lista_musica/widgets/icon_button_music.dart';
 import 'package:tidal_wave/presentation/pages/lista_musica/widgets/mini_music_player.dart';
 import 'package:tidal_wave/presentation/pages/lista_musica/widgets/music_item.dart';
@@ -80,7 +79,7 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
     super.initState();
     _scrollController.addListener(_scrollListener);
     //* El codigo ilegible asdasfasfas
-    context.read<MusicCubit>().setPlayList(context.read<PlayListCubit>().setPlayList(widget.listado));
+    context.read<MusicCubit>().setPlayList(ConcatenatingAudioSource(children: widget.listado.map((e) => e.toAudioSource(e.index.toString())).toList()));
     _list = widget.listado;
   }
 

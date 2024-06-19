@@ -11,7 +11,11 @@ import 'package:tidal_wave/firebase_options.dart';
 import 'package:tidal_wave/presentation/pages/home_page/screens/home_page_screen.dart';
 
 Future<void> main() async {
+
+  ///* Para el get it
   setupLocator();
+
+  //? Inicializa los widgets previamente para realizar las operaciones asincronas posteriores
   WidgetsFlutterBinding.ensureInitialized();
 
   await JustAudioBackground.init(
@@ -26,15 +30,14 @@ Future<void> main() async {
     persistenceEnabled: true,
     cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED
   );
-  runApp(const MyApp());
+  runApp(const TidalWaveApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class TidalWaveApp extends StatelessWidget {
+  const TidalWaveApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => MusicCubit()),

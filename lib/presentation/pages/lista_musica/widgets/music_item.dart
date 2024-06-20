@@ -34,14 +34,14 @@ class MusicItem extends StatelessWidget {
               borderColor: Colors.blue.shade100.withAlpha(100),
               borderSize: 2.5,
               fillColor: Colors.black.withOpacity(0.3),
-              icon: selected![0] ? MusicStateUtil.playIcon(snapshot.data, color: Colors.white) : const Icon(Icons.play_arrow_rounded, color: Colors.white),
+              icon: selected![0] ? MusicStateUtil.playIcon(snapshot.data) : const Icon(Icons.play_arrow_rounded, color: Colors.white),
               onTap: selected![0] ? MusicStateUtil.playAction(context.read<MusicCubit>().state) : onPlay,
             );
           }
         ),
         title: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          child: Text(music.titulo, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold))
+          child: Text(music.titulo, style: const TextStyle(fontWeight: FontWeight.bold))
         ),
         subtitle: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -59,12 +59,12 @@ class MusicItem extends StatelessWidget {
         contentPadding: const EdgeInsets.only(top: 15, bottom: 15, left: 15),
         trailing: PopupMenuButton<String>(
           color: Colors.grey.shade900,
-          icon: const SizedBox(width: 35, child: Icon(Icons.more_vert, color: Colors.white)),
+          icon: const SizedBox(width: 35, child: Icon(Icons.more_vert)),
           itemBuilder: (context) => <PopupMenuEntry<String>>[
             //TODO: Colocar funcionalidades luego
-            const PopupMenuItem(value: 'delete', child: Text('Borrar cancion', style: TextStyle(color: Colors.white))),
-            const PopupMenuItem(value: 'edit', child: Text('Editar cancion', style: TextStyle(color: Colors.white))),
-            const PopupMenuItem(value: 'move', child: Text('Mover cancion', style: TextStyle(color: Colors.white))),
+            const PopupMenuItem(value: 'delete', child: Text('Borrar cancion')),
+            const PopupMenuItem(value: 'edit', child: Text('Editar cancion')),
+            const PopupMenuItem(value: 'move', child: Text('Mover cancion')),
           ],
           onSelected: (value) {
             //* codigo

@@ -18,7 +18,6 @@ class _TextFieldFindState extends State<TextFieldFind> {
           hintText: widget.hintText,
           hintStyle: const TextStyle(
             fontStyle: FontStyle.italic,
-            color: Colors.white
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(300),
@@ -36,7 +35,6 @@ class _TextFieldFindState extends State<TextFieldFind> {
         autocorrect: false,
         enableSuggestions: false,
         cursorColor: Colors.white,
-        style: const TextStyle(color: Colors.white),
         onChanged: widget.onChanged ?? (_){},
     );
   }

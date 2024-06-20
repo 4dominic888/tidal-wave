@@ -60,7 +60,7 @@ class _TwFindNavState extends State<TwFindNav> {
                     borderColor: Colors.blue.shade400.withAlpha(50),
                     borderSize: 2.0,
                     fillColor: Colors.transparent,
-                    icon: const Icon(Icons.search, size: 25, color: Colors.white),
+                    icon: const Icon(Icons.search, size: 25),
                     onTap: () {},
                   ),
                   onChanged: _findMusic
@@ -76,7 +76,7 @@ class _TwFindNavState extends State<TwFindNav> {
           future: listOfMusic(),
           builder: (context, snapshot) {
             if(snapshot.connectionState == ConnectionState.waiting) {return const SliverToBoxAdapter(child: Center(child: CircularProgressIndicator()));}
-            if(snapshot.hasError) {return SliverToBoxAdapter(child: Center(child: Text('Ha ocurrido un error ${snapshot.error.toString()}', style: const TextStyle(color: Colors.white))));}
+            if(snapshot.hasError) {return SliverToBoxAdapter(child: Center(child: Text('Ha ocurrido un error ${snapshot.error.toString()}')));}
             return StatefulBuilder(
               builder: (context, setState) {
                 return SliverGrid(

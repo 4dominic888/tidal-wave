@@ -21,7 +21,7 @@ class TWDrawer extends StatelessWidget {
     );
 
     widgetList.addAll(options.map((e) => ListTile(
-      title: Text(e.keys.firstOrNull!, style: const TextStyle(color: Colors.white)),
+      title: Text(e.keys.firstOrNull!),
       onTap: e.values.first,
     )));
 

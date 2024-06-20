@@ -32,7 +32,7 @@ class MusicElementView extends StatelessWidget {
     final List<MusicList> listas = listResult.data!;
     if(!context.mounted) return;
     showDialog(context: context, builder: (context) => AlertDialog(
-      title: const Text('Elige una lista', style: TextStyle(color: Colors.white)),
+      title: const Text('Elige una lista'),
       backgroundColor: Colors.grey.shade900,
       content: StatefulBuilder(
         builder: (context, setState) {
@@ -46,7 +46,7 @@ class MusicElementView extends StatelessWidget {
                   scrollDirection: Axis.vertical,
                   children: listas.map((e) => 
                   ListTile(
-                    title: Text(e.name, style: const TextStyle(color: Colors.white)),
+                    title: Text(e.name),
                     onTap: () async {
                       final result = await _musicListManagerUseCase.agregarMusicaALista(
                         musicUUID: music.uuid!,
@@ -115,9 +115,9 @@ class MusicElementView extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              SingleChildScrollView(scrollDirection: Axis.horizontal ,child: Text(item.titulo, style: const TextStyle(color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold))),
-                              SingleChildScrollView(scrollDirection: Axis.horizontal ,child: Text(item.artistasStr, style: const TextStyle(color: Colors.white, fontSize: 15))),
-                              SingleChildScrollView(scrollDirection: Axis.horizontal ,child: Text('Subido por: $uploadUserName', style: const TextStyle(color: Colors.white, fontSize: 15))),
+                              SingleChildScrollView(scrollDirection: Axis.horizontal ,child: Text(item.titulo, style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold))),
+                              SingleChildScrollView(scrollDirection: Axis.horizontal ,child: Text(item.artistasStr, style: const TextStyle(fontSize: 15))),
+                              SingleChildScrollView(scrollDirection: Axis.horizontal ,child: Text('Subido por: $uploadUserName', style: const TextStyle(fontSize: 15))),
                               const SizedBox(height: 10),
                               Expanded(
                                 child: Row(
@@ -153,8 +153,8 @@ class MusicElementView extends StatelessWidget {
                           borderSize: 3.0,
                           fillColor: Colors.grey.shade700.withOpacity(0.6),
                           icon: selected!.first ? 
-                            snapshot.data?.processingState == ProcessingState.loading ? const Icon(Icons.watch_later, color: Colors.white) : MusicStateUtil.playIcon(snapshot.data, color: Colors.white) :
-                            const Icon(Icons.play_arrow_rounded, color: Colors.white),
+                            snapshot.data?.processingState == ProcessingState.loading ? const Icon(Icons.watch_later) : MusicStateUtil.playIcon(snapshot.data) :
+                            const Icon(Icons.play_arrow_rounded),
 
 
                           onTap: selected!.first ? MusicStateUtil.playReturns(snapshot.data,
@@ -203,15 +203,11 @@ class MusicElementView extends StatelessWidget {
                           title: Text(item.titulo,
                             textAlign: TextAlign.center,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold
-                            ),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           subtitle: Text('por ${item.artistasStr}',
                             textAlign: TextAlign.center,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(color: Colors.white),
                           ),
                         )
                       ],

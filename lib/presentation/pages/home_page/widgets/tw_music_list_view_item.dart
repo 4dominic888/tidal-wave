@@ -72,9 +72,9 @@ class TWMusicListViewItem extends StatelessWidget {
                       children: [
                         SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
-                          child: Text(item.name, style: const TextStyle(color: Colors.white, fontSize: 20.0, fontWeight: FontWeight.bold))
+                          child: Text(item.name, style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold))
                         ),
-                        Icon(typeIcon(item.type), color: Colors.white, size: 15),
+                        Icon(typeIcon(item.type), size: 15),
                         Text('${item.musics.length} canciones', style: TextStyle(color: Colors.grey.shade200)),
                         Expanded(
                           child: Container(

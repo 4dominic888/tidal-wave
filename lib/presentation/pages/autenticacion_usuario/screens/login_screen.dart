@@ -46,11 +46,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
-      ),
+      appBar: AppBar(title: const Text('Iniciar Sesion')),
       body: SingleChildScrollView(
         child: Form(
           key: _formKey,
@@ -101,7 +97,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white
                   ),
                   onPressed: _onLoad ? null : onLogin,
                   child: const Text('Iniciar sesión')

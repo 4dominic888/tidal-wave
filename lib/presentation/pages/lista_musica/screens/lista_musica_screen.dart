@@ -36,7 +36,7 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
             borderColor: Colors.blue.shade400.withAlpha(50),
             borderSize: 2.0,
             fillColor: Colors.transparent,
-            icon: const Icon(Icons.search, size: 25, color: Colors.white),
+            icon: const Icon(Icons.search, size: 25),
             onTap: () {},
           ),
           onChanged: (value) {
@@ -172,7 +172,7 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
                               )
                             );
                           }
-                        ) else const SliverToBoxAdapter(child: Center(child: Text('Sin musica', style: TextStyle(color: Colors.white)))),
+                        ) else const SliverToBoxAdapter(child: Center(child: Text('Sin musica'))),
                         
                         //? En caso el mini reproductor de musica no este activo
                         if(context.read<MusicCubit>().isActive) const SliverToBoxAdapter(

@@ -58,7 +58,7 @@ class MiniMusicPlayer extends StatelessWidget {
             children: [
               SingleChildScrollView(scrollDirection: Axis.horizontal,
                 child: Text(mediaItem?.title ?? '',
-                style: const TextStyle(color: Colors.white, fontSize: 18.0, fontWeight: FontWeight.w600))
+                style: const TextStyle(fontSize: 18.0, fontWeight: FontWeight.w600))
               ),
               
               SingleChildScrollView(scrollDirection: Axis.horizontal,

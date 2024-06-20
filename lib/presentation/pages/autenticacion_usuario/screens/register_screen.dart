@@ -68,11 +68,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
-      ),
+      appBar: AppBar(title: const Text('Registrarse')),
       body: SingleChildScrollView(
         child: Form(
           key: _formKey,
@@ -179,7 +175,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
-                    foregroundColor: Colors.white
                   ),
                   onPressed: _onLoad ? null : onSubmit,
                   child: const Text('Registrarse')

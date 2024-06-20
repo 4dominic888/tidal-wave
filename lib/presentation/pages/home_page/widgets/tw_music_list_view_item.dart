@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:tidal_wave/domain/models/music_list.dart';
@@ -55,7 +56,7 @@ class TWMusicListViewItem extends StatelessWidget {
                   child: Container(
                     decoration: BoxDecoration(
                       image: DecorationImage(
-                        image: item.image != null ? Image.network(item.image.toString()).image : Image.asset('assets/placeholder/music-placeholder.png').image,
+                        image: item.image != null ? CachedNetworkImageProvider(item.image.toString()) : Image.asset('assets/placeholder/music-placeholder.png').image,
                         fit: BoxFit.cover
                       )
                     ),
@@ -72,9 +73,9 @@ class TWMusicListViewItem extends StatelessWidget {
                       children: [
                         SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
-                          child: Text(item.name, style: const TextStyle(color: Colors.white, fontSize: 20.0, fontWeight: FontWeight.bold))
+                          child: Text(item.name, style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold))
                         ),
-                        Icon(typeIcon(item.type), color: Colors.white, size: 15),
+                        Icon(typeIcon(item.type), size: 15),
                         Text('${item.musics.length} canciones', style: TextStyle(color: Colors.grey.shade200)),
                         Expanded(
                           child: Container(

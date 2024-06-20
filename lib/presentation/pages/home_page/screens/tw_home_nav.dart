@@ -28,7 +28,6 @@ class TWHomeNav extends StatelessWidget {
                 children: [
                   const Text('Algun anuncio', 
                     style: TextStyle(
-                      color: Colors.white,
                       fontSize: 30,
                       fontWeight: FontWeight.bold
                     )
@@ -39,7 +38,6 @@ class TWHomeNav extends StatelessWidget {
                   const Text('Alguna descripcion adicional sobre el anuncio a presentar...',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Colors.white,
                       fontSize: 15
                     )
                   ),
@@ -48,16 +46,16 @@ class TWHomeNav extends StatelessWidget {
 
                   ElevatedButton(
                     onPressed: (){},
-                    child: const Text('Some action button')
+                    child: const Text('Some action button', style: TextStyle(color: Colors.black))
                   ),
-                  TextButton(onPressed: (){}, child: const Text('Another action', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)))
+                  TextButton(onPressed: (){}, child: const Text('Another action', style: TextStyle(fontWeight: FontWeight.bold)))
                 ],
               )
           ),
 
           const SizedBox(height: 30),
 
-          const Text('Musicas destacadas', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20)),
+          const Text('Musicas destacadas', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
           const SizedBox(height: 10),
 
           SingleChildScrollView(
@@ -85,7 +83,7 @@ class TWHomeNav extends StatelessWidget {
           ),
 
           const SizedBox(height: 10),
-          const Text('Under in construction...', style: TextStyle(color: Colors.white, fontSize: 20)),
+          const Text('Under in construction...', style: TextStyle(fontSize: 20)),
         ],
       ),
     );

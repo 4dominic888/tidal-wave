@@ -82,13 +82,7 @@ class _CreateUserListScreenState extends State<CreateUserListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
-        titleTextStyle: const TextStyle(color: Colors.white, fontSize: 20),
-        title: const Text('Crear nueva lista'),
-      ),
+      appBar: AppBar(title: const Text('Crear nueva lista')),
       body: SingleChildScrollView(
         child: Form(
           key: _formKey,
@@ -159,7 +153,6 @@ class _CreateUserListScreenState extends State<CreateUserListScreen> {
                   if(snapshot.data == ButtonState.error  || snapshot.data == ButtonState.success){
                     return TextButton(onPressed: _btnController.reset, child: 
                       const Text('Reiniciar', style: TextStyle(
-                        color: Colors.white,
                         decoration: TextDecoration.underline,
                         decorationColor: Colors.white,
                         fontWeight: FontWeight.normal

@@ -76,11 +76,7 @@ class _UpdateUserScreenState extends State<UpdateUserScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
-      ),
+      appBar: AppBar(title: const Text('Actualizar Informacion')),
       body: SingleChildScrollView(
         child: Form(
           key: _formKey,
@@ -140,7 +136,6 @@ class _UpdateUserScreenState extends State<UpdateUserScreen> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
-                    foregroundColor: Colors.white
                   ),
                   onPressed: _onLoad ? null : onUpdate,
                   child: const Text('Actualizar informacion')

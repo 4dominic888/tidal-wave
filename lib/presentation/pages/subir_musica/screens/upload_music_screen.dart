@@ -118,7 +118,6 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
       backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
         child: Form(
@@ -176,7 +175,7 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
                     onChanged: () => setState(() {
                       _musicController.clipMoment = Duration.zero;
                       _bestDurationController.text = "";
-                      context.read<MusicCubit>().setClip(_musicController.value!.path, _musicController.clipMoment ?? Duration.zero);
+                      context.read<MusicCubit>().setClip(AudioSource.file(_musicController.value!.path), _musicController.clipMoment ?? Duration.zero);
                       context.read<MusicCubit>().state.pause();
                     })
                     ,
@@ -191,14 +190,14 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
                         children: [
                           Expanded(child: Column(
                             children: [
-                              const Text('Momento destacado:', style: TextStyle(color: Colors.white)),
+                              const Text('Momento destacado:'),
                               const Text('Durara 5 segundos segun el tiempo establecido', style: TextStyle(color: Colors.grey, fontSize: 10), textAlign: TextAlign.center),
                               if(_musicController.value != null)
                                 StreamBuilder<PlayerState>(
                                   stream: context.read<MusicCubit>().state.playerStateStream,
                                   builder: (context, snapshot) {
                                     if (snapshot.data?.processingState == ProcessingState.completed) {
-                                      context.read<MusicCubit>().setClip(_musicController.value!.path, _musicController.clipMoment ?? Duration.zero);
+                                      context.read<MusicCubit>().setClip(AudioSource.file(_musicController.value!.path), _musicController.clipMoment ?? Duration.zero);
                                       context.read<MusicCubit>().state.pause();
                                     }
                                     return IconButton(
@@ -207,7 +206,7 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
                                         stopCase: context.read<MusicCubit>().state.pause,
                                         playStatic: context.read<MusicCubit>().state.play,
                                       ),
-                                      icon: MusicStateUtil.playIcon(snapshot.data, color: Colors.white)
+                                      icon: MusicStateUtil.playIcon(snapshot.data)
                                     );
                                   },
                                 ),
@@ -265,10 +264,7 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey,
-                      foregroundColor: Colors.white
-                    ),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
                     onPressed: _onLoad ? null : onSubmit,
                     child: const Text('Subir musica')
                   ),

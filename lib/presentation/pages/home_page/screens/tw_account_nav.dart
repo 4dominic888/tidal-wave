@@ -39,7 +39,6 @@ class TWAccountNav extends StatelessWidget {
                 '# ${snapshot.username}',
                 style: const TextStyle(
                   fontSize: 20,
-                  color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -62,13 +61,13 @@ class TWAccountNav extends StatelessWidget {
                     children: [
                       Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Text(e.keys.first, style: const TextStyle(color: Colors.white)),
+                        child: Text(e.keys.first),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
-                          child: Text(e.values.first, style: const TextStyle(color: Colors.white))
+                          child: Text(e.values.first)
                         ),
                       ),
                     ]
@@ -83,13 +82,11 @@ class TWAccountNav extends StatelessWidget {
                 children: [
                   ElevatedButton(onPressed: null, style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
-                    foregroundColor: Colors.white
                   ), child: const Text('Cambiar contraseña')),
         
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blueAccent,
-                      foregroundColor: Colors.white
                     ),
                     child: const Text('Editar cuenta'),
                     onPressed: () {
@@ -112,7 +109,6 @@ class TWAccountNav extends StatelessWidget {
                       );
                   }, style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
-                    foregroundColor: Colors.white
                   ), child: const Text('Salir de la cuenta')),
                 ],
               )
@@ -130,7 +126,6 @@ class TWAccountNav extends StatelessWidget {
                   textAlign: TextAlign.justify,
                   style: TextStyle(
                     fontSize: 20,
-                    color: Colors.white,
                   ),
                 ),
               ),          
@@ -141,7 +136,6 @@ class TWAccountNav extends StatelessWidget {
                   onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginScreen())),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blueAccent,
-                    foregroundColor: Colors.white
                 ), child: const Text('Iniciar sesion')),
               ),
         
@@ -151,7 +145,6 @@ class TWAccountNav extends StatelessWidget {
                   onPressed: ()=> Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen())),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
-                    foregroundColor: Colors.white
                 ), child: const Text('Registrarse')),
               ),
             ]

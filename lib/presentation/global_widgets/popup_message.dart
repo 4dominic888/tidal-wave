@@ -13,14 +13,11 @@ class PopupMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(title, style: const TextStyle(color: Colors.grey)),
-      backgroundColor: Colors.grey.shade900,
-      content: Text(description, style: const TextStyle(color: Colors.grey)),
+      title: Text(title),
+      content: Text(description),
       actions: [
-        TextButton(onPressed: () {
-          onClose == null ?  Navigator.of(context).pop() : onClose?.call();
-        },
-        child: const Text('Cerrar', style: TextStyle(color: Colors.blueAccent)))
+        TextButton(onPressed: () { onClose == null ?  Navigator.of(context).pop() : onClose?.call(); },
+        child: const Text('Cerrar'))
       ],
     );
   }
@@ -38,19 +35,14 @@ class PopupDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text(title, style: const TextStyle(color: Colors.grey)),
-      backgroundColor: Colors.grey.shade900,
-      content: Text(description, style: const TextStyle(color: Colors.grey)),
+      title: Text(title),
+      content: Text(description),
       actions: [
-        TextButton(onPressed: () {
-          onOK == null ?  Navigator.of(context).pop() : onOK?.call();
-        },
-        child: const Text('Si', style: TextStyle(color: Colors.blueAccent))),
+        TextButton(onPressed: () { onOK == null ?  Navigator.of(context).pop() : onOK?.call(); },
+        child: const Text('Si')),
         
-        TextButton(onPressed: () {
-          onCancel == null ?  Navigator.of(context).pop() : onCancel?.call();
-        },
-        child: const Text('No', style: TextStyle(color: Colors.blueAccent)))
+        TextButton(onPressed: () { onCancel == null ?  Navigator.of(context).pop() : onCancel?.call(); },
+        child: const Text('No'))
       ],
     );
   }

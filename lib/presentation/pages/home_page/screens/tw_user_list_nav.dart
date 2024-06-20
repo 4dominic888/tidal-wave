@@ -47,8 +47,6 @@ class _TWUserListNavState extends State<TWUserListNav> {
                     strokeWidth: 2,
                     dashPattern: const [10,5],
                     child: const ListTile(
-                      titleTextStyle: TextStyle(color: Colors.white),
-                      iconColor: Colors.white,
                       leading: Icon(Icons.add),
                       title: Text('Nueva Lista'),
                     )
@@ -62,8 +60,8 @@ class _TWUserListNavState extends State<TWUserListNav> {
               future: _listOfMusic(),
               builder: (context, snapshot) {
                 if(snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
-                if(snapshot.hasError) return Center(child: Text(snapshot.error.toString(), style: const TextStyle(color: Colors.white)));
-                if(snapshot.data == null && snapshot.data!.isEmpty) return const Center(child: Text('No hay listas creadas', style: TextStyle(color: Colors.white)));
+                if(snapshot.hasError) return Center(child: Text(snapshot.error.toString()));
+                if(snapshot.data == null && snapshot.data!.isEmpty) return const Center(child: Text('No hay listas creadas'));
                 return ListView.builder(
                   shrinkWrap: true,
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -82,7 +80,7 @@ class _TWUserListNavState extends State<TWUserListNav> {
     );
 
   final Widget _otherUserLists = const Center(
-    child: Icon(Icons.list, color: Colors.white,),
+    child: Icon(Icons.list),
   );
 
   @override

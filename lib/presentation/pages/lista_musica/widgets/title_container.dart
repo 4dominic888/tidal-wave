@@ -23,14 +23,14 @@ class _TitleContainerState extends State<TitleContainer> {
         children: [
           const Padding(
             padding: EdgeInsets.only(top: 10, bottom: 5),
-            child: Icon(Icons.multitrack_audio_sharp, size: 40, color: Colors.white),
+            child: Icon(Icons.multitrack_audio_sharp, size: 40),
           ),
           Padding(
             padding: const EdgeInsets.only(right: 40, left: 40, top: 8),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Text(widget.text,
-                style: const TextStyle(color: Colors.white, fontSize: 20),
+                style: const TextStyle(fontSize: 20),
               ),
             ),
           )

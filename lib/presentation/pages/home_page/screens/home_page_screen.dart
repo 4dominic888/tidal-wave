@@ -92,7 +92,6 @@ class _HomePageScreenState extends State<HomePageScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.white),
         backgroundColor: Colors.grey.shade900.withOpacity(0.6),
         toolbarHeight: 0,
         elevation: 0,

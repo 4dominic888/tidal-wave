@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:tidal_wave/domain/models/music_list.dart';
@@ -55,7 +56,7 @@ class TWMusicListViewItem extends StatelessWidget {
                   child: Container(
                     decoration: BoxDecoration(
                       image: DecorationImage(
-                        image: item.image != null ? Image.network(item.image.toString()).image : Image.asset('assets/placeholder/music-placeholder.png').image,
+                        image: item.image != null ? CachedNetworkImageProvider(item.image.toString()) : Image.asset('assets/placeholder/music-placeholder.png').image,
                         fit: BoxFit.cover
                       )
                     ),

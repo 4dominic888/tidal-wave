@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -87,7 +88,7 @@ class MusicElementView extends StatelessWidget {
       child: Stack(
         children: [
           Ink.image(
-            image: item.imagen != null ? Image.network(item.imagen!.toString()).image : Image.asset('assets/placeholder/music-placeholder.png').image,
+            image: item.imagen != null ? CachedNetworkImageProvider(item.imagen!.toString()) : Image.asset('assets/placeholder/music-placeholder.png').image,
             child: InkWell(
               onTap: () async {
                 final uploadUserName = await item.uploadAtName;
@@ -97,8 +98,8 @@ class MusicElementView extends StatelessWidget {
                     height: 200,
                     child: Stack(
                       children: [
-                        item.imagen != null ? Image.network(
-                          item.imagen.toString(),
+                        item.imagen != null ? CachedNetworkImage(
+                          imageUrl: item.imagen.toString(),
                           width: MediaQuery.of(context).size.width,
                           fit: BoxFit.cover,
                         ) : 

@@ -92,6 +92,7 @@ class TidalWaveApp extends StatelessWidget {
             prefixIconColor: Colors.white,
             suffixIconColor: Colors.white
           ),
+          progressIndicatorTheme: const ProgressIndicatorThemeData(color: Colors.white),
           hintColor: Colors.white
         ),
         home: const HomePageScreen(),

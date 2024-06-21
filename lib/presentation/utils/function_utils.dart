@@ -1,3 +1,7 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+
 Duration parseDuration(String s) {
 
   if(s.isEmpty) return Duration.zero;
@@ -29,3 +33,26 @@ String toStringDurationFormat(Duration duration) {
 bool isURL(String cadena) {
   return cadena.startsWith('http://') || cadena.startsWith('https://');
 }
+
+  Future showLoadingDialog(BuildContext context, AsyncCallback action, {String message = "Cargando"}) {
+    return showDialog(context: context, barrierDismissible: false, builder: (context) {
+      action.call().then((value) {
+        if(!context.mounted) return;
+        Navigator.of(context).pop();
+      });
+      return PopScope(
+        canPop: false,
+        child: AlertDialog(
+          content: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                const CircularProgressIndicator(),
+                Container(margin: const EdgeInsets.only(left: 12, right: 15), child: Text(message))
+              ],
+            )
+          ),
+        ),
+      );
+    });
+  }

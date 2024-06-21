@@ -33,7 +33,6 @@ class TWMusicListViewItem extends StatelessWidget {
         onTap: () async {
           final result = await _musicManagerUseCase.obtenerCancionesDeLista(item);
           if(!context.mounted) return;
-          if(!context.mounted) return;
           if(!result.onSuccess){
             showDialog(context: context, builder: (context) => PopupMessage(
               title: 'Error',

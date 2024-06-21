@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:tidal_wave/domain/models/music.dart';
 import 'package:tidal_wave/domain/models/position_data.dart';
 
 /// Cubit para la musica escuchada actualmente
@@ -20,6 +21,7 @@ class MusicCubit extends Cubit<AudioPlayer> {
       (p, b, d) => PositionData(p, b, d ?? Duration.zero)
     );
   }
+
   bool isActive = false;
 
   void enableLoop() async {
@@ -30,15 +32,29 @@ class MusicCubit extends Cubit<AudioPlayer> {
     await state.setLoopMode(LoopMode.off);
   }
 
-  void setMusic(AudioSource audioSource) async {
+  void setMusic(Music music, {bool onCache = false}) async {
     await state.stop();
-    await state.setAudioSource(audioSource, preload: false);
+    if(onCache){
+      await state.setAudioSource(LockCachingAudioSource(music.musica, tag: music.toAudioSource('0').sequence.first.tag));
+    }
+    else{
+      await state.setAudioSource(music.toAudioSource(music.index.toString()), preload: true);
+    }
     await state.play();
     emit(state);
   }
 
-  void setPlayList(ConcatenatingAudioSource playList) async {
-    await state.setAudioSource(playList);
+  Future<void> preLoadMusic(Music music) async {
+    await state.setAudioSource(LockCachingAudioSource(music.musica, tag: music.toAudioSource('0').sequence.first.tag));
+    await state.load();
+    emit(state);
+  }
+
+  void setPlayList(List<Music> musics) async {
+    await state.setAudioSource(
+    ConcatenatingAudioSource(children: 
+      musics.map((e) => LockCachingAudioSource(e.musica, tag: e.toAudioSource(e.index.toString()).sequence.first.tag)).toList())
+    );
     emit(state);
   }
 

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tidal_wave/data/abstractions/repository_implement_base.dart';
 import 'package:tidal_wave/data/result.dart';
+import 'package:tidal_wave/domain/models/music.dart';
 import 'package:tidal_wave/domain/repositories/music_repository.dart';
 
 class MusicRepositoryImplement extends RepositoryImplementBase with UseFirestore implements MusicRepository {
@@ -42,11 +43,16 @@ class MusicRepositoryImplement extends RepositoryImplementBase with UseFirestore
   Future<Result<List<T>>> getAllByReferences(List<DocumentReference<Map<String, dynamic>>> references, {bool Function(Map<String, dynamic> query)? where, int limit = 10}) async {
     try {
       int index = -1;
-      final data = await firestoreContext.getAllByReferences(references);
-      return Result.sucess(data.map((e) {
+      final List<Music?> musicDataParsed = await Future.wait(references.map((e) async {
         index++;
-        return T.fromJson(e,index);
-      }).toList());
+        final musicReferenceResult = await firestoreContext.getOneByReference(e);
+        if(musicReferenceResult != null) {
+          return T.fromJson(musicReferenceResult, index);
+        }
+        return null;
+      }));
+      final List<Music> retorno = musicDataParsed.whereType<Music>().toList();
+      return Result.sucess(retorno);
     } on Exception catch (e) {
       return Result.error('Ha ocurrido un error: $e');
     }

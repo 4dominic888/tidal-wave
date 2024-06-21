@@ -2,7 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:just_audio_background/just_audio_background.dart';
+import 'package:tidal_wave/data/abstractions/connectivity_service_base.dart';
 import 'package:tidal_wave/locator.dart';
 import 'package:tidal_wave/presentation/bloc/music_color_cubit.dart';
 import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
@@ -30,6 +32,9 @@ Future<void> main() async {
     persistenceEnabled: true,
     cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED
   );
+
+  GetIt.I<ConnectivityServiceBase>().init();
+
   runApp(const TidalWaveApp());
 }
 
@@ -87,6 +92,7 @@ class TidalWaveApp extends StatelessWidget {
             prefixIconColor: Colors.white,
             suffixIconColor: Colors.white
           ),
+          progressIndicatorTheme: const ProgressIndicatorThemeData(color: Colors.white),
           hintColor: Colors.white
         ),
         home: const HomePageScreen(),

@@ -78,8 +78,7 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
   void initState() {
     super.initState();
     _scrollController.addListener(_scrollListener);
-    //* El codigo ilegible asdasfasfas
-    context.read<MusicCubit>().setPlayList(ConcatenatingAudioSource(children: widget.listado.map((e) => e.toAudioSource(e.index.toString())).toList()));
+    context.read<MusicCubit>().setPlayList(widget.listado);
     _list = widget.listado;
   }
 

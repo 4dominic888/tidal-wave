@@ -1,5 +1,7 @@
 import 'package:get_it/get_it.dart';
+import 'package:tidal_wave/data/abstractions/connectivity_service_base.dart';
 import 'package:tidal_wave/data/dataSources/firebase/firestore_database_service.dart';
+import 'package:tidal_wave/data/dataSources/firebase/firestore_actions_connectivty_service_implement.dart';
 import 'package:tidal_wave/data/repositories/music_list_repository_implement.dart';
 import 'package:tidal_wave/data/repositories/music_repository_implement.dart';
 import 'package:tidal_wave/data/repositories/user_repository_implement.dart';
@@ -12,7 +14,12 @@ import 'package:tidal_wave/domain/use_case/interfaces/play_list_manager_use_case
 
 final GetIt locator = GetIt.instance;
 
-void setupLocator(){
+void setupLocator() {
+
+  locator.registerLazySingleton<ConnectivityServiceBase>(() =>
+    FirestoreActionsConnectityServiceImplement()  
+  );
+
   locator.registerLazySingleton<AuthenticationManagerUseCase>(() => 
     AuthenticationManagerUseCaseImplement(UserRepositoryImplement(
       databaseService: FirestoreDatabaseService()

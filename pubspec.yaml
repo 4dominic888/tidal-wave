@@ -37,6 +37,7 @@ dependencies:
   rounded_loading_button_plus: ^3.0.1
   get_it: ^7.7.0
   just_audio_background: ^0.0.1-beta.12
+  connectivity_plus: ^6.0.3
   
 
 dev_dependencies:

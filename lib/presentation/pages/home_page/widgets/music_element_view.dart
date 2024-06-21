@@ -6,12 +6,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:tidal_wave/data/result.dart';
 import 'package:tidal_wave/domain/models/music.dart';
 import 'package:tidal_wave/domain/models/music_list.dart';
 import 'package:tidal_wave/domain/use_case/interfaces/play_list_manager_use_case.dart';
 import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
 import 'package:tidal_wave/presentation/global_widgets/popup_message.dart';
 import 'package:tidal_wave/presentation/pages/lista_musica/widgets/icon_button_music.dart';
+import 'package:tidal_wave/presentation/utils/function_utils.dart';
 import 'package:tidal_wave/presentation/utils/music_state_util.dart';
 
 final _musicListManagerUseCase = GetIt.I<PlayListManagerUseCase>();
@@ -24,8 +26,31 @@ class MusicElementView extends StatelessWidget {
 
   const MusicElementView({super.key, required this.item, this.onPlay, this.selected = const [false]});
 
-  Future<void> addMusicToList(BuildContext context, Music music) async {
-    final listResult = await _musicListManagerUseCase.obtenerListasDeUsuarioActual();
+  Future<void> addMusicToList(BuildContext context, Music music, MusicList listSelected) async {
+    late Result<String> result;
+    showLoadingDialog(context,  () async { 
+      await context.read<MusicCubit>().preLoadMusic(music);
+      result = await _musicListManagerUseCase.agregarMusicaALista(
+        musicUUID: music.uuid!,
+        userId: FirebaseAuth.instance.currentUser!.uid,
+        listId: listSelected.id,
+        listType: listSelected.type
+      );
+    }, message: 'Cargando cancion a la lista');
+
+    if(!result.onSuccess){
+      showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: result.errorMessage!));
+    }
+    else{
+      showDialog(context: context, builder: (context) => PopupMessage(title: 'Exito', description: 'Se agrego correctamente la musica a la lista', onClose: () {
+        Navigator.of(context).pop();
+      }));
+    }
+  }
+
+  Future<void> listOfMusicsView(BuildContext context, Music music) async {
+    late Result<List<MusicList>> listResult;
+    await showLoadingDialog(context, () async => listResult = await _musicListManagerUseCase.obtenerListasDeUsuarioActual());
     if(!listResult.onSuccess) {
       PopupDialog(title: 'Error', description: listResult.errorMessage!);
       return;
@@ -45,26 +70,10 @@ class MusicElementView extends StatelessWidget {
                 height: 200,
                 child: ListView(
                   scrollDirection: Axis.vertical,
-                  children: listas.map((e) => 
+                  children: listas.map((list) => 
                   ListTile(
-                    title: Text(e.name),
-                    onTap: () async {
-                      final result = await _musicListManagerUseCase.agregarMusicaALista(
-                        musicUUID: music.uuid!,
-                        userId: FirebaseAuth.instance.currentUser!.uid,
-                        listId: e.id,
-                        listType: e.type
-                      );
-                      if(!context.mounted) return;
-                      if(!result.onSuccess){
-                        showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: result.errorMessage!));
-                      }
-                      else{
-                        showDialog(context: context, builder: (context) => PopupMessage(title: 'Exito', description: 'Se agrego correctamente la musica a la lista', onClose: () {
-                          Navigator.of(context).pop();
-                        }));
-                      }
-                    },
+                    title: Text(list.name),
+                    onTap: () async => await addMusicToList(context, music, list)
                   )).toList(),
                 ),
               ),
@@ -124,9 +133,19 @@ class MusicElementView extends StatelessWidget {
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.stretch,
                                   children: [
-                                    ElevatedButton(onPressed: () async => await addMusicToList(context, item), child: const Text('Agregar a lista')),
+                                    ElevatedButton(
+                                      onPressed: () async => listOfMusicsView(context, item),
+                                      style: ButtonStyle(backgroundColor: WidgetStateColor.resolveWith((states) => Colors.grey.shade900)),
+                                      child: const Text('Agregar a lista')
+                                    ),
                                     const Spacer(),
-                                    ElevatedButton(onPressed: (){}, child: const Text('Descargar'))
+                                    ElevatedButton(
+                                      onPressed: () async {
+                                        await showLoadingDialog(context, () async => await Future.delayed(const Duration(seconds: 5)));
+                                      },
+                                      style: ButtonStyle(backgroundColor: WidgetStateColor.resolveWith((states) => Colors.grey.shade900)),
+                                      child: const Text('Descargar')
+                                    )
                                   ],
                                 ),
                               ),
@@ -174,8 +193,6 @@ class MusicElementView extends StatelessWidget {
                               await context.read<MusicCubit>().state.play();
                             },
                         );
-
-                        
                       }
                     ),
                   ),
@@ -222,4 +239,5 @@ class MusicElementView extends StatelessWidget {
       ),
     );
   }
+
 }

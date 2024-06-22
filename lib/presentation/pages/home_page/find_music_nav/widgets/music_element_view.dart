@@ -26,7 +26,7 @@ class MusicElementView extends StatelessWidget {
 
   const MusicElementView({super.key, required this.item, this.onPlay, this.selected = const [false]});
 
-  Future<void> addMusicToList(BuildContext context, Music music, MusicList listSelected) async {
+  Future<void> showAddMusicToList(BuildContext context, Music music, MusicList listSelected) async {
     late Result<String> result;
     showLoadingDialog(context,  () async { 
       await context.read<MusicCubit>().preLoadMusic(music);
@@ -48,7 +48,7 @@ class MusicElementView extends StatelessWidget {
     }
   }
 
-  Future<void> listOfMusicsView(BuildContext context, Music music) async {
+  Future<void> showListOfMusics(BuildContext context, Music music) async {
     late Result<List<MusicList>> listResult;
     await showLoadingDialog(context, () async => listResult = await _musicListManagerUseCase.obtenerListasDeUsuarioActual());
     if(!listResult.onSuccess) {
@@ -73,7 +73,7 @@ class MusicElementView extends StatelessWidget {
                   children: listas.map((list) => 
                   ListTile(
                     title: Text(list.name),
-                    onTap: () async => await addMusicToList(context, music, list)
+                    onTap: () async => await showAddMusicToList(context, music, list)
                   )).toList(),
                 ),
               ),
@@ -83,6 +83,65 @@ class MusicElementView extends StatelessWidget {
       ),
     ));
   }
+
+  Future<void> viewMoreMusicInfo(BuildContext context, String uploadUserName) => showModalBottomSheet(context: context, 
+    backgroundColor: Colors.grey.shade800, builder: (context) => SizedBox(
+      height: 200,
+      child: Stack(
+        children: [
+          //* Imagen de fondo
+          item.imagen != null ? CachedNetworkImage(
+            imageUrl: item.imagen.toString(),
+            width: MediaQuery.of(context).size.width,
+            fit: BoxFit.cover,
+          ) : Image.asset('assets/placeholder/music-placeholder.png', 
+            width: MediaQuery.of(context).size.width,
+            fit: BoxFit.cover,
+          ),
+
+          //* Efecto de desenfoque
+          BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+            child: Container(color: Colors.grey.shade900.withOpacity(0.7)),
+          ),
+
+
+          Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SingleChildScrollView(scrollDirection: Axis.horizontal ,child: Text(item.titulo, style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold))),
+                SingleChildScrollView(scrollDirection: Axis.horizontal ,child: Text(item.artistasStr, style: const TextStyle(fontSize: 15))),
+                SingleChildScrollView(scrollDirection: Axis.horizontal ,child: Text('Subido por: $uploadUserName', style: const TextStyle(fontSize: 15))),
+                const SizedBox(height: 10),
+                Expanded(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () async => showListOfMusics(context, item),
+                        style: ButtonStyle(backgroundColor: WidgetStateColor.resolveWith((states) => Colors.grey.shade900)),
+                        child: const Text('Agregar a lista')
+                      ),
+                      const Spacer(),
+                      ElevatedButton(
+                        onPressed: () async {
+                          await showLoadingDialog(context, () async => await Future.delayed(const Duration(seconds: 5)));
+                        },
+                        style: ButtonStyle(backgroundColor: WidgetStateColor.resolveWith((states) => Colors.grey.shade900)),
+                        child: const Text('Descargar')
+                      )
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          )
+        ],
+      )
+    )
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -102,63 +161,11 @@ class MusicElementView extends StatelessWidget {
               onTap: () async {
                 final uploadUserName = await item.uploadAtName;
                 if(!context.mounted) return;
-                showModalBottomSheet(context: context,backgroundColor: Colors.grey.shade800, builder: (context) {
-                  return SizedBox(
-                    height: 200,
-                    child: Stack(
-                      children: [
-                        item.imagen != null ? CachedNetworkImage(
-                          imageUrl: item.imagen.toString(),
-                          width: MediaQuery.of(context).size.width,
-                          fit: BoxFit.cover,
-                        ) : 
-                        Image.asset('assets/placeholder/music-placeholder.png', 
-                          width: MediaQuery.of(context).size.width,
-                          fit: BoxFit.cover,
-                        ),
-                        BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-                          child: Container(color: Colors.grey.shade900.withOpacity(0.7)),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(32.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              SingleChildScrollView(scrollDirection: Axis.horizontal ,child: Text(item.titulo, style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold))),
-                              SingleChildScrollView(scrollDirection: Axis.horizontal ,child: Text(item.artistasStr, style: const TextStyle(fontSize: 15))),
-                              SingleChildScrollView(scrollDirection: Axis.horizontal ,child: Text('Subido por: $uploadUserName', style: const TextStyle(fontSize: 15))),
-                              const SizedBox(height: 10),
-                              Expanded(
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                                  children: [
-                                    ElevatedButton(
-                                      onPressed: () async => listOfMusicsView(context, item),
-                                      style: ButtonStyle(backgroundColor: WidgetStateColor.resolveWith((states) => Colors.grey.shade900)),
-                                      child: const Text('Agregar a lista')
-                                    ),
-                                    const Spacer(),
-                                    ElevatedButton(
-                                      onPressed: () async {
-                                        await showLoadingDialog(context, () async => await Future.delayed(const Duration(seconds: 5)));
-                                      },
-                                      style: ButtonStyle(backgroundColor: WidgetStateColor.resolveWith((states) => Colors.grey.shade900)),
-                                      child: const Text('Descargar')
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      ],
-                    )
-                  );
-                });
+                viewMoreMusicInfo(context, uploadUserName);
               },
             ),
           ),
+
           Column(
             children: [
               Column(
@@ -175,7 +182,6 @@ class MusicElementView extends StatelessWidget {
                           icon: selected!.first ? 
                             snapshot.data?.processingState == ProcessingState.loading ? const Icon(Icons.watch_later) : MusicStateUtil.playIcon(snapshot.data) :
                             const Icon(Icons.play_arrow_rounded),
-
 
                           onTap: selected!.first ? MusicStateUtil.playReturns(snapshot.data,
                             playCase: context.read<MusicCubit>().state.play,
@@ -196,6 +202,8 @@ class MusicElementView extends StatelessWidget {
                       }
                     ),
                   ),
+
+                  //* Barra de progreso
                   StreamBuilder<Duration>(
                     stream: context.read<MusicCubit>().state.positionStream.asBroadcastStream(),
                     builder: (context, snapshot) {
@@ -208,6 +216,8 @@ class MusicElementView extends StatelessWidget {
                   ),
                 ],
               ),
+
+              //* Metadata
               Expanded(child: ClipRRect(
                 borderRadius: BorderRadius.circular(8.0),
                   child: Container(
@@ -239,5 +249,4 @@ class MusicElementView extends StatelessWidget {
       ),
     );
   }
-
 }

@@ -2,23 +2,22 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:tidal_wave/domain/use_case/interfaces/music_manager_use_case.dart';
-import 'package:tidal_wave/presentation/pages/home_page/widgets/music_element_view.dart';
+import 'package:tidal_wave/presentation/pages/home_page/find_music_nav/widgets/music_element_view.dart';
 import 'package:tidal_wave/presentation/pages/lista_musica/widgets/icon_button_music.dart';
 import 'package:tidal_wave/presentation/pages/lista_musica/widgets/text_field_find.dart';
 import 'package:tidal_wave/domain/models/music.dart';
 
-class TwFindNav extends StatefulWidget {
-  const TwFindNav({super.key});
+class TWFindNav extends StatefulWidget {
+  const TWFindNav({super.key});
 
   @override
-  State<TwFindNav> createState() => _TwFindNavState();
+  State<TWFindNav> createState() => _TWFindNavState();
 }
 
-final _musicManagerUseCase = GetIt.I<MusicManagerUseCase>();
 
+class _TWFindNavState extends State<TWFindNav> {
 
-class _TwFindNavState extends State<TwFindNav> {
-
+  final _musicManagerUseCase = GetIt.I<MusicManagerUseCase>();
   String? selectUUID;
 
   void _findMusic(String query){

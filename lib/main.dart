@@ -10,7 +10,7 @@ import 'package:tidal_wave/presentation/bloc/music_color_cubit.dart';
 import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
 import 'package:tidal_wave/presentation/bloc/user_cubit.dart';
 import 'package:tidal_wave/firebase_options.dart';
-import 'package:tidal_wave/presentation/pages/home_page/screens/home_page_screen.dart';
+import 'package:tidal_wave/presentation/pages/home_page/home_page_screen.dart';
 
 Future<void> main() async {
 

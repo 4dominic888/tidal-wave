@@ -11,10 +11,10 @@ import 'package:tidal_wave/presentation/pages/autenticacion_usuario/screens/regi
 import 'package:tidal_wave/presentation/pages/lista_musica/screens/lista_musica_screen.dart';
 import 'package:tidal_wave/presentation/pages/lista_musica/widgets/tw_drawer.dart';
 import 'package:tidal_wave/presentation/pages/subir_musica/screens/upload_music_screen.dart';
-import 'package:tidal_wave/presentation/pages/home_page/screens/tw_account_nav.dart';
-import 'package:tidal_wave/presentation/pages/home_page/screens/tw_find_nav.dart';
-import 'package:tidal_wave/presentation/pages/home_page/screens/tw_home_nav.dart';
-import 'package:tidal_wave/presentation/pages/home_page/screens/tw_user_list_nav.dart';
+import 'package:tidal_wave/presentation/pages/home_page/user_account_nav/screens/tw_account_nav.dart';
+import 'package:tidal_wave/presentation/pages/home_page/find_music_nav/screens/tw_find_nav.dart';
+import 'package:tidal_wave/presentation/pages/home_page/home_nav/screens/tw_home_nav.dart';
+import 'package:tidal_wave/presentation/pages/home_page/user_list_nav/screens/tw_user_list_nav.dart';
 
 class HomePageScreen extends StatefulWidget {
   const HomePageScreen({super.key});
@@ -35,7 +35,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
   Widget _currentScreen(int index){
     switch (index) {
       case 0: return const TWHomeNav();
-      case 1: return const TwFindNav();
+      case 1: return const TWFindNav();
       case 2: return const TWUserListNav();
       case 3: return const TWAccountNav();
       default: return const SizedBox.shrink();

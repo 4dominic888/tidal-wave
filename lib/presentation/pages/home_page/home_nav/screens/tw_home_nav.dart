@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tidal_wave/presentation/pages/home_page/home_nav/widgets/ad_container.dart';
 import 'package:tidal_wave/presentation/pages/reproductor_musica/widgets/media_meta_data.dart';
 
 class TWHomeNav extends StatelessWidget {
@@ -10,47 +11,10 @@ class TWHomeNav extends StatelessWidget {
     return SingleChildScrollView(
       child: Column(
         children: [
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(colors: [Colors.blueAccent, Colors.pink]),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black45,
-                  spreadRadius: 10,
-                  blurRadius: 20,
-                )
-              ]
-            ),
-            width: MediaQuery.of(context).size.width,
-            height: 300,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  const Text('Algun anuncio', 
-                    style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold
-                    )
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  const Text('Alguna descripcion adicional sobre el anuncio a presentar...',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 15
-                    )
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  ElevatedButton(
-                    onPressed: (){},
-                    child: const Text('Some action button', style: TextStyle(color: Colors.black))
-                  ),
-                  TextButton(onPressed: (){}, child: const Text('Another action', style: TextStyle(fontWeight: FontWeight.bold)))
-                ],
-              )
+          const AdContainer(
+            text: 'Algun anuncio',
+            description: 'Alguna descripcion',
+            gradient: LinearGradient(colors: [Colors.blueAccent, Colors.pink]),
           ),
 
           const SizedBox(height: 30),

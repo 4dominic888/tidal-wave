@@ -4,8 +4,8 @@ import 'package:get_it/get_it.dart';
 import 'package:group_button/group_button.dart';
 import 'package:tidal_wave/domain/models/music_list.dart';
 import 'package:tidal_wave/domain/use_case/interfaces/play_list_manager_use_case.dart';
-import 'package:tidal_wave/presentation/pages/home_page/screens/create_user_list_screen.dart';
-import 'package:tidal_wave/presentation/pages/home_page/widgets/tw_music_list_view_item.dart';
+import 'package:tidal_wave/presentation/pages/home_page/user_account_nav/screens/create_user_list_screen.dart';
+import 'package:tidal_wave/presentation/pages/home_page/user_list_nav/widgets/tw_music_list_view_item.dart';
 
 class TWUserListNav extends StatefulWidget {
   const TWUserListNav({super.key});
@@ -25,8 +25,8 @@ class _TWUserListNavState extends State<TWUserListNav> {
     return result.data!;
   }
 
-  Widget _userList() => 
-    Expanded(
+  Widget _userMusicList() {
+    return Expanded(
       child: Column(
         children: [
           Padding(
@@ -35,7 +35,7 @@ class _TWUserListNavState extends State<TWUserListNav> {
               color: Colors.transparent,
               child: InkWell(
                 onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => const CreateUserListScreen())),
-                splashColor: Colors.white,
+                splashColor: Colors.white.withOpacity(0.68),
                 child: Container(
                   alignment: Alignment.center,
                   width: MediaQuery.of(context).size.width,
@@ -78,6 +78,7 @@ class _TWUserListNavState extends State<TWUserListNav> {
         ],
       ),
     );
+  }
 
   final Widget _otherUserLists = const Center(
     child: Icon(Icons.list),
@@ -110,7 +111,7 @@ class _TWUserListNavState extends State<TWUserListNav> {
 
         const SizedBox(height: 10),
 
-        if(_buttonsController.selectedIndex == 0) _userList()
+        if(_buttonsController.selectedIndex == 0) _userMusicList()
         else _otherUserLists
 
       ],

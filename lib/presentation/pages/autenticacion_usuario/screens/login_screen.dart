@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:tidal_wave/domain/use_case/interfaces/authentication_manager_use_case.dart';
 import 'package:tidal_wave/presentation/bloc/user_cubit.dart';
-import 'package:tidal_wave/presentation/pages/home_page/screens/home_page_screen.dart';
+import 'package:tidal_wave/presentation/pages/home_page/home_page_screen.dart';
 import 'package:tidal_wave/presentation/global_widgets/tw_text_field.dart';
 import 'package:tidal_wave/presentation/global_widgets/popup_message.dart';
 

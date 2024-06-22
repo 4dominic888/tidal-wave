@@ -53,50 +53,52 @@ class TidalWaveApp extends StatelessWidget {
         title: 'Tidal Wave',
         debugShowCheckedModeBanner: false,
         //* Tema por defecto
-        theme: ThemeData(
-          textSelectionTheme: TextSelectionThemeData(
-            selectionHandleColor: Colors.grey.shade400,
-            selectionColor: Colors.grey.shade400.withOpacity(0.4),
-          ),
-          scaffoldBackgroundColor: Colors.transparent,
-          appBarTheme: const AppBarTheme(
-            backgroundColor: Colors.transparent,
-            foregroundColor: Colors.white,
-            titleTextStyle: TextStyle(color: Colors.white, fontSize: 20)
-          ),
-          dialogTheme: DialogTheme(
-            titleTextStyle: const TextStyle(color: Colors.grey),
-            backgroundColor: Colors.grey.shade900,
-            contentTextStyle: const TextStyle(color: Colors.grey),
-          ),
-          textButtonTheme: TextButtonThemeData(
-            style: ButtonStyle(
-              textStyle: WidgetStateTextStyle.resolveWith((states) => const TextStyle(color: Colors.white)),
-              foregroundColor: WidgetStateColor.resolveWith((states) => Colors.white)
-            )
-          ),
-          textTheme: Theme.of(context).textTheme.apply(bodyColor: Colors.white, displayColor: Colors.white, decorationColor: Colors.white),
-          primaryTextTheme: Theme.of(context).textTheme.apply(bodyColor: Colors.white, displayColor: Colors.white, decorationColor: Colors.white),
-          elevatedButtonTheme: ElevatedButtonThemeData(
-            style: ButtonStyle(textStyle: WidgetStateTextStyle.resolveWith((states) => const TextStyle(color: Colors.blueAccent)),
-            foregroundColor: WidgetStateColor.resolveWith((states) => states.isEmpty ? Colors.white : Colors.grey.shade800.withOpacity(0.7)),
-          )),
-          listTileTheme: const ListTileThemeData(
-            titleTextStyle: TextStyle(color: Colors.white),
-            subtitleTextStyle: TextStyle(color: Colors.white),
-            iconColor: Colors.white
-          ),
-          iconTheme: const IconThemeData(color: Colors.white),
-          primaryIconTheme: const IconThemeData(color: Colors.white),
-          inputDecorationTheme: const InputDecorationTheme(
-            prefixIconColor: Colors.white,
-            suffixIconColor: Colors.white
-          ),
-          progressIndicatorTheme: const ProgressIndicatorThemeData(color: Colors.white),
-          hintColor: Colors.white
-        ),
+        theme: defaultTheme(context),
         home: const HomePageScreen(),
       ),
     );
   }
+
+  ThemeData defaultTheme(BuildContext context) => ThemeData(
+    textSelectionTheme: TextSelectionThemeData(
+      selectionHandleColor: Colors.grey.shade400,
+      selectionColor: Colors.grey.shade400.withOpacity(0.4),
+    ),
+    scaffoldBackgroundColor: Colors.transparent,
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Colors.transparent,
+      foregroundColor: Colors.white,
+      titleTextStyle: TextStyle(color: Colors.white, fontSize: 20)
+    ),
+    dialogTheme: DialogTheme(
+      titleTextStyle: const TextStyle(color: Colors.grey),
+      backgroundColor: Colors.grey.shade900,
+      contentTextStyle: const TextStyle(color: Colors.grey),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: ButtonStyle(
+        textStyle: WidgetStateTextStyle.resolveWith((states) => const TextStyle(color: Colors.white)),
+        foregroundColor: WidgetStateColor.resolveWith((states) => Colors.white)
+      )
+    ),
+    textTheme: Theme.of(context).textTheme.apply(bodyColor: Colors.white, displayColor: Colors.white, decorationColor: Colors.white),
+    primaryTextTheme: Theme.of(context).textTheme.apply(bodyColor: Colors.white, displayColor: Colors.white, decorationColor: Colors.white),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ButtonStyle(textStyle: WidgetStateTextStyle.resolveWith((states) => const TextStyle(color: Colors.blueAccent)),
+      foregroundColor: WidgetStateColor.resolveWith((states) => states.isEmpty ? Colors.white : Colors.grey.shade800.withOpacity(0.7)),
+    )),
+    listTileTheme: const ListTileThemeData(
+      titleTextStyle: TextStyle(color: Colors.white),
+      subtitleTextStyle: TextStyle(color: Colors.white),
+      iconColor: Colors.white
+    ),
+    iconTheme: const IconThemeData(color: Colors.white),
+    primaryIconTheme: const IconThemeData(color: Colors.white),
+    inputDecorationTheme: const InputDecorationTheme(
+      prefixIconColor: Colors.white,
+      suffixIconColor: Colors.white
+    ),
+    progressIndicatorTheme: const ProgressIndicatorThemeData(color: Colors.white),
+    hintColor: Colors.white
+  );
 }

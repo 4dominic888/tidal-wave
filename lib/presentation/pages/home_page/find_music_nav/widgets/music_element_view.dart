@@ -84,7 +84,7 @@ class MusicElementView extends StatelessWidget {
     ));
   }
 
-  Future<void> viewMoreMusicInfo(BuildContext context, String uploadUserName) => showModalBottomSheet(context: context, 
+  Future<void> viewMoreMusicInfo(BuildContext context) => showModalBottomSheet(context: context, 
     backgroundColor: Colors.grey.shade800, builder: (context) => SizedBox(
       height: 200,
       child: Stack(
@@ -113,7 +113,6 @@ class MusicElementView extends StatelessWidget {
               children: [
                 SingleChildScrollView(scrollDirection: Axis.horizontal ,child: Text(item.titulo, style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold))),
                 SingleChildScrollView(scrollDirection: Axis.horizontal ,child: Text(item.artistasStr, style: const TextStyle(fontSize: 15))),
-                SingleChildScrollView(scrollDirection: Axis.horizontal ,child: Text('Subido por: $uploadUserName', style: const TextStyle(fontSize: 15))),
                 const SizedBox(height: 10),
                 Expanded(
                   child: Row(
@@ -158,11 +157,8 @@ class MusicElementView extends StatelessWidget {
           Ink.image(
             image: item.imagen != null ? CachedNetworkImageProvider(item.imagen!.toString()) : Image.asset('assets/placeholder/music-placeholder.png').image,
             child: InkWell(
-              onTap: () async {
-                final uploadUserName = await item.uploadAtName;
-                if(!context.mounted) return;
-                viewMoreMusicInfo(context, uploadUserName);
-              },
+              onTap: () => viewMoreMusicInfo(context)
+              ,
             ),
           ),
 

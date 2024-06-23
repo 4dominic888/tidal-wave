@@ -30,7 +30,6 @@ Future<void> main() async {
   //* Configuracion para persistencia de datos, solo funciona para firestore
   FirebaseFirestore.instance.settings = const Settings(
     persistenceEnabled: true,
-    cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED
   );
 
   GetIt.I<ConnectivityServiceBase>().init();

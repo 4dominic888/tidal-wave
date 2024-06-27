@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS UserListMusics(
 CREATE TABLE IF NOT EXISTS MusicsLists(
     music_id TEXT NOT NULL,
     list_id TEXT NOT NULL,
-    PRIMARY KEY (music_id, list_id),
+    PRIMARY KEY (music_id, list_id)
     FOREIGN KEY (music_id) REFERENCES Musics(uuid),
     FOREIGN KEY (list_id) REFERENCES UserListMusics(uuid)
 )

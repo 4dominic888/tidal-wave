@@ -15,7 +15,9 @@ mixin SaveFiles{
     String? userUid = FirebaseAuth.instance.currentUser?.uid;
     if(userUid == null) throw Exception('Debes ser un usuario para acceder a esta funcionalidad');
 
-    final Directory userDir = Directory('${(await getApplicationDocumentsDirectory()).path}/$userUid');
+    final Directory mainDir = Directory('${(await getApplicationDocumentsDirectory()).path}/twFiles');
+
+    final Directory userDir = Directory('$mainDir/$userUid');
     if(!(await userDir.exists())){
       await userDir.create();
     }

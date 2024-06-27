@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS Musics(
     duration INTEGER NOT NULL,
     stars REAL NOT NULL,
     upload_at INTEGER NOT NULL,
-    better_moment INTEGER NOT NULL,
+    better_moment INTEGER NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS UserListMusics(
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS UserListMusics(
 CREATE TABLE IF NOT EXISTS MusicsLists(
     music_id TEXT NOT NULL,
     list_id TEXT NOT NULL,
-    PRIMARY KEY (music_id, list_id)
+    PRIMARY KEY (music_id, list_id),
     FOREIGN KEY (music_id) REFERENCES Musics(uuid),
     FOREIGN KEY (list_id) REFERENCES UserListMusics(uuid)
 )

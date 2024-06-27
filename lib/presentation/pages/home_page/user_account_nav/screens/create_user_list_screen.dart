@@ -48,6 +48,8 @@ class _CreateUserListScreenState extends State<CreateUserListScreen> {
       if(!mounted) return;
       if(!result.onSuccess) {
         showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: result.errorMessage!));
+        _btnController.error();
+        return;
       }
       showDialog(context: context, builder: (context) => PopupMessage(title: 'Exito', description: result.data!));
 

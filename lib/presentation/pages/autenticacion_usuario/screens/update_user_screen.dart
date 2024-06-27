@@ -44,7 +44,11 @@ class _UpdateUserScreenState extends State<UpdateUserScreen> {
         pfp: Uri.parse(_pfpController.value!.path)
       );
 
-      final result = await _authenticationUseCase.actualizarInformacionUsuario(usuarioActualizado);
+      final result = await _authenticationUseCase.actualizarInformacionUsuario(usuarioActualizado, onLoad: (value) {
+        _pfpFileUploadStreamController.sink.add(
+          value.bytesTransferred / value.totalBytes
+        );
+      });
       if(!mounted) return;
       
       if(!result.onSuccess) {

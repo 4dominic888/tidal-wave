@@ -22,7 +22,9 @@ class _TWUserListNavState extends State<TWUserListNav> {
 
   Future<List<MusicList>>? _listOfMusic() async {
     final result = await _playListManagerUseCase.obtenerListasLocales();
-    if(result.onSuccess){return result.data!.toList();}
+    if(result.onSuccess){
+      return result.data!.toList();
+    }
     throw Exception(result.errorMessage);
   }
 
@@ -62,7 +64,7 @@ class _TWUserListNavState extends State<TWUserListNav> {
               builder: (context, snapshot) {
                 if(snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
                 if(snapshot.hasError) return Center(child: Text(snapshot.error.toString()));
-                if(snapshot.data == null && snapshot.data!.isEmpty) return const Center(child: Text('No hay listas creadas'));
+                if(snapshot.data!.isEmpty) return const Center(child: Text('No hay listas creadas'));
                 return ListView.builder(
                   shrinkWrap: true,
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),

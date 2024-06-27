@@ -20,9 +20,10 @@ class _TWUserListNavState extends State<TWUserListNav> {
   static final _buttonsController = GroupButtonController(selectedIndex: 0);
   static final _buttonsOptions = ['Mis listas', 'Otras listas'];
 
-  Future<List<MusicList>> _listOfMusic() async {
+  Future<List<MusicList>>? _listOfMusic() async {
     final result = await _playListManagerUseCase.obtenerListasLocales();
-    return result.data!;
+    if(result.onSuccess){return result.data!.toList();}
+    throw Exception(result.errorMessage);
   }
 
   Widget _userMusicList() {

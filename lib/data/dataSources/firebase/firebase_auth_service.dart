@@ -46,9 +46,9 @@ class FirebaseAuthService {
 
   Future<Result<String>> updateNormalInfo(TWUser newUser) async {
     try {
-      final Result<TWUser> result = await userRepository.updateOne(newUser, _auth.currentUser!.uid);
+      final Result<bool> result = await userRepository.updateOne(newUser, _auth.currentUser!.uid);
       if(!result.onSuccess) throw Exception(result.errorMessage);
-      return Result.sucess('Se han actualizado sus datos con exito');
+      return Result.success('Se han actualizado sus datos con exito');
     } catch (e) {
       return Result.error(e.toString());
     }

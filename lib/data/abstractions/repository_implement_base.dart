@@ -4,19 +4,27 @@ import 'package:tidal_wave/data/dataSources/sqflite/sqflite_database_service.dar
 
 abstract class RepositoryImplementBase {
   /// Obtiene la instancia general de la base de datos
-  late final DatabaseService<Map<String,dynamic>> context;
+  final DatabaseService<Map<String,dynamic>> _onlineContext;
+  final DatabaseService<Map<String,dynamic>> _offlineContext;
+
+  DatabaseService<Map<String,dynamic>> get onlineContext => _onlineContext;
+  DatabaseService<Map<String,dynamic>> get offlineContext => _offlineContext;
 
   /// Nombre de la coleccion o tabla a hacer referencia
   String get dataset;
 
-  RepositoryImplementBase({required DatabaseService<Map<String,dynamic>> databaseService}) : context = databaseService;
+  RepositoryImplementBase({
+    required DatabaseService<Map<String,dynamic>> onlineContext,
+    required DatabaseService<Map<String,dynamic>> offlineContext
+  }) : _onlineContext = onlineContext, _offlineContext = offlineContext;
 }
 
 mixin UseFirestore on RepositoryImplementBase{
-  FirestoreDatabaseService get firestoreContext => context as FirestoreDatabaseService;
+  FirestoreDatabaseService get onlinefirestoreContext => _onlineContext as FirestoreDatabaseService;
+  
 }
 
 mixin UseSqflite on RepositoryImplementBase{
-  SqfliteDatabaseService get sqfliteContext => context as SqfliteDatabaseService;
+  SqfliteDatabaseService get offlinesqfliteContext => _offlineContext as SqfliteDatabaseService;
 }
 

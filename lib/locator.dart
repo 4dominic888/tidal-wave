@@ -32,19 +32,22 @@ void setupLocator() {
 
   locator.registerLazySingleton<AuthenticationManagerUseCase>(() => 
     AuthenticationManagerUseCaseImplement(UserRepositoryImplement(
-      databaseService: FirestoreDatabaseService()
+      onlineContext: FirestoreDatabaseService(),
+      offlineContext: SqfliteDatabaseService()
     ))
   );
   
   locator.registerLazySingleton<MusicManagerUseCase>(() => 
     MusicManagerUseCaseImplement(MusicRepositoryImplement(
-      databaseService: FirestoreDatabaseService()
+      onlineContext: FirestoreDatabaseService(),
+      offlineContext: SqfliteDatabaseService()
     ))
   );
   
   locator.registerLazySingleton<MusicListManagerUseCase>(() => 
     MusicListManagerUseCaseImplement(MusicListRepositoryImplement(
-      databaseService: FirestoreDatabaseService()
+      onlineContext: FirestoreDatabaseService(),
+      offlineContext: SqfliteDatabaseService()
     ))
   );
 }

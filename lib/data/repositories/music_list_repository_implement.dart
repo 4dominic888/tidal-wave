@@ -10,7 +10,7 @@ import 'package:tidal_wave/domain/repositories/music_list_repository.dart';
 
 class MusicListRepositoryImplement extends RepositoryImplementBase with UseFirestore, UseSqflite implements MusicListRepository{
   
-  MusicListRepositoryImplement({required super.databaseService});
+  MusicListRepositoryImplement({required super.onlineContext, required super.offlineContext});
 
   @override
   //* Para local se usa para consultar las listas locales
@@ -25,10 +25,10 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
     try {
       data = data.copyWith(type: DataSourceType.local, musics: []);
       if(id == null){
-        await sqfliteContext.addOne(dataset, data.toJson());
+        await offlinesqfliteContext.addOne(dataset, data.toJson());
       }
       else{
-        await sqfliteContext.setOne(dataset, data.toJson(), id);
+        await offlinesqfliteContext.setOne(dataset, data.toJson(), id);
       }
       return Result.success(data);
     } on Exception catch (e) {
@@ -39,7 +39,7 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
   @override
   Future<Result<String>> addMusic({required String musicUUID, required String listId}) async {
     try {
-      await sqfliteContext.addManytoMany(dataset, {'music_id': musicUUID}, {'list_id': listId});
+      await offlinesqfliteContext.addManytoMany(dataset, {'music_id': musicUUID}, {'list_id': listId});
       return Result.success('Musica agregada con exito');
     } catch (e) {
       return Result.error('Ha ocurrido un error $e');
@@ -49,7 +49,7 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
   @override
   Future<Result<String>> removeMusic({required String musicUUID, required String listId}) async {
     try {
-      await sqfliteContext.db.rawDelete('DELETE FROM MusicsLists WHERE music_id = ? AND list_id = ?', [musicUUID, listId]);
+      await offlinesqfliteContext.db.rawDelete('DELETE FROM MusicsLists WHERE music_id = ? AND list_id = ?', [musicUUID, listId]);
       return Result.success('Musica agregada con exito');
     } catch (e) {
       return Result.error('Ha ocurrido un error $e');
@@ -59,7 +59,7 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
   @override
   Future<Result<String>> clearList(String listId) async {
     try {
-      await sqfliteContext.db.rawDelete('DELETE FROM MusicsLists WHERE list_id = ?', [listId]);
+      await offlinesqfliteContext.db.rawDelete('DELETE FROM MusicsLists WHERE list_id = ?', [listId]);
       return Result.success('Musica agregada con exito');
     } catch (e) {
       return Result.error('Ha ocurrido un error $e');
@@ -71,8 +71,8 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
     try {
       final isLocal = dataSourceType == DataSourceType.local;
       final Map<String, dynamic>? dataMap = isLocal ? 
-        await sqfliteContext.getOne(dataset, id):
-        await firestoreContext.getOne(publicListsDataset, id, queryArray);
+        await offlinesqfliteContext.getOne(dataset, id):
+        await onlinefirestoreContext.getOne(publicListsDataset, id, queryArray);
       
       if(dataMap == null) return Result<T>.error('No se ha encontrado el elemento');
       
@@ -81,10 +81,10 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
 
       //* Llenado de musicas a la lista
       if(isLocal){
-        musicsMap = await sqfliteContext.db.rawQuery(await rootBundle.loadString('assets/select_locale_songs_by_list_id.sql'), [id]);
+        musicsMap = await offlinesqfliteContext.db.rawQuery(await rootBundle.loadString('assets/select_locale_songs_by_list_id.sql'), [id]);
       }
       else{
-        musicsMap = await firestoreContext.getAllByReferences(dataMap['musics'] as List<DocumentReference>);
+        musicsMap = await onlinefirestoreContext.getAllByReferences(dataMap['musics'] as List<DocumentReference>);
       }
 
       int i = 0;
@@ -102,7 +102,7 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
   @override
   Future<Result<bool>> updateOne(MusicList data, String id) async {
     try {
-      await sqfliteContext.updateOne(dataset, data.toJson(), id);
+      await offlinesqfliteContext.updateOne(dataset, data.toJson(), id);
       return Result.success(true);
     } catch (e) {
       return Result.error('Ha ocurrido un error $e');
@@ -113,7 +113,7 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
   Future<Result<String>> deleteOne(String id) async {
     try {
         await clearList(id);
-        await sqfliteContext.deleteOne(dataset, id);
+        await offlinesqfliteContext.deleteOne(dataset, id);
       return Result.success('Se ha eliminado la lista con exito');
 
     } catch (e) {
@@ -124,7 +124,7 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
   @override
   Future<Result<List<T>>> getAllLocal({String? where, List<String>? whereArgs, int? limit = 10}) async {
     try {
-      final data = await sqfliteContext.getAll(dataset, where:where, whereArgs:whereArgs, limit:limit);
+      final data = await offlinesqfliteContext.getAll(dataset, where:where, whereArgs:whereArgs, limit:limit);
       return Result.success(data.map((e) => T.fromJson(e)).toList());
     } catch (e) {
       return Result.error('Ha ocurrido un error $e');
@@ -134,7 +134,7 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
   @override
   Future<Result<List<T>>> getAllGlobal({List<String> queryArray = const [], bool Function(Map<String, dynamic>)? where, int limit = 10}) async {
     try {
-      final data = await firestoreContext.getAll(publicListsDataset, queryArray, where, limit);
+      final data = await onlinefirestoreContext.getAll(publicListsDataset, queryArray, where, limit);
       return Result.success(data.map((e) => T.fromJson(e)).toList());
     } catch (e) {
       return Result.error('Ha ocurrido un error $e');
@@ -144,7 +144,7 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
   @override
   Future<Result<List<T>>> getAllUploaded({bool Function(Map<String, dynamic> p1)? where, int? limit = 10}) async {
     try {
-      final data = await firestoreContext.getOne(dataset, FirebaseAuth.instance.currentUser!.uid);
+      final data = await onlinefirestoreContext.getOne(dataset, FirebaseAuth.instance.currentUser!.uid);
       if(data == null) throw Exception('Elemento no encontrado');
       final lists = await Future.wait(
         (data['lists'] as List<DocumentReference>).map((ref) async => (await ref.get()).data() as Map<String, dynamic>)
@@ -162,8 +162,8 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
       final userUid = FirebaseAuth.instance.currentUser!.uid;
 
       //* Subir la metadata al servidor
-      await firestoreContext.setOne(publicListsDataset, list.toJson()..addAll(
-        {'upload by': firestoreContext.db.collection('Users').doc(userUid)}
+      await onlinefirestoreContext.setOne(publicListsDataset, list.toJson()..addAll(
+        {'upload by': onlinefirestoreContext.db.collection('Users').doc(userUid)}
       ), list.id);
       await updateOne(list, list.id);
       
@@ -171,7 +171,7 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
       * Pasa la referencia de la lista en una coleccion generica para que el usuario vea sus listas subidas,
       * para no realizar una consulta compleja y costosa
       */
-      await firestoreContext.addElementToArray<DocumentReference>(dataset, userUid, 'lists',
+      await onlinefirestoreContext.addElementToArray<DocumentReference>(dataset, userUid, 'lists',
         FirebaseFirestore.instance.collection(publicListsDataset).doc(list.id)
       );
       
@@ -184,11 +184,11 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
   @override
   Future<Result<String>> removePublishList(String listId) async {
     try {
-      await firestoreContext.removeElementToArray<DocumentReference>(dataset, FirebaseAuth.instance.currentUser!.uid, 'lists',
+      await onlinefirestoreContext.removeElementToArray<DocumentReference>(dataset, FirebaseAuth.instance.currentUser!.uid, 'lists',
         FirebaseFirestore.instance.collection(publicListsDataset).doc(listId)
       );
       
-      await firestoreContext.deleteOne(dataset, listId);
+      await onlinefirestoreContext.deleteOne(dataset, listId);
       return Result.success('Lista removida del servidor');
     } catch (e) {
       return Result.error('Ha ocurrido un error $e');
@@ -198,11 +198,11 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
   @override
   Future<Result<String>> rePublishList(MusicList list, String id, {List<String> queryArray = const []}) async {
     try {
-      await firestoreContext.updateOne(
+      await onlinefirestoreContext.updateOne(
         publicListsDataset,
         list.toJson()..addAll({
           'musics': list.musics?.where((m) => m.type == DataSourceType.online).map(
-            (e) => firestoreContext.db.collection('Musics').doc(e.uuid)
+            (e) => onlinefirestoreContext.db.collection('Musics').doc(e.uuid)
           ).toList()
         }),
         id, queryArray

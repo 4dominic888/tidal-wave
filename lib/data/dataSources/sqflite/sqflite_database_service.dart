@@ -9,7 +9,7 @@ import 'package:uuid/uuid.dart';
 
 class SqfliteDatabaseService extends DatabaseService<Map<String, dynamic>>{
 
-  static late Database? _db;
+  static Database? _db;
   Database get db => _db!;
   static const String dbName = 'tw_local_database.db';
 
@@ -18,7 +18,7 @@ class SqfliteDatabaseService extends DatabaseService<Map<String, dynamic>>{
     if(_db != null) return;
     
     final Directory documentDirectory = await getApplicationDocumentsDirectory();
-    _db = await openDatabase(join(documentDirectory.path, dbName), onCreate: (db, version) async {
+    _db = await openDatabase(join(documentDirectory.path, dbName), version: 1, onCreate: (db, version) async {
       //* Creando tablas para los datos a guardar localmente, como musicas y listas.
       final String createScript = await rootBundle.loadString('assets/raw_queries/create_tables.sql');
       await db.execute(createScript);

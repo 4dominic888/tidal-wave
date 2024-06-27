@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -9,14 +8,14 @@ import 'package:just_audio/just_audio.dart';
 import 'package:tidal_wave/data/result.dart';
 import 'package:tidal_wave/domain/models/music.dart';
 import 'package:tidal_wave/domain/models/music_list.dart';
-import 'package:tidal_wave/domain/use_case/interfaces/play_list_manager_use_case.dart';
+import 'package:tidal_wave/domain/use_case/interfaces/music_list_manager_use_case.dart';
 import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
 import 'package:tidal_wave/presentation/global_widgets/popup_message.dart';
 import 'package:tidal_wave/presentation/pages/lista_musica/widgets/icon_button_music.dart';
 import 'package:tidal_wave/presentation/utils/function_utils.dart';
 import 'package:tidal_wave/presentation/utils/music_state_util.dart';
 
-final _musicListManagerUseCase = GetIt.I<PlayListManagerUseCase>();
+final _musicListManagerUseCase = GetIt.I<MusicListManagerUseCase>();
 
 class MusicElementView extends StatelessWidget {
 
@@ -31,10 +30,8 @@ class MusicElementView extends StatelessWidget {
     showLoadingDialog(context,  () async { 
       await context.read<MusicCubit>().preLoadMusic(music);
       result = await _musicListManagerUseCase.agregarMusicaALista(
-        musicUUID: music.uuid!,
-        userId: FirebaseAuth.instance.currentUser!.uid,
+        musicId: music.uuid!,
         listId: listSelected.id,
-        listType: listSelected.type
       );
     }, message: 'Cargando cancion a la lista');
 
@@ -50,7 +47,7 @@ class MusicElementView extends StatelessWidget {
 
   Future<void> showListOfMusics(BuildContext context, Music music) async {
     late Result<List<MusicList>> listResult;
-    await showLoadingDialog(context, () async => listResult = await _musicListManagerUseCase.obtenerListasDeUsuarioActual());
+    await showLoadingDialog(context, () async => listResult = await _musicListManagerUseCase.obtenerListasLocales());
     if(!listResult.onSuccess) {
       PopupDialog(title: 'Error', description: listResult.errorMessage!);
       return;

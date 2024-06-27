@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:group_button/group_button.dart';
 import 'package:tidal_wave/domain/models/music_list.dart';
-import 'package:tidal_wave/domain/use_case/interfaces/play_list_manager_use_case.dart';
+import 'package:tidal_wave/domain/use_case/interfaces/music_list_manager_use_case.dart';
 import 'package:tidal_wave/presentation/pages/home_page/user_account_nav/screens/create_user_list_screen.dart';
 import 'package:tidal_wave/presentation/pages/home_page/user_list_nav/widgets/tw_music_list_view_item.dart';
 
@@ -16,12 +16,12 @@ class TWUserListNav extends StatefulWidget {
 
 class _TWUserListNavState extends State<TWUserListNav> {
 
-  final _playListManagerUseCase = GetIt.I<PlayListManagerUseCase>();
+  final _playListManagerUseCase = GetIt.I<MusicListManagerUseCase>();
   static final _buttonsController = GroupButtonController(selectedIndex: 0);
   static final _buttonsOptions = ['Mis listas', 'Otras listas'];
 
   Future<List<MusicList>> _listOfMusic() async {
-    final result = await _playListManagerUseCase.obtenerListasDeUsuarioActual();
+    final result = await _playListManagerUseCase.obtenerListasLocales();
     return result.data!;
   }
 

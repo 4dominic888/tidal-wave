@@ -7,7 +7,7 @@ class Result<T> {
   bool get onSuccess => _onSuccess;
   String? get errorMessage => _errorMessage;
 
-  Result.sucess(T data) : _data=data,  _onSuccess=true, _errorMessage=null;
+  Result.success(T data) : _data=data,  _onSuccess=true, _errorMessage=null;
   Result.error(String errorMessage) : _data=null, _onSuccess=false, _errorMessage=errorMessage;
 
 }

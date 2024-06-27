@@ -20,8 +20,10 @@ class SqfliteDatabaseService extends DatabaseService<Map<String, dynamic>>{
     final Directory documentDirectory = await getApplicationDocumentsDirectory();
     _db = await openDatabase(join(documentDirectory.path, dbName), version: 1, onCreate: (db, version) async {
       //* Creando tablas para los datos a guardar localmente, como musicas y listas.
-      final String createScript = await rootBundle.loadString('assets/raw_queries/create_tables.sql');
-      await db.execute(createScript);
+      final List<String> createScripts = (await rootBundle.loadString('assets/raw_queries/create_tables.sql')).split(';');
+      for (String script in createScripts) {
+        await db.execute(script);
+      }
     });
   }
 

@@ -152,10 +152,11 @@ class MusicElementView extends StatelessWidget {
       child: Stack(
         children: [
           Ink.image(
-            image: item.imagen != null ? CachedNetworkImageProvider(item.imagen!.toString()) : Image.asset('assets/placeholder/music-placeholder.png').image,
+            image: item.imagen != null ? 
+              CachedNetworkImageProvider(item.imagen!.toString()) : 
+              Image.asset('assets/placeholder/music-placeholder.png').image,
             child: InkWell(
-              onTap: () => viewMoreMusicInfo(context)
-              ,
+              onTap: () => viewMoreMusicInfo(context),
             ),
           ),
 

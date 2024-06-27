@@ -1,5 +1,6 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 class MediaMetaData extends StatelessWidget {
 
@@ -22,8 +23,8 @@ class MediaMetaData extends StatelessWidget {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: imgUrl != null ? 
-            CachedNetworkImage(
-              imageUrl: imgUrl!,
+            Image.file(
+              File.fromUri(Uri.parse(imgUrl!)),
               height: 300 * sizePercent!,
               width: 300 * sizePercent!,
               fit: BoxFit.cover,

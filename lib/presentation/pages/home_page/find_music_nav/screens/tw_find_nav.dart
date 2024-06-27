@@ -45,6 +45,8 @@ class _TWFindNavState extends State<TWFindNav> {
       scrollDirection: Axis.vertical,
       shrinkWrap: true,
       slivers: [
+
+        //* Barra de busqueda
         SliverAppBar(
           automaticallyImplyLeading: false,
           toolbarHeight: 80,
@@ -76,6 +78,7 @@ class _TWFindNavState extends State<TWFindNav> {
           builder: (context, snapshot) {
             if(snapshot.connectionState == ConnectionState.waiting) {return const SliverToBoxAdapter(child: Center(child: CircularProgressIndicator()));}
             if(snapshot.hasError) {return SliverToBoxAdapter(child: Center(child: Text('Ha ocurrido un error ${snapshot.error.toString()}')));}
+            if(snapshot.data!.isEmpty) {return const SliverToBoxAdapter(child: Center(child: Text('Vacio')));}
             return StatefulBuilder(
               builder: (context, setState) {
                 return SliverGrid(

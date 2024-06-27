@@ -54,6 +54,7 @@ flutter:
 
   assets:
     - assets/placeholder/
+    - assets/raw_queries/
 
 
   # To add custom fonts to your application, add a fonts section here,

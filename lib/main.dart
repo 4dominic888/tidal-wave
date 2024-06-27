@@ -28,8 +28,8 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   //? Inicializacion de las bases de datos
-  await GetIt.I<DatabaseService>(instanceName: 'Firestore').init(); //* Nube
-  await GetIt.I<DatabaseService>(instanceName: 'Sqflite').init(); //* Local
+  await GetIt.I<DatabaseService<Map<String,dynamic>>>(instanceName: 'Firestore').init(); //* Nube
+  await GetIt.I<DatabaseService<Map<String,dynamic>>>(instanceName: 'Sqflite').init(); //* Local
 
   GetIt.I<ConnectivityServiceBase>().init();
 
@@ -64,7 +64,7 @@ class _TidalWaveAppState extends State<TidalWaveApp> {
 
   @override
   void dispose() {
-    GetIt.I<DatabaseService>(instanceName: 'Sqflite').close();
+    GetIt.I<DatabaseService<Map<String,dynamic>>>(instanceName: 'Sqflite').close();
     super.dispose();
   }
 

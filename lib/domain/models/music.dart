@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
@@ -38,7 +40,7 @@ class Music {
       index: index ?? -1,
       uuid: json['uuid'],
       titulo: json['title'],
-      artistas: json['artist'] is Iterable ? List.from(json['artist']) : [],
+      artistas: (jsonDecode(json['artist']) is List) ? List.from(jsonDecode(json['artist'])) : [],
       musica: Uri.parse(json['musicUri'] as String),
       imagen: Uri.parse(json['artUri']),
       duration: Duration(milliseconds: json['duration'] as int),
@@ -75,7 +77,7 @@ class Music {
   Map<String,dynamic> toJson(){
     return {
       "title": titulo,
-      "artist": artistas,
+      "artist": jsonEncode(artistas),
       "musicUri": musica.toString(),
       "artUri": imagen.toString(),
       "duration": duration.inMilliseconds,

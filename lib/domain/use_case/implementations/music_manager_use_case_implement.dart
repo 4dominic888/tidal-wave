@@ -21,8 +21,17 @@ class MusicManagerUseCaseImplement with SaveFiles implements MusicManagerUseCase
     try {
       final String uuid = const Uuid().v4();
 
-      late final Uri? imageUri;
+      Uri? imageUri;
       final Uri musicUri;
+
+      final uploadMusicResult = await FirebaseStorageService.uploadFile(
+        'music',
+        'm-$uuid',
+        File.fromUri(musica.musica),
+        onLoad: onLoadMusic
+      );
+      if(!uploadMusicResult.onSuccess) return Result.error(uploadMusicResult.errorMessage!);
+      musicUri = Uri.parse(uploadMusicResult.data!);
 
       if(musica.imagen != null){
         final uploadImagenResult = await FirebaseStorageService.uploadFile(
@@ -35,15 +44,6 @@ class MusicManagerUseCaseImplement with SaveFiles implements MusicManagerUseCase
         imageUri = Uri.parse(uploadImagenResult.data!);
       }
 
-      final uploadMusicResult = await FirebaseStorageService.uploadFile(
-        'music',
-        'm-$uuid',
-        File.fromUri(musica.musica),
-        onLoad: onLoadMusic
-      );
-      if(!uploadMusicResult.onSuccess) return Result.error(uploadMusicResult.errorMessage!);
-      musicUri = Uri.parse(uploadMusicResult.data!);
-
       final result = await repo.upload(musica.copyWith(
         imagen: imageUri,
         musica: musicUri
@@ -52,7 +52,7 @@ class MusicManagerUseCaseImplement with SaveFiles implements MusicManagerUseCase
       return Result.success('Se ha subido correctamente la musica a los servidores');
 
     } catch (e) {
-      return Result.error('Ha ocurrido un erro $e');
+      return Result.error('Ha ocurrido un error $e');
     }
   }
 
@@ -61,8 +61,16 @@ class MusicManagerUseCaseImplement with SaveFiles implements MusicManagerUseCase
     try {
       final String uuid = const Uuid().v4();
       
-      late final Uri? imageUri;
+      Uri? imageUri;
       final Uri musicUri;
+
+      final uploadMusicResult = await saveLocalFile(
+        uri: musica.musica,
+        folderName: 'music',
+        newName: 'm-$uuid'
+      );
+      if(!uploadMusicResult.onSuccess) return Result.error(uploadMusicResult.errorMessage!);
+      musicUri = Uri.parse(uploadMusicResult.data!);
 
       if(musica.imagen != null) { 
         final uploadImageResult = await saveLocalFile(
@@ -73,14 +81,6 @@ class MusicManagerUseCaseImplement with SaveFiles implements MusicManagerUseCase
         if(!uploadImageResult.onSuccess) return Result.error(uploadImageResult.errorMessage!);
         imageUri = Uri.parse(uploadImageResult.data!);
       }
-
-      final uploadMusicResult = await saveLocalFile(
-        uri: musica.musica,
-        folderName: 'music',
-        newName: 'm-$uuid'
-      );
-      if(!uploadMusicResult.onSuccess) return Result.error(uploadMusicResult.errorMessage!);
-      musicUri = Uri.parse(uploadMusicResult.data!);
 
       final result = await repo.addOne(musica.copyWith(
         imagen: imageUri,
@@ -98,14 +98,9 @@ class MusicManagerUseCaseImplement with SaveFiles implements MusicManagerUseCase
   @override
   Future<Result<String>> editarMusica(Music musica, String id, {required DataSourceType type}) async {
     try {
-      if(musica.imagen != null) { 
-        final uploadImageResult = await saveLocalFile(
-          uri: musica.imagen!,
-          folderName: 'music-thumb',
-          newName: 'i-${musica.uuid}'
-        );
-        if(!uploadImageResult.onSuccess) return Result.error(uploadImageResult.errorMessage!);
-      }
+
+      Uri? imageUri;
+      final Uri musicUri;
 
       final uploadMusicResult = await saveLocalFile(
         uri: musica.musica,
@@ -113,8 +108,22 @@ class MusicManagerUseCaseImplement with SaveFiles implements MusicManagerUseCase
         newName: 'm-${musica.uuid}'
       );
       if(!uploadMusicResult.onSuccess) return Result.error(uploadMusicResult.errorMessage!);
+      musicUri = Uri.parse(uploadMusicResult.data!);
 
-      final result = await repo.updateOne(musica, id);
+      if(musica.imagen != null) { 
+        final uploadImageResult = await saveLocalFile(
+          uri: musica.imagen!,
+          folderName: 'music-thumb',
+          newName: 'i-${musica.uuid}'
+        );
+        if(!uploadImageResult.onSuccess) return Result.error(uploadImageResult.errorMessage!);
+        imageUri = Uri.parse(uploadImageResult.data!);
+      }
+
+      final result = await repo.updateOne(musica.copyWith(
+        imagen: imageUri,
+        musica: musicUri
+      ), id);
       if(result.onSuccess) return Result.error(result.errorMessage!);
       return Result.success('Musica actualizada con exito');
       

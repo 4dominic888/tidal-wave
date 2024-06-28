@@ -1,5 +1,6 @@
+import 'dart:io';
+
 import 'package:audio_service/audio_service.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
@@ -37,7 +38,7 @@ class MiniMusicPlayer extends StatelessWidget {
               color: Colors.grey,
               shape:BoxShape.circle,
               image: DecorationImage(
-                image: mediaItem.artUri != null ? CachedNetworkImageProvider(mediaItem.artUri.toString()) : Image.asset('assets/placeholder/music-placeholder.png').image,
+                image: mediaItem.artUri != null ? Image.file(File.fromUri(mediaItem.artUri!)).image : Image.asset('assets/placeholder/music-placeholder.png').image,
                 fit: BoxFit.cover
               )),
           ),

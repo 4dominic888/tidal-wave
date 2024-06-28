@@ -1,29 +1,22 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:tidal_wave/domain/models/music_list.dart';
-import 'package:tidal_wave/domain/use_case/interfaces/music_manager_use_case.dart';
+import 'package:tidal_wave/domain/use_case/interfaces/music_list_manager_use_case.dart';
 import 'package:tidal_wave/presentation/pages/lista_musica/screens/lista_musica_screen.dart';
 import 'package:tidal_wave/presentation/global_widgets/popup_message.dart';
+import 'package:tidal_wave/presentation/utils/function_utils.dart';
 
-final _musicManagerUseCase = GetIt.I<MusicManagerUseCase>();
+final _musicListManagerUseCase = GetIt.I<MusicListManagerUseCase>();
 
 class TWMusicListViewItem extends StatelessWidget {
+  final MusicList item;
+  final bool? isOnline;
+
   const TWMusicListViewItem({
     super.key,
     required this.item,
+    this.isOnline = true
   });
-
-  final MusicList item;
-
-  IconData typeIcon(String type){
-    switch (type) {
-      case 'public-list': return Icons.public;
-      case 'private-list': return Icons.lock;
-      case 'offline-list': return Icons.visibility_off;
-      default: return Icons.help_outline;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,16 +24,16 @@ class TWMusicListViewItem extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: () async {
-          final result = await _musicManagerUseCase.obtenerCancionesDeLista(item);
+          final musicListResult = await _musicListManagerUseCase.obtenerLista(item.id);
           if(!context.mounted) return;
-          if(!result.onSuccess){
+          if(!musicListResult.onSuccess){
             showDialog(context: context, builder: (context) => PopupMessage(
               title: 'Error',
-              description: result.errorMessage!
+              description: musicListResult.errorMessage!
             ));
             return;
           }
-          Navigator.of(context).push(MaterialPageRoute(builder: (context) => ListaMusicaScreen(listado: result.data!)));
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) => ListaMusicaScreen(listado: musicListResult.data!.musics!)));
         },
         splashColor: Colors.white,
         child: Card(
@@ -55,7 +48,9 @@ class TWMusicListViewItem extends StatelessWidget {
                   child: Container(
                     decoration: BoxDecoration(
                       image: DecorationImage(
-                        image: item.image != null ? CachedNetworkImageProvider(item.image.toString()) : Image.asset('assets/placeholder/music-placeholder.png').image,
+                        image: item.image != null ? 
+                        getImage(item.image!, isOnline: isOnline) : 
+                        Image.asset('assets/placeholder/music-placeholder.png').image,
                         fit: BoxFit.cover
                       )
                     ),
@@ -74,8 +69,7 @@ class TWMusicListViewItem extends StatelessWidget {
                           scrollDirection: Axis.horizontal,
                           child: Text(item.name, style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold))
                         ),
-                        Icon(typeIcon(item.type), size: 15),
-                        Text('${item.musics.length} canciones', style: TextStyle(color: Colors.grey.shade200)),
+                        Text('${item.musics!.length} canciones', style: TextStyle(color: Colors.grey.shade200)),
                         Expanded(
                           child: Container(
                             padding: const EdgeInsets.only(bottom: 10.0, top: 4.0),

@@ -1,10 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:tidal_wave/data/abstractions/connectivity_service_base.dart';
+import 'package:tidal_wave/data/abstractions/database_service.dart';
 import 'package:tidal_wave/locator.dart';
 import 'package:tidal_wave/presentation/bloc/music_color_cubit.dart';
 import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
@@ -27,20 +27,23 @@ Future<void> main() async {
   );
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  //* Configuracion para persistencia de datos, solo funciona para firestore
-  FirebaseFirestore.instance.settings = const Settings(
-    persistenceEnabled: true,
-    cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED
-  );
+  //? Inicializacion de las bases de datos
+  await GetIt.I<DatabaseService<Map<String,dynamic>>>(instanceName: 'Firestore').init(); //* Nube
+  await GetIt.I<DatabaseService<Map<String,dynamic>>>(instanceName: 'Sqflite').init(); //* Local
 
   GetIt.I<ConnectivityServiceBase>().init();
 
   runApp(const TidalWaveApp());
 }
 
-class TidalWaveApp extends StatelessWidget {
+class TidalWaveApp extends StatefulWidget {
   const TidalWaveApp({super.key});
 
+  @override
+  State<TidalWaveApp> createState() => _TidalWaveAppState();
+}
+
+class _TidalWaveAppState extends State<TidalWaveApp> {
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -57,6 +60,12 @@ class TidalWaveApp extends StatelessWidget {
         home: const HomePageScreen(),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    GetIt.I<DatabaseService<Map<String,dynamic>>>(instanceName: 'Sqflite').close();
+    super.dispose();
   }
 
   ThemeData defaultTheme(BuildContext context) => ThemeData(

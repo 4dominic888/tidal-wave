@@ -13,10 +13,10 @@ abstract class UserRepository implements Addable<T>, GetOneable<T>, GetAllable<T
   Future<Result<T>> getOne(String id);
 
   @override
-  Future<Result<T>> addOne(T data, String? id);
+  Future<Result<T>> addOne(T data, [String? id]);
 
   @override
-  Future<Result<T>> updateOne(T data, String id);
+  Future<Result<bool>> updateOne(T data, String id);
 
   @override
   Future<Result<String>> deleteOne(String id);

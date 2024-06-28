@@ -5,15 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
 import 'package:tidal_wave/domain/models/music_list.dart';
-import 'package:tidal_wave/data/dataSources/firebase/firebase_storage_service.dart';
-import 'package:tidal_wave/domain/use_case/interfaces/play_list_manager_use_case.dart';
+import 'package:tidal_wave/domain/use_case/interfaces/music_list_manager_use_case.dart';
 import 'package:tidal_wave/presentation/controllers/tw_select_file_controller.dart';
-import 'package:tidal_wave/data/result.dart';
 import 'package:tidal_wave/presentation/global_widgets/popup_message.dart';
 import 'package:tidal_wave/presentation/global_widgets/tw_dropdownbutton_field.dart';
 import 'package:tidal_wave/presentation/global_widgets/tw_select_file.dart';
 import 'package:tidal_wave/presentation/global_widgets/tw_text_field.dart';
-import 'package:uuid/uuid.dart';
 
 class CreateUserListScreen extends StatefulWidget {
   const CreateUserListScreen({super.key});
@@ -29,50 +26,33 @@ class _CreateUserListScreenState extends State<CreateUserListScreen> {
   final _descriptionController = TextEditingController();
   final _typeListController = TextEditingController();
   final _imageController = TWSelectFileController();
-  final RoundedLoadingButtonController _btnController = RoundedLoadingButtonController();
+  final _btnController = RoundedLoadingButtonController();
   
   final _imageFileUploadStreamController = StreamController<double>();
 
-  final PlayListManagerUseCase _playListManagerUseCase = GetIt.I<PlayListManagerUseCase>();
+  final MusicListManagerUseCase _playListManagerUseCase = GetIt.I<MusicListManagerUseCase>();
 
   void onSubmit() async{
     if(_formKey.currentState!.validate()){
 
-      final String uuid = const Uuid().v4();
-      late final Result<String> imageUploadResult;
-      if(_imageController.value != null){
-        imageUploadResult = await FirebaseStorageService.uploadFile('list-thumb', 'l-$uuid', _imageController.value!, onLoad: (value) {
-          _imageFileUploadStreamController.sink.add(
-            value.bytesTransferred / value.totalBytes
-          );
-        });
-      }
-      if(!mounted) return;
-
-      if(!imageUploadResult.onSuccess){
-        showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: imageUploadResult.errorMessage!));
-        _btnController.error();
-        return;
-      }
-
       final MusicList musicList = MusicList.toSend(
         name: _nameController.text,
         description: _descriptionController.text.trim().isNotEmpty ? _descriptionController.text : 'No proporcionado',
-        type: _typeListController.text,
-        image: Uri.parse(imageUploadResult.data!)
+        image: Uri.parse(_imageController.value!.path)
       );
 
-      final musicListResult = await _playListManagerUseCase.agregarLista(musicList, null);
-      if(!musicListResult.onSuccess){
-        if(_imageController.value != null) {FirebaseStorageService.deleteFileWithURL(imageUploadResult.data!);}
-        if(!mounted) return;
-        showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: musicListResult.errorMessage!));
+      final result = await _playListManagerUseCase.agregarLista(musicList, progressCallback: (value) {
+        _imageFileUploadStreamController.add(value);
+      });
+
+      if(!mounted) return;
+      if(!result.onSuccess) {
+        showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: result.errorMessage!));
         _btnController.error();
         return;
       }
+      showDialog(context: context, builder: (context) => PopupMessage(title: 'Exito', description: result.data!));
 
-      if(!mounted) return;
-      showDialog(context: context, builder: (context) => PopupMessage(title: 'Exito', description: musicListResult.data!));
       _btnController.success();
       return;
     }
@@ -161,6 +141,8 @@ class _CreateUserListScreenState extends State<CreateUserListScreen> {
                   return const SizedBox.shrink();
                 },
               )
+
+
             ],
           )
         ),

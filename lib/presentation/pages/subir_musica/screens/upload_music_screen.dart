@@ -2,24 +2,23 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
+import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
+import 'package:tidal_wave/data/abstractions/tw_enums.dart';
 import 'package:tidal_wave/domain/use_case/interfaces/music_manager_use_case.dart';
 import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
 import 'package:tidal_wave/domain/models/music.dart';
 import 'package:tidal_wave/presentation/pages/subir_musica/widgets/duration_form_field.dart';
-import 'package:tidal_wave/data/dataSources/firebase/firebase_storage_service.dart';
 import 'package:tidal_wave/presentation/controllers/tw_select_file_controller.dart';
 import 'package:tidal_wave/presentation/utils/music_state_util.dart';
 import 'package:tidal_wave/presentation/utils/function_utils.dart';
 import 'package:tidal_wave/presentation/global_widgets/popup_message.dart';
-import 'package:tidal_wave/data/result.dart';
 import 'package:tidal_wave/presentation/global_widgets/tw_select_file.dart';
 import 'package:tidal_wave/presentation/global_widgets/tw_text_field.dart';
-import 'package:uuid/uuid.dart';
 
 class UploadMusicScreen extends StatefulWidget {
   const UploadMusicScreen({super.key});
@@ -36,80 +35,53 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
   final _bestDurationController = TextEditingController();
   final _musicController = TWSelectFileController();
   final _imageController = TWSelectFileController();
+  final _btnController = RoundedLoadingButtonController();
+
 
   final _musicFileUploadStreamController = StreamController<double>();
   final _imageFileUploadStreamController = StreamController<double>();
 
   final _musicManagerUseCase = GetIt.I<MusicManagerUseCase>();
 
-
-  bool _onLoad = false;
-
   void onSubmit() async {
     if(_formKey.currentState!.validate()){
-      setState(() =>_onLoad = true);
-
-      final String uuid = const Uuid().v4();
       final bool hasImage = _imageController.value != null;
-      late final Result<String> imageUploadResult;
 
-      final musicUploadResult = await FirebaseStorageService.uploadFile('music', 'm-$uuid', _musicController.value!, onLoad: (value) {
-        _musicFileUploadStreamController.sink.add(
-          value.bytesTransferred / value.totalBytes
-        );
-      });
-
-      if (!musicUploadResult.onSuccess) {
-        showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: musicUploadResult.errorMessage!));
-        setState(() =>_onLoad = false);
-        return;
-      }
-
-      if (hasImage) {
-        imageUploadResult = await FirebaseStorageService.uploadFile('music-thumb', 'i-$uuid', _imageController.value!, onLoad: (value) {
-          _imageFileUploadStreamController.sink.add(
-            value.bytesTransferred / value.totalBytes
-          );
-        },);
-        if(!imageUploadResult.onSuccess){
-          FirebaseStorageService.deleteFileWithURL(musicUploadResult.data!);
-          if(!mounted) return;
-          showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: imageUploadResult.errorMessage!));
-          setState(() =>_onLoad = false);
-          return;
-        }
-      }
-
-      Music music = Music.byUID(
-        -1,
+      Music music = Music(
         titulo: _titleController.text,
         artistas: [_artistController.text],
-        musica: Uri.parse(musicUploadResult.data!),
-        imagen: Uri.parse(imageUploadResult.data!),
+        type: DataSourceType.online,
+        musica: Uri.parse(_musicController.value!.path),
+        imagen: hasImage ? Uri.parse(_imageController.value!.path) : null,
         duration: _musicController.musicDuration!,
         stars: 0,
         uploadAt: Timestamp.now(),
-        userId: FirebaseAuth.instance.currentUser!.uid,
         betterMoment: _musicController.clipMoment ?? Duration.zero
       );
 
-      final finalResult = await _musicManagerUseCase.agregarMusica(music, id: uuid, type: TypeOfOrigin.global);
-
-      if (!finalResult.onSuccess) {
-        FirebaseStorageService.deleteFileWithURL(musicUploadResult.data!);
-        if(hasImage) {
-          FirebaseStorageService.deleteFileWithURL(imageUploadResult.data!);
+      final result = await _musicManagerUseCase.subirMusicaOnline(music,
+        onLoadImagen: (value) {
+          _imageFileUploadStreamController.sink.add(
+            value.bytesTransferred / value.totalBytes
+          );
+        },
+        onLoadMusic: (value){
+        _musicFileUploadStreamController.sink.add(
+          value.bytesTransferred / value.totalBytes
+        );          
         }
-        if(!mounted) return;
-        showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: finalResult.errorMessage!));
-        setState(() =>_onLoad = false);
-        return;
-      }
-      
+      );
+
       if(!mounted) return;
-      showDialog(context: context, builder: (context) => const PopupMessage(title: 'Exito', description: 'La cancion ha sido subida con exito a los servidores de tidal wave'));
-      setState(() =>_onLoad = false);
+
+      if(!result.onSuccess){
+        showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: result.errorMessage!));
+      }
+      showDialog(context: context, builder: (context) => PopupMessage(title: 'Exito', description: result.data!));
+      _btnController.success();
+      return;
     }
+    _btnController.error();
   }
 
   @override
@@ -175,8 +147,11 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
                     onChanged: () => setState(() {
                       _musicController.clipMoment = Duration.zero;
                       _bestDurationController.text = "";
-                      context.read<MusicCubit>().setClip(AudioSource.file(_musicController.value!.path), _musicController.clipMoment ?? Duration.zero);
-                      context.read<MusicCubit>().state.pause();
+                      context.read<MusicCubit>().setClip(
+                        AudioSource.file(_musicController.value!.path, tag: const MediaItem(id: '0', title: 'LOCAL-FILE', artist: 'Unknown')),
+                        _musicController.clipMoment ?? Duration.zero
+                      );
+                        context.read<MusicCubit>().state.pause();
                     })
                     ,
                   )
@@ -197,7 +172,8 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
                                   stream: context.read<MusicCubit>().state.playerStateStream,
                                   builder: (context, snapshot) {
                                     if (snapshot.data?.processingState == ProcessingState.completed) {
-                                      context.read<MusicCubit>().setClip(AudioSource.file(_musicController.value!.path), _musicController.clipMoment ?? Duration.zero);
+                                      context.read<MusicCubit>().setClip(AudioSource.file(_musicController.value!.path, tag: const MediaItem(id: '0', title: 'LOCAL-FILE', artist: 'Unknown')),
+                                      _musicController.clipMoment ?? Duration.zero);
                                       context.read<MusicCubit>().state.pause();
                                     }
                                     return IconButton(
@@ -260,21 +236,31 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
                   )
                 ),
 
-                //* Upload music button
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
-                    onPressed: _onLoad ? null : onSubmit,
-                    child: const Text('Subir musica')
+                  padding: const EdgeInsets.only(left: 20, right: 20, top: 10),
+                  child: RoundedLoadingButton(
+                    controller: _btnController,
+                    color: Colors.grey,
+                    onPressed: onSubmit,
+                    child: const Text('Subir musica', style: TextStyle(color: Colors.white)),
                   ),
                 ),
 
-                //* Circular progress indicator
-                _onLoad ? const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: Center(child: CircularProgressIndicator(color: Colors.blueAccent)),
-                ) : const SizedBox.shrink()
+                StreamBuilder<ButtonState>(
+                  stream: _btnController.stateStream,
+                  builder: (context, snapshot) {
+                    if(snapshot.data == ButtonState.error  || snapshot.data == ButtonState.success){
+                      return TextButton(onPressed: _btnController.reset, child: 
+                        const Text('Reiniciar', style: TextStyle(
+                          decoration: TextDecoration.underline,
+                          decorationColor: Colors.white,
+                          fontWeight: FontWeight.normal
+                        )));
+                    }
+                    return const SizedBox.shrink();
+                  },
+                )
+
             ],
           ),
         ),

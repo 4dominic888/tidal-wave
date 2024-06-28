@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'dart:ui';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -9,32 +7,31 @@ import 'package:just_audio/just_audio.dart';
 import 'package:tidal_wave/data/result.dart';
 import 'package:tidal_wave/domain/models/music.dart';
 import 'package:tidal_wave/domain/models/music_list.dart';
-import 'package:tidal_wave/domain/use_case/interfaces/play_list_manager_use_case.dart';
+import 'package:tidal_wave/domain/use_case/interfaces/music_list_manager_use_case.dart';
 import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
 import 'package:tidal_wave/presentation/global_widgets/popup_message.dart';
 import 'package:tidal_wave/presentation/pages/lista_musica/widgets/icon_button_music.dart';
 import 'package:tidal_wave/presentation/utils/function_utils.dart';
 import 'package:tidal_wave/presentation/utils/music_state_util.dart';
 
-final _musicListManagerUseCase = GetIt.I<PlayListManagerUseCase>();
+final _musicListManagerUseCase = GetIt.I<MusicListManagerUseCase>();
 
 class MusicElementView extends StatelessWidget {
 
   final Music item;
   final List<bool>? selected;
   final void Function()? onPlay;
+  final bool? isOnline;
 
-  const MusicElementView({super.key, required this.item, this.onPlay, this.selected = const [false]});
+  const MusicElementView({super.key, required this.item, this.onPlay, this.isOnline = true, this.selected = const [false]});
 
   Future<void> showAddMusicToList(BuildContext context, Music music, MusicList listSelected) async {
     late Result<String> result;
     showLoadingDialog(context,  () async { 
       await context.read<MusicCubit>().preLoadMusic(music);
       result = await _musicListManagerUseCase.agregarMusicaALista(
-        musicUUID: music.uuid!,
-        userId: FirebaseAuth.instance.currentUser!.uid,
+        musicId: music.uuid!,
         listId: listSelected.id,
-        listType: listSelected.type
       );
     }, message: 'Cargando cancion a la lista');
 
@@ -50,7 +47,7 @@ class MusicElementView extends StatelessWidget {
 
   Future<void> showListOfMusics(BuildContext context, Music music) async {
     late Result<List<MusicList>> listResult;
-    await showLoadingDialog(context, () async => listResult = await _musicListManagerUseCase.obtenerListasDeUsuarioActual());
+    await showLoadingDialog(context, () async => listResult = await _musicListManagerUseCase.obtenerListasLocales());
     if(!listResult.onSuccess) {
       PopupDialog(title: 'Error', description: listResult.errorMessage!);
       return;
@@ -84,16 +81,18 @@ class MusicElementView extends StatelessWidget {
     ));
   }
 
-  Future<void> viewMoreMusicInfo(BuildContext context, String uploadUserName) => showModalBottomSheet(context: context, 
+  Future<void> viewMoreMusicInfo(BuildContext context) => showModalBottomSheet(context: context, 
     backgroundColor: Colors.grey.shade800, builder: (context) => SizedBox(
       height: 200,
       child: Stack(
         children: [
           //* Imagen de fondo
-          item.imagen != null ? CachedNetworkImage(
-            imageUrl: item.imagen.toString(),
+          item.imagen != null ? 
+          getWidgetImage(
+            item.imagen!,
             width: MediaQuery.of(context).size.width,
             fit: BoxFit.cover,
+            isOnline: isOnline
           ) : Image.asset('assets/placeholder/music-placeholder.png', 
             width: MediaQuery.of(context).size.width,
             fit: BoxFit.cover,
@@ -113,7 +112,6 @@ class MusicElementView extends StatelessWidget {
               children: [
                 SingleChildScrollView(scrollDirection: Axis.horizontal ,child: Text(item.titulo, style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold))),
                 SingleChildScrollView(scrollDirection: Axis.horizontal ,child: Text(item.artistasStr, style: const TextStyle(fontSize: 15))),
-                SingleChildScrollView(scrollDirection: Axis.horizontal ,child: Text('Subido por: $uploadUserName', style: const TextStyle(fontSize: 15))),
                 const SizedBox(height: 10),
                 Expanded(
                   child: Row(
@@ -156,13 +154,11 @@ class MusicElementView extends StatelessWidget {
       child: Stack(
         children: [
           Ink.image(
-            image: item.imagen != null ? CachedNetworkImageProvider(item.imagen!.toString()) : Image.asset('assets/placeholder/music-placeholder.png').image,
+            image: item.imagen != null ? 
+            getImage(item.imagen!, isOnline: isOnline) : 
+            Image.asset('assets/placeholder/music-placeholder.png').image,
             child: InkWell(
-              onTap: () async {
-                final uploadUserName = await item.uploadAtName;
-                if(!context.mounted) return;
-                viewMoreMusicInfo(context, uploadUserName);
-              },
+              onTap: () => viewMoreMusicInfo(context),
             ),
           ),
 

@@ -1,4 +1,4 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:palette_generator/palette_generator.dart';
 
@@ -23,7 +23,7 @@ class ColorUtil{
     if(imgUrl != null){
       final PaletteGenerator paletteGenerator = await PaletteGenerator.fromImageProvider(
         //*TODO: Cambiar segun la disponibilidad a internet
-        CachedNetworkImageProvider(imgUrl),
+        Image.file(File.fromUri(Uri.parse(imgUrl))).image,
         size: const Size(300, 300),
         maximumColorCount: 2
       );

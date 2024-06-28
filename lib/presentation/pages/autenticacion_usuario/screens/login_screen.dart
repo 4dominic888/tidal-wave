@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
 import 'package:tidal_wave/domain/use_case/interfaces/authentication_manager_use_case.dart';
 import 'package:tidal_wave/presentation/bloc/user_cubit.dart';
 import 'package:tidal_wave/presentation/pages/home_page/home_page_screen.dart';
@@ -23,24 +24,25 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _btnController = RoundedLoadingButtonController();
 
-  bool _onLoad = false;
+
   final _authenticationUseCase = GetIt.I<AuthenticationManagerUseCase>();
 
 
   void onLogin() async {
     if(_formKey.currentState!.validate()){
-      setState(() =>_onLoad = true);
       final result = await _authenticationUseCase.iniciarSesion(_emailController.text, _passwordController.text);
-      setState(() =>_onLoad = false);
       if (result.onSuccess) {
         context.read<UserCubit>().user = result.data!;
         Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomePageScreen()));
+        _btnController.success();
+        return; 
       }
-      else{
-        showDialog(context: context, builder: (context) => PopupMessage(title: 'Ha ocurrido un error', description: result.errorMessage!));
-      }
+      showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: result.errorMessage!));
+      _btnController.error();
     }
+    _btnController.error();
   }
 
   @override
@@ -91,23 +93,31 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
 
-              //* Login button
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                  ),
-                  onPressed: _onLoad ? null : onLogin,
-                  child: const Text('Iniciar sesión')
+                padding: const EdgeInsets.only(left: 20, right: 20, top: 10),
+                child: RoundedLoadingButton(
+                  controller: _btnController,
+                  color: Colors.blue,
+                  onPressed: onLogin,
+                  child: const Text('Iniciar sesión', style: TextStyle(color: Colors.white)),
                 ),
               ),
 
-              //* Circular progress indicator
-              _onLoad ? const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: Center(child: CircularProgressIndicator(color: Colors.blueAccent)),
-              ) : const SizedBox.shrink()
+              StreamBuilder<ButtonState>(
+                stream: _btnController.stateStream,
+                builder: (context, snapshot) {
+                  if(snapshot.data == ButtonState.error  || snapshot.data == ButtonState.success){
+                    return TextButton(onPressed: _btnController.reset, child: 
+                      const Text('Reiniciar', style: TextStyle(
+                        decoration: TextDecoration.underline,
+                        decorationColor: Colors.white,
+                        fontWeight: FontWeight.normal
+                      )));
+                  }
+                  return const SizedBox.shrink();
+                },
+              )
+
             ],
           ),
         ),

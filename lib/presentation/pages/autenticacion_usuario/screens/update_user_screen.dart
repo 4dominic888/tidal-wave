@@ -1,13 +1,12 @@
 import 'dart:async';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
 import 'package:tidal_wave/domain/use_case/interfaces/authentication_manager_use_case.dart';
 import 'package:tidal_wave/presentation/bloc/user_cubit.dart';
-import 'package:tidal_wave/data/dataSources/firebase/firebase_storage_service.dart';
 import 'package:tidal_wave/presentation/controllers/tw_select_file_controller.dart';
 import 'package:tidal_wave/presentation/global_widgets/popup_message.dart';
 import 'package:tidal_wave/presentation/global_widgets/tw_select_file.dart';
@@ -25,10 +24,10 @@ class _UpdateUserScreenState extends State<UpdateUserScreen> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _usernameController;
   final _pfpController = TWSelectFileController();
+  final _btnController = RoundedLoadingButtonController();
 
   final _pfpFileUploadStreamController = StreamController<double>();
   
-  bool _onLoad = false;
   final _authenticationUseCase = GetIt.I<AuthenticationManagerUseCase>();
 
   @override
@@ -39,38 +38,30 @@ class _UpdateUserScreenState extends State<UpdateUserScreen> {
 
   void onUpdate() async{
     if(_formKey.currentState!.validate()){
-      setState(() =>_onLoad = true);
-      final userId = FirebaseAuth.instance.currentUser!.uid;
-      final pfpResult = await FirebaseStorageService.uploadFile('user-pfp', 'u-$userId', _pfpController.value!, onLoad: (value) {
+
+      final usuarioActualizado = context.read<UserCubit>().state!.copyWith(
+        username: _usernameController.text,
+        pfp: Uri.parse(_pfpController.value!.path)
+      );
+
+      final result = await _authenticationUseCase.actualizarInformacionUsuario(usuarioActualizado, onLoad: (value) {
         _pfpFileUploadStreamController.sink.add(
           value.bytesTransferred / value.totalBytes
         );
       });
-
       if(!mounted) return;
-
-      if(!pfpResult.onSuccess){
-        showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: pfpResult.errorMessage!));
-        setState(() =>_onLoad = false);
+      
+      if(!result.onSuccess) {
+        showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: result.errorMessage!));
+        _btnController.error();
         return;
       }
 
-      await _authenticationUseCase.actualizarInformacionUsuario(context.read<UserCubit>().state!.copyWith(
-          username: _usernameController.text,
-          pfp: Uri.parse(pfpResult.data!)
-      )).then((value) {
-        if(!mounted) return;
-        if(!value.onSuccess){
-          setState(() =>_onLoad = false);
-          showDialog(context: context, builder: (context) => PopupMessage(title: 'Ha ocurrido un error', description: value.errorMessage!));
-          return;
-        }
-        showDialog(context: context, builder: (context) => PopupMessage(title: 'Exito', description: value.data!));
-
-        setState(() =>_onLoad = false);
-      });
-
+      showDialog(context: context, builder: (context) => PopupMessage(title: 'Exito', description: result.data!));
+      _btnController.success();
+      return;
     }
+    _btnController.error();
   }
 
   @override
@@ -110,43 +101,50 @@ class _UpdateUserScreenState extends State<UpdateUserScreen> {
                 ),
               ),
 
-                //* PFP
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  child: TWSelectFile(
-                    controller: _pfpController,
-                    loadStreamController: _pfpFileUploadStreamController,
-                    labelText: 'Foto de perfil',
-                    message: 'Selecciona una imagen',
-                    fileType: FileType.image,
-                    megaBytesLimit: 10,
-                    showImage: true,
-                    validator: (_) {
-                      if(_pfpController.value == null){
-                        return 'Archivo no proporcionado';
-                      }
-                      return null;
-                    },
-                  )
-                ),
-
-              //* Submit button
+              //* PFP
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                  ),
-                  onPressed: _onLoad ? null : onUpdate,
-                  child: const Text('Actualizar informacion')
+                child: TWSelectFile(
+                  controller: _pfpController,
+                  loadStreamController: _pfpFileUploadStreamController,
+                  labelText: 'Foto de perfil',
+                  message: 'Selecciona una imagen',
+                  fileType: FileType.image,
+                  megaBytesLimit: 10,
+                  showImage: true,
+                  validator: (_) {
+                    if(_pfpController.value == null){
+                      return 'Archivo no proporcionado';
+                    }
+                    return null;
+                  },
+                )
+              ),
+
+              Padding(
+                padding: const EdgeInsets.only(left: 20, right: 20, top: 10),
+                child: RoundedLoadingButton(
+                  controller: _btnController,
+                  color: Colors.green,
+                  onPressed: onUpdate,
+                  child: const Text('Actualizar informacion', style: TextStyle(color: Colors.white)),
                 ),
               ),
 
-              //* Circular progress indicator
-              _onLoad ? const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: Center(child: CircularProgressIndicator(color: Colors.blueAccent)),
-              ) : const SizedBox.shrink()
+              StreamBuilder<ButtonState>(
+                stream: _btnController.stateStream,
+                builder: (context, snapshot) {
+                  if(snapshot.data == ButtonState.error  || snapshot.data == ButtonState.success){
+                    return TextButton(onPressed: _btnController.reset, child: 
+                      const Text('Reiniciar', style: TextStyle(
+                        decoration: TextDecoration.underline,
+                        decorationColor: Colors.white,
+                        fontWeight: FontWeight.normal
+                      )));
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
 
             ],
         )),

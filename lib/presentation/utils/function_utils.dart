@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -34,25 +37,39 @@ bool isURL(String cadena) {
   return cadena.startsWith('http://') || cadena.startsWith('https://');
 }
 
-  Future showLoadingDialog(BuildContext context, AsyncCallback action, {String message = "Cargando"}) {
-    return showDialog(context: context, barrierDismissible: false, builder: (context) {
-      action.call().then((value) {
-        if(!context.mounted) return;
-        Navigator.of(context).pop();
-      });
-      return PopScope(
-        canPop: false,
-        child: AlertDialog(
-          content: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              children: [
-                const CircularProgressIndicator(),
-                Container(margin: const EdgeInsets.only(left: 12, right: 15), child: Text(message))
-              ],
-            )
-          ),
-        ),
-      );
+Future showLoadingDialog(BuildContext context, AsyncCallback action, {String message = "Cargando"}) {
+  return showDialog(context: context, barrierDismissible: false, builder: (context) {
+    action.call().then((value) {
+      if(!context.mounted) return;
+      Navigator.of(context).pop();
     });
+    return PopScope(
+      canPop: false,
+      child: AlertDialog(
+        content: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: [
+              const CircularProgressIndicator(),
+              Container(margin: const EdgeInsets.only(left: 12, right: 15), child: Text(message))
+            ],
+          )
+        ),
+      ),
+    );
+  });
+}
+
+ImageProvider getImage(Uri uri, {bool? isOnline = true}){
+  if(isOnline!){
+    return CachedNetworkImageProvider(uri.toString());
   }
+  return Image.file(File.fromUri(uri)).image;
+}
+
+Widget getWidgetImage(Uri uri, {double? width, BoxFit? fit, bool? isOnline = true}){
+  if(isOnline!){
+    return CachedNetworkImage(imageUrl: uri.toString(), width: width, fit: fit);
+  }
+  return Image(image: FileImage(File.fromUri(uri)), width: width, fit: fit);
+}

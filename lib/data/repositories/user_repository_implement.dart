@@ -6,7 +6,7 @@ import 'package:tidal_wave/domain/repositories/user_repository.dart';
 typedef T = TWUser;
 
 class UserRepositoryImplement extends RepositoryImplementBase with UseFirestore implements UserRepository{
-  UserRepositoryImplement({required super.databaseService});
+  UserRepositoryImplement({required super.onlineContext, required super.offlineContext});
 
   @override
   String get dataset => 'Users';
@@ -14,8 +14,8 @@ class UserRepositoryImplement extends RepositoryImplementBase with UseFirestore 
   @override
   Future<Result<List<T>>> getAll({List<String> queryArray = const [], bool Function(Map<String, dynamic>)? where, int limit = 10}) async{
     try {
-      final data = await firestoreContext.getAll(dataset, queryArray, where, limit);
-      return Result.sucess(data.map((e) => T.fromJson(e)).toList());
+      final data = await onlinefirestoreContext.getAll(dataset, queryArray, where, limit);
+      return Result.success(data.map((e) => T.fromJson(e)).toList());
     } on Exception catch (e) {
       return Result.error('Ha ocurrido un error: $e');
     }
@@ -24,35 +24,35 @@ class UserRepositoryImplement extends RepositoryImplementBase with UseFirestore 
   @override
   Future<Result<T>> getOne(String id, [List<String> queryArray = const []]) async {
     try {
-      final data = await firestoreContext.getOne(dataset, id, queryArray);
+      final data = await onlinefirestoreContext.getOne(dataset, id, queryArray);
       if (data == null) {
         return Result.error('No se ha encontrado el elemento');
       }
-      return Result.sucess(T.fromJson(data));
+      return Result.success(T.fromJson(data));
     } on Exception catch (e) {
       return Result.error('Ha ocurrido un error: $e');
     }
   }
 
   @override
-  Future<Result<T>> addOne(T data, String? id, [List<String> queryArray = const []]) async {
+  Future<Result<T>> addOne(T data, [String? id, List<String> queryArray = const []]) async {
     try {
       if(id == null){
-        await firestoreContext.addOne(dataset, data.toJson(), queryArray);
+        await onlinefirestoreContext.addOne(dataset, data.toJson(), queryArray);
       } else{
-        await firestoreContext.setOne(dataset, data.toJson(), id, queryArray);
+        await onlinefirestoreContext.setOne(dataset, data.toJson(), id, queryArray);
       }
-      return Result.sucess(data);
+      return Result.success(data);
     } on Exception catch (e) {
       return Result.error('Ha ocurrido un error: $e');
     }
   }
     
   @override
-  Future<Result<T>> updateOne(T data, String id, [List<String> queryArray = const []]) async {
+  Future<Result<bool>> updateOne(T data, String id, [List<String> queryArray = const []]) async {
     try {
-      final retorno = await firestoreContext.updateOne(dataset, data.toJson(), id, queryArray);
-      return Result.sucess(T.fromJson(retorno));
+      await onlinefirestoreContext.updateOne(dataset, data.toJson(), id, queryArray);
+      return Result.success(true);
     } on Exception catch (e) {
       return Result.error('Ha ocurrido un error: $e');
     }
@@ -61,8 +61,8 @@ class UserRepositoryImplement extends RepositoryImplementBase with UseFirestore 
   @override
   Future<Result<String>> deleteOne(String id, [List<String> queryArray = const []]) async {
     try {
-      firestoreContext.deleteOne(dataset, id, queryArray);
-      return Result.sucess(id);
+      onlinefirestoreContext.deleteOne(dataset, id, queryArray);
+      return Result.success(id);
     } on Exception catch (e) {
       return Result.error('Ha ocurrido un error: $e');
     }

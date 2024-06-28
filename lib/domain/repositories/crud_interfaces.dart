@@ -1,7 +1,7 @@
 import 'package:tidal_wave/data/result.dart';
 
 abstract class Addable<T> {
-  Future<Result<T>> addOne(T data, String? id);
+  Future<Result<T>> addOne(T data, [String? id]);
 }
 
 abstract class GetAllable<T>{
@@ -13,7 +13,7 @@ abstract class GetOneable<T>{
 }
 
 abstract class Updatable<T>{
-  Future<Result<T>> updateOne(T data, String id);
+  Future<Result<bool>> updateOne(T data, String id);
 }
 
 abstract class Deletable{

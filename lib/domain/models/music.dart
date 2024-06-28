@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
+import 'package:tidal_wave/data/abstractions/tw_enums.dart';
 import 'package:tidal_wave/presentation/utils/function_utils.dart';
 
 class Music {
@@ -11,51 +12,39 @@ class Music {
   final Uri? imagen;
   final Uri musica;
   final Duration duration;
-  final double stars;
-  final DocumentReference uploadBy;
+  final double? stars;
   final Timestamp uploadAt;
   final Duration betterMoment;
+  final DataSourceType type;
   bool? favorito = false;
 
-  Music.byUID(int? index,{
+  Music({
+    int? index,
     required this.titulo,
     required this.artistas,
     required this.musica,
     required this.duration,
-    required this.stars,
     required this.uploadAt,
-    required String userId,
     required this.betterMoment,
-    this.uuid,
-    this.imagen,
-    this.favorito,
-  }) : _index = index ?? -1, uploadBy = FirebaseFirestore.instance.collection('Users').doc(userId);
-
-  Music(int? index,{
-    required this.titulo,
-    required this.artistas,
-    required this.musica,
-    required this.duration,
-    required this.stars,
-    required this.uploadAt,
-    required this.uploadBy,
-    required this.betterMoment,
+    required this.type,
+    this.stars,
     this.uuid,
     this.imagen,
     this.favorito,
   }) : _index = index ?? -1;  
 
   factory Music.fromJson(Map<String,dynamic> json, int? index){
-    return Music(index ?? -1,
+    return Music(
+      index: index ?? -1,
       uuid: json['uuid'],
       titulo: json['title'],
       artistas: json['artist'] is Iterable ? List.from(json['artist']) : [],
       musica: Uri.parse(json['musicUri'] as String),
       imagen: Uri.parse(json['artUri']),
       duration: Duration(milliseconds: json['duration'] as int),
+      type: getDataSourceTypeByString(json['type']),
       stars: json['stars'] as double,
-      uploadAt: json['upload_at'],
-      uploadBy: FirebaseFirestore.instance.doc((json['upload_by'] as DocumentReference).path),
+      uploadAt: Timestamp.fromMillisecondsSinceEpoch(json['upload_at'] as int),
       betterMoment: Duration(milliseconds: json['better_moment'] as int)
     );
   }
@@ -81,10 +70,6 @@ class Music {
 
   String get durationString => toStringDurationFormat(duration);
   String get betterMomentString => toStringDurationFormat(betterMoment);
-  Future<String> get uploadAtName async {
-    final user = await uploadBy.get();
-    return (user.data() as Map<String, dynamic>)['username'];
-  }
 
 
   Map<String,dynamic> toJson(){
@@ -94,9 +79,9 @@ class Music {
       "musicUri": musica.toString(),
       "artUri": imagen.toString(),
       "duration": duration.inMilliseconds,
+      "type": type.toString(),
       "stars": stars,
-      "upload_at": uploadAt,
-      "upload_by": uploadBy,
+      "upload_at": uploadAt.millisecondsSinceEpoch,
       "better_moment": betterMoment.inMilliseconds
     };
   }
@@ -109,5 +94,34 @@ class Music {
       artist: artistasStr,
       artUri: imagen ?? Uri.parse('package:flutter_app/assets/placeholder/music-placeholder.png')
     ));
+  }
+
+  Music copyWith({
+    int? index,
+    String? uuid,
+    String? titulo,
+    List<String>? artistas,
+    Uri? imagen,
+    Uri? musica,
+    Duration? duration,
+    double? stars,
+    Timestamp? uploadAt,
+    Duration? betterMoment,
+    DataSourceType? type,
+    bool? favorito
+  }){
+    return Music(
+      index: index ?? this.index,
+      uuid: uuid ?? this.uuid,
+      titulo: titulo ?? this.titulo,
+      artistas: artistas ?? this.artistas,
+      imagen: imagen ?? this.imagen,
+      musica: musica ?? this.musica,
+      duration: duration ?? this.duration,
+      stars: stars ?? this.stars,
+      uploadAt: uploadAt ?? this.uploadAt,
+      betterMoment: betterMoment ?? this.betterMoment,
+      type: type ?? this.type
+    );
   }
 }

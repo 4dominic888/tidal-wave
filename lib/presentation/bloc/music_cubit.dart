@@ -10,6 +10,7 @@ class MusicCubit extends Cubit<AudioPlayer> {
 
   MusicCubit() :super(AudioPlayer(
     audioLoadConfiguration: const AudioLoadConfiguration(
+      //* Comenzar la carga del audio lo mas rapido posible, aunque no este cargado u optimizado
       androidLoadControl: AndroidLoadControl(prioritizeTimeOverSizeThresholds: true)
     )
   ));
@@ -72,14 +73,13 @@ class MusicCubit extends Cubit<AudioPlayer> {
   }
 
   Future<void> setClip(AudioSource audioSource, Duration moment) async {
-    await state.setAudioSource(
-      ClippingAudioSource(
+
+    await state.setAudioSource(ClippingAudioSource(
         child: audioSource as UriAudioSource,
         start: moment,
         end: moment+const Duration(seconds: 5),
         duration: const Duration(seconds: 5),
         tag: audioSource.tag
-      )
-    );
+    ));
   }
 }

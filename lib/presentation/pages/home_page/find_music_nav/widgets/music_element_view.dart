@@ -8,6 +8,7 @@ import 'package:tidal_wave/data/result.dart';
 import 'package:tidal_wave/domain/models/music.dart';
 import 'package:tidal_wave/domain/models/music_list.dart';
 import 'package:tidal_wave/domain/use_case/interfaces/music_list_manager_use_case.dart';
+import 'package:tidal_wave/domain/use_case/interfaces/music_manager_use_case.dart';
 import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
 import 'package:tidal_wave/presentation/global_widgets/popup_message.dart';
 import 'package:tidal_wave/presentation/pages/lista_musica/widgets/icon_button_music.dart';
@@ -15,6 +16,7 @@ import 'package:tidal_wave/presentation/utils/function_utils.dart';
 import 'package:tidal_wave/presentation/utils/music_state_util.dart';
 
 final _musicListManagerUseCase = GetIt.I<MusicListManagerUseCase>();
+final _musicManagerUseCase = GetIt.I<MusicManagerUseCase>();
 
 class MusicElementView extends StatelessWidget {
 
@@ -48,15 +50,14 @@ class MusicElementView extends StatelessWidget {
   Future<void> showListOfMusics(BuildContext context, Music music) async {
     late Result<List<MusicList>> listResult;
     await showLoadingDialog(context, () async => listResult = await _musicListManagerUseCase.obtenerListasLocales());
+    if(!context.mounted) return;
     if(!listResult.onSuccess) {
-      PopupDialog(title: 'Error', description: listResult.errorMessage!);
+      showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: listResult.errorMessage!));
       return;
     }
     final List<MusicList> listas = listResult.data!;
-    if(!context.mounted) return;
     showDialog(context: context, builder: (context) => AlertDialog(
       title: const Text('Elige una lista'),
-      backgroundColor: Colors.grey.shade900,
       content: StatefulBuilder(
         builder: (context, setState) {
           return Column(
@@ -79,6 +80,21 @@ class MusicElementView extends StatelessWidget {
         }
       ),
     ));
+  }
+
+  Future<void> descargarMusica(BuildContext context, String idMusic) async{
+    late final Result<String> downloadResult;
+    await showLoadingDialog(context, () async => downloadResult = await _musicManagerUseCase.descargarMusica(idMusic, 
+      progressOfDownload: (total, downloaded, progress) {
+        print('$downloaded/$total $progress%');
+      })
+    );
+    if(!context.mounted) return;
+    if(!downloadResult.onSuccess){
+      showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: downloadResult.errorMessage!));
+      return;
+    }
+    showDialog(context: context, builder: (context) => PopupMessage(title: 'Exito', description: downloadResult.data!));
   }
 
   Future<void> viewMoreMusicInfo(BuildContext context) => showModalBottomSheet(context: context, 
@@ -124,9 +140,8 @@ class MusicElementView extends StatelessWidget {
                       ),
                       const Spacer(),
                       ElevatedButton(
-                        onPressed: () async {
-                          await showLoadingDialog(context, () async => await Future.delayed(const Duration(seconds: 5)));
-                        },
+                        onPressed: () async => await descargarMusica(context, item.uuid!)
+                        ,
                         style: ButtonStyle(backgroundColor: WidgetStateColor.resolveWith((states) => Colors.grey.shade900)),
                         child: const Text('Descargar')
                       )

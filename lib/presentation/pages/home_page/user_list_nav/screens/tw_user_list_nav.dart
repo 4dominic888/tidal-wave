@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -89,9 +87,7 @@ class _TWUserListNavState extends State<TWUserListNav> {
   }
 
   Widget _otherUserLists() {
-    _musicManagerUseCase.obtenerCancionesDescargadas().then((value) {
-      inspect(value.data!);
-    });
+    _musicManagerUseCase.obtenerMusicasDescargadas();
     return const Center(child: Icon(Icons.list));
   }
 
@@ -107,9 +103,7 @@ class _TWUserListNavState extends State<TWUserListNav> {
           controller: _buttonsController,
           buttonIndexedBuilder: (selected, index, context) => ElevatedButton(
             onPressed: (){
-              setState(() {
-                _buttonsController.selectIndex(index);
-              });
+              setState(() {_buttonsController.selectIndex(index);});
             },
             style: ButtonStyle(
               backgroundColor: WidgetStateColor.resolveWith((states) => selected ? const Color.fromARGB(255, 36, 161, 196) : const Color.fromARGB(255, 20, 84, 101))
@@ -124,7 +118,6 @@ class _TWUserListNavState extends State<TWUserListNav> {
 
         if(_buttonsController.selectedIndex == 0) _userMusicList()
         else _otherUserLists()
-
       ],
     );
   }

@@ -71,5 +71,5 @@ Widget getWidgetImage(Uri uri, {double? width, BoxFit? fit, bool? isOnline = tru
   if(isOnline!){
     return CachedNetworkImage(imageUrl: uri.toString(), width: width, fit: fit);
   }
-  return Image(image: FileImage(File.fromUri(uri)), width: width, fit: fit);
+  return Image(image: FileImage(File(uri.toString())), width: width, fit: fit);
 }

@@ -1,3 +1,4 @@
+import 'package:sqflite/sqflite.dart';
 import 'package:tidal_wave/data/abstractions/repository_implement_base.dart';
 import 'package:tidal_wave/data/abstractions/tw_enums.dart';
 import 'package:tidal_wave/data/result.dart';
@@ -90,6 +91,13 @@ class MusicRepositoryImplement extends RepositoryImplementBase with UseFirestore
     } catch (e) {
       return Result.error('Ha ocurrido un error: $e');
     }
+  }
+  
+  @override
+  Future<bool> existingId(String uuid) async {
+    final result = await offlinesqfliteContext.db.rawQuery('SELECT COUNT(*) as count FROM $dataset WHERE uuid = ?', [uuid]);
+    int count = Sqflite.firstIntValue(result) ?? 0;
+    return count > 0;
   }
   
 }

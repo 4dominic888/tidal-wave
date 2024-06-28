@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:tidal_wave/data/abstractions/tw_enums.dart';
 import 'package:tidal_wave/data/result.dart';
 import 'package:tidal_wave/domain/models/music.dart';
 import 'package:tidal_wave/domain/models/music_list.dart';
@@ -130,22 +131,7 @@ class MusicElementView extends StatelessWidget {
                 SingleChildScrollView(scrollDirection: Axis.horizontal ,child: Text(item.artistasStr, style: const TextStyle(fontSize: 15))),
                 const SizedBox(height: 10),
                 Expanded(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () async => showListOfMusics(context, item),
-                        style: ButtonStyle(backgroundColor: WidgetStateColor.resolveWith((states) => Colors.grey.shade900)),
-                        child: const Text('Agregar a lista')
-                      ),
-                      const Spacer(),
-                      ElevatedButton(
-                        onPressed: () async => await descargarMusica(context, item.uuid!),
-                        style: ButtonStyle(backgroundColor: WidgetStateColor.resolveWith((states) => Colors.grey.shade900)),
-                        child: const Text('Descargar')
-                      )
-                    ],
-                  ),
+                  child: item.type == DataSourceType.online ? _rowInfoOnline() : _rowInfoDownloaded(context),
                 ),
               ],
             ),
@@ -154,6 +140,58 @@ class MusicElementView extends StatelessWidget {
       )
     )
   );
+
+  Row _rowInfoDownloaded(BuildContext context){
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ElevatedButton(
+          onPressed: () async => showListOfMusics(context, item),
+          style: ButtonStyle(backgroundColor: WidgetStateColor.resolveWith((states) => Colors.grey.shade900)),
+          child: const Text('Agregar a lista')
+        ),
+        const Spacer(),  
+      ],
+    );
+  }
+
+  FutureBuilder<bool> _rowInfoOnline() {
+    return FutureBuilder(
+      future: _musicManagerUseCase.musicaExistente(item.uuid!),
+      builder: (context, snapshot) {
+        late final List<Widget> rowList;
+        if(snapshot.connectionState == ConnectionState.waiting) return const CircularProgressIndicator();
+        if(!snapshot.data!) {
+          rowList = [
+            ElevatedButton(
+              onPressed: () async => showListOfMusics(context, item),
+              style: ButtonStyle(backgroundColor: WidgetStateColor.resolveWith((states) => Colors.grey.shade900)),
+              child: const Text('Agregar a lista')
+            ),
+            const Spacer(),
+            ElevatedButton(
+              onPressed: () async => await descargarMusica(context, item.uuid!),
+              style: ButtonStyle(backgroundColor: WidgetStateColor.resolveWith((states) => Colors.grey.shade900)),
+              child: const Text('Descargar')
+            )
+          ];
+        }
+        else{
+          rowList = [
+            ElevatedButton(
+              onPressed: null,
+              style: ButtonStyle(backgroundColor: WidgetStateColor.resolveWith((states) => Colors.grey.shade600)),
+              child: const Text('Obtenido')
+            ),
+          ];
+        }
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: rowList,
+        );
+      }
+    );
+  }
 
   @override
   Widget build(BuildContext context) {

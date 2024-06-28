@@ -13,7 +13,7 @@ class MusicRepositoryImplement extends RepositoryImplementBase with UseFirestore
   @override
   Future<Result<T>> addOne(T data, [String? id]) async {
     try {
-      final lData = data.copyWith(type: DataSourceType.local);
+      final lData = data;
       if(id == null){
         await offlinesqfliteContext.addOne(dataset, lData.toJson());
       } else{

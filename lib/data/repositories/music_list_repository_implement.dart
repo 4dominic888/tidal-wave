@@ -163,7 +163,13 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
 
       //* Subir la metadata al servidor
       await onlinefirestoreContext.setOne(publicListsDataset, list.toJson()..addAll(
-        {'upload by': onlinefirestoreContext.db.collection('Users').doc(userUid)}
+        {
+          'upload by': onlinefirestoreContext.db.collection('Users').doc(userUid),
+          
+          'musics': list.musics?.where((m) => m.type == DataSourceType.fromOnline).map(
+            (e) => onlinefirestoreContext.db.collection('Musics').doc(e.uuid)
+          ).toList()
+        }
       ), list.id);
       await updateOne(list, list.id);
       
@@ -201,7 +207,7 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
       await onlinefirestoreContext.updateOne(
         publicListsDataset,
         list.toJson()..addAll({
-          'musics': list.musics?.where((m) => m.type == DataSourceType.online).map(
+          'musics': list.musics?.where((m) => m.type == DataSourceType.fromOnline).map(
             (e) => onlinefirestoreContext.db.collection('Musics').doc(e.uuid)
           ).toList()
         }),

@@ -98,7 +98,6 @@ class MusicManagerUseCaseImplement with SaveFiles implements MusicManagerUseCase
   @override
   Future<Result<String>> editarMusica(Music musica, String id, {required DataSourceType type}) async {
     try {
-
       Uri? imageUri;
       final Uri musicUri;
 
@@ -194,7 +193,8 @@ class MusicManagerUseCaseImplement with SaveFiles implements MusicManagerUseCase
 
       final Music musicOffline = musicResult.data!.copyWith(
         imagen: musicImageUri,
-        musica: musicUri
+        musica: musicUri,
+        type: DataSourceType.fromOnline
       );
 
       await repo.addOne(musicOffline, musicOffline.uuid);

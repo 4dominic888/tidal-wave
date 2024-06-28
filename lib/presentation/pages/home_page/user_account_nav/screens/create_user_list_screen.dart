@@ -8,7 +8,6 @@ import 'package:tidal_wave/domain/models/music_list.dart';
 import 'package:tidal_wave/domain/use_case/interfaces/music_list_manager_use_case.dart';
 import 'package:tidal_wave/presentation/controllers/tw_select_file_controller.dart';
 import 'package:tidal_wave/presentation/global_widgets/popup_message.dart';
-import 'package:tidal_wave/presentation/global_widgets/tw_dropdownbutton_field.dart';
 import 'package:tidal_wave/presentation/global_widgets/tw_select_file.dart';
 import 'package:tidal_wave/presentation/global_widgets/tw_text_field.dart';
 
@@ -24,7 +23,6 @@ class _CreateUserListScreenState extends State<CreateUserListScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
-  final _typeListController = TextEditingController();
   final _imageController = TWSelectFileController();
   final _btnController = RoundedLoadingButtonController();
   
@@ -35,10 +33,14 @@ class _CreateUserListScreenState extends State<CreateUserListScreen> {
   void onSubmit() async{
     if(_formKey.currentState!.validate()){
 
+      Uri? imageUri;
+
+      if(_imageController.value != null) {imageUri = Uri.parse(_imageController.value!.path);}
+
       final MusicList musicList = MusicList.toSend(
         name: _nameController.text,
         description: _descriptionController.text.trim().isNotEmpty ? _descriptionController.text : 'No proporcionado',
-        image: Uri.parse(_imageController.value!.path)
+        image: imageUri
       );
 
       final result = await _playListManagerUseCase.agregarLista(musicList, progressCallback: (value) {
@@ -96,16 +98,6 @@ class _CreateUserListScreenState extends State<CreateUserListScreen> {
 
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: TWDropdownbuttonField(
-                  controller: _typeListController,
-                  label: 'Tipo de lista',
-                  icon: const Icon(Icons.type_specimen_rounded),
-                  items: const [{'Publico':'public-list'}, {'Privado':'private-list'}, {'Offline':'offline-list'}],
-                )
-              ),
-
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 child: TWSelectFile(
                   controller: _imageController,
                   loadStreamController: _imageFileUploadStreamController,
@@ -154,7 +146,6 @@ class _CreateUserListScreenState extends State<CreateUserListScreen> {
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
-    _typeListController.dispose();
     _imageFileUploadStreamController.close();
     super.dispose();
   }

@@ -16,7 +16,7 @@ class MusicListManagerUseCaseImplement with SaveFiles implements MusicListManage
   Future<Result<String>> agregarLista(MusicList lista, {void Function(double)? progressCallback}) async {
     try {
       final String uuid = const Uuid().v4();
-      late final Uri? imageUri;
+      Uri? imageUri;
       if(lista.image != null) { 
         final uploadResult = await saveLocalFile(
           uri: lista.image!,
@@ -41,7 +41,7 @@ class MusicListManagerUseCaseImplement with SaveFiles implements MusicListManage
   @override
   Future<Result<String>> editarLista(MusicList lista, String id) async {
     try {
-      late final Uri? imageUri;
+      Uri? imageUri;
       if(lista.image != null) { 
         final uploadResult = await saveLocalFile(
           uri: lista.image!,

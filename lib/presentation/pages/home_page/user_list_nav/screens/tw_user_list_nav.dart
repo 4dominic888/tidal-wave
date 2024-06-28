@@ -75,7 +75,7 @@ class _TWUserListNavState extends State<TWUserListNav> {
                   itemCount: snapshot.data!.length,
                   itemBuilder: (context, index) {
                     final item = snapshot.data![index];
-                    return TWMusicListViewItem(item: item);
+                    return TWMusicListViewItem(item: item, isOnline: false);
                   },
                 );
               }

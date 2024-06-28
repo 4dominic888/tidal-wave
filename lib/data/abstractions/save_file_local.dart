@@ -16,12 +16,17 @@ mixin SaveFiles{
     if(userUid == null) throw Exception('Debes ser un usuario para acceder a esta funcionalidad');
 
     final Directory mainDir = Directory('${(await getApplicationDocumentsDirectory()).path}/twFiles');
+    if(!(await mainDir.exists())){
+      await mainDir.create();
+    }
 
-    final Directory userDir = Directory('$mainDir/$userUid');
+    // final Directory userDir = Directory('$mainDir/$userUid');
+    final Directory userDir = Directory(join(mainDir.path, userUid));
     if(!(await userDir.exists())){
       await userDir.create();
     }
-    final Directory customDir = Directory('${userDir.path}/$folderName');
+    // final Directory customDir = Directory('${userDir.path}/$folderName');
+    final Directory customDir = Directory(join(userDir.path, folderName));
     if(!(await customDir.exists())){
       await customDir.create();
     }

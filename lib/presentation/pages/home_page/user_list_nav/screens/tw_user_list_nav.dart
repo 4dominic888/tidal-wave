@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:group_button/group_button.dart';
 import 'package:tidal_wave/domain/models/music_list.dart';
 import 'package:tidal_wave/domain/use_case/interfaces/music_list_manager_use_case.dart';
+import 'package:tidal_wave/domain/use_case/interfaces/music_manager_use_case.dart';
 import 'package:tidal_wave/presentation/pages/home_page/user_account_nav/screens/create_user_list_screen.dart';
 import 'package:tidal_wave/presentation/pages/home_page/user_list_nav/widgets/tw_music_list_view_item.dart';
 
@@ -17,6 +18,8 @@ class TWUserListNav extends StatefulWidget {
 class _TWUserListNavState extends State<TWUserListNav> {
 
   final _playListManagerUseCase = GetIt.I<MusicListManagerUseCase>();
+  final _musicManagerUseCase = GetIt.I<MusicManagerUseCase>();
+
   static final _buttonsController = GroupButtonController(selectedIndex: 0);
   static final _buttonsOptions = ['Mis listas', 'Otras listas'];
 
@@ -83,9 +86,12 @@ class _TWUserListNavState extends State<TWUserListNav> {
     );
   }
 
-  final Widget _otherUserLists = const Center(
-    child: Icon(Icons.list),
-  );
+  Widget _otherUserLists() {
+    _musicManagerUseCase.obtenerCancionesDescargadas().then((value) {
+      print(value.data!);
+    });
+    return const Center(child: Icon(Icons.list));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +121,7 @@ class _TWUserListNavState extends State<TWUserListNav> {
         const SizedBox(height: 10),
 
         if(_buttonsController.selectedIndex == 0) _userMusicList()
-        else _otherUserLists
+        else _otherUserLists()
 
       ],
     );

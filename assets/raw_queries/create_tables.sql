@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS Musics(
     musicUri TEXT NOT NULL,
     artUri TEXT NOT NULL,
     duration INTEGER NOT NULL,
+    type TEXT NOT NULL,
     stars REAL NOT NULL,
     upload_at INTEGER NOT NULL,
     better_moment INTEGER NOT NULL

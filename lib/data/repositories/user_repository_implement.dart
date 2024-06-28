@@ -12,9 +12,9 @@ class UserRepositoryImplement extends RepositoryImplementBase with UseFirestore 
   String get dataset => 'Users';
 
   @override
-  Future<Result<List<T>>> getAll({List<String> queryArray = const [], bool Function(Map<String, dynamic>)? where, int limit = 10}) async{
+  Future<Result<List<T>>> getAll({List<String> queryArray = const [], bool Function(Map<String, dynamic>)? where, int? timestamp, int limit = 10}) async{
     try {
-      final data = await onlinefirestoreContext.getAll(dataset, queryArray, where, limit);
+      final data = await onlinefirestoreContext.getAll(dataset, queryArray, where, timestamp, limit);
       return Result.success(data.map((e) => T.fromJson(e)).toList());
     } on Exception catch (e) {
       return Result.error('Ha ocurrido un error: $e');

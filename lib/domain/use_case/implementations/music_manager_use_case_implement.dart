@@ -150,8 +150,8 @@ class MusicManagerUseCaseImplement with SaveFiles implements MusicManagerUseCase
   }
 
   @override
-  Future<Result<List<Music>>> obtenerMusicasPublicas({bool Function(Map<String, dynamic> query)? where, int limit = 10}) async {
-    return await repo.getAllOnline(where: where, limit: limit);
+  Future<Result<List<Music>>> obtenerMusicasPublicas({bool Function(Map<String, dynamic> query)? where, Music? lastItem, int limit = 10}) async {
+    return await repo.getAllOnline(where: where, lastItem: lastItem, limit: limit);
   }
   
   @override

@@ -42,9 +42,13 @@ class MusicRepositoryImplement extends RepositoryImplementBase with UseFirestore
   }
 
   @override
-  Future<Result<List<T>>> getAllOnline({List<String> queryArray = const [], bool Function(Map<String, dynamic> query)? where, int limit = 10}) async {
+  Future<Result<List<T>>> getAllOnline({List<String> queryArray = const [], bool Function(Map<String, dynamic> query)? where, T? lastItem, int limit = 10}) async {
     try {
-      final data = await onlinefirestoreContext.getAll(dataset, queryArray, where, limit);
+      final data = await onlinefirestoreContext.getAll(dataset,
+        queryArray, where,
+        lastItem?.uploadAt.millisecondsSinceEpoch,
+        limit
+      );
       return Result.success(data.map((e) => T.fromJson(e,0)).toList());
     } on Exception catch (e) {
       return Result.error('Ha ocurrido un error: $e');

@@ -12,8 +12,10 @@ class FirestoreDatabaseService extends DatabaseService<Map<String, dynamic>>{
   }
 
   @override
-  Future<List<Map<String,dynamic>>> getAll(String dataset, [List<String> queryArray = const [], bool Function(Map<String, dynamic>)? where, int limit = 10]) async{
-    final query = await _getSubCollection(dataset, queryArray).limit(limit).get();
+  Future<List<Map<String,dynamic>>> getAll(String dataset, [List<String> queryArray = const [], bool Function(Map<String, dynamic>)? where, int? timestamp, int limit = 10]) async{
+    final query = timestamp != null ? 
+      await _getSubCollection(dataset, queryArray).orderBy('upload_at', descending: true).startAfter([timestamp]).limit(limit).get() :
+      await _getSubCollection(dataset, queryArray).orderBy('upload_at', descending: true).limit(limit).get();
     if(query.docs.isEmpty) return [];
     return query.docs.map((d) => d.data()..addAll({"uuid": d.id})).where(where ?? (_) => true).toList();
   }

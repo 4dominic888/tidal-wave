@@ -20,7 +20,7 @@ abstract class MusicRepository implements Addable<T>, GetOneable<T>, Updatable<T
   @override Future<Result<String>> deleteOne(String id);
 
   /// Obtiene todas las musicas subidas disponibles en la nube.
-  Future<Result<List<T>>> getAllOnline({bool Function(Map<String, dynamic> query)? where, int limit = 10});
+  Future<Result<List<T>>> getAllOnline({bool Function(Map<String, dynamic> query)? where, T? lastItem, int limit = 10});
   
   /// Obtiene todas las musicas locales que tenga el usuario, osea las descargadas.
   Future<Result<List<T>>> getAllLocal({String? where, List<String>? whereArgs, int limit = 10});

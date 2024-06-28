@@ -20,12 +20,48 @@ class TWFindNav extends StatefulWidget {
 
 class _TWFindNavState extends State<TWFindNav> {
 
+  final _scrollController = ScrollController();
+
   final _musicManagerUseCase = GetIt.I<MusicManagerUseCase>();
   String? selectUUID;
   DataSourceType _selectedType = DataSourceType.online;
 
   static final _buttonsController = GroupButtonController(selectedIndex: 0);
   static final _buttonsOptions = ['Musicas publicas', 'Mis musicas descargadas'];
+
+
+  final List<Music> _allData = [];
+  Music? _lastItem;
+  bool _hasMore = true;
+  bool _loading = false;
+  static const int _limit = 10;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchData(DataSourceType.online);
+    _scrollController.addListener(_scrollListener);
+  }
+
+  void _scrollListener(){
+    if(!_loading && _hasMore && _scrollController.position.pixels == _scrollController.position.maxScrollExtent){
+      _fetchData(_selectedType);
+    }
+  }
+
+  Future<void> _fetchData(DataSourceType dataSourceType) async{
+    if(_loading || !_hasMore) return;
+    _loading = true;
+
+    _lastItem = _allData.isNotEmpty ? _allData.last : null;
+
+    final newData = await listOfMusic(dataSourceType, lastItem: _lastItem);
+    setState(() {
+      _allData.addAll(newData);
+      if(newData.length < _limit){_hasMore = false;}
+      _loading = false;
+    });
+  }
 
   void _findMusic(String query){
     setState(() {
@@ -40,13 +76,13 @@ class _TWFindNavState extends State<TWFindNav> {
     });
   }
 
-  Future<List<Music>> listOfMusic(DataSourceType dataSourceType) async {
+  Future<List<Music>> listOfMusic(DataSourceType dataSourceType, {Music? lastItem}) async {
     late final Result<List<Music>> result;
     if(dataSourceType == DataSourceType.online){
-      result = await _musicManagerUseCase.obtenerMusicasPublicas();
+      result = await _musicManagerUseCase.obtenerMusicasPublicas(lastItem: lastItem, limit: _limit);
     }
     else{
-      result = await _musicManagerUseCase.obtenerMusicasDescargadas();
+      result = await _musicManagerUseCase.obtenerMusicasDescargadas(limit: _limit);
     }
     if(result.onSuccess){return result.data!.toList();}
     throw Exception(result.errorMessage);
@@ -57,6 +93,7 @@ class _TWFindNavState extends State<TWFindNav> {
     return CustomScrollView(
       scrollDirection: Axis.vertical,
       shrinkWrap: true,
+      controller: _scrollController,
       slivers: [
 
         //* Barra de busqueda
@@ -93,7 +130,12 @@ class _TWFindNavState extends State<TWFindNav> {
             onPressed: (){
               setState(() {
                 _buttonsController.selectIndex(index);
+                _allData.clear();
+                _lastItem = null;
+                _hasMore = true;
+                _loading = false;
                 _selectedType = index == 0 ? DataSourceType.online : DataSourceType.local;
+                _fetchData(_selectedType);
               });
             },
             style: ButtonStyle(
@@ -108,12 +150,12 @@ class _TWFindNavState extends State<TWFindNav> {
 
         const SliverToBoxAdapter(child: SizedBox(height: 10)),
     
-        FutureBuilder<List<Music>>(
-          future: listOfMusic(_selectedType),
+        FutureBuilder(
+          future: _fetchData(_selectedType),
           builder: (context, snapshot) {
             if(snapshot.connectionState == ConnectionState.waiting) {return const SliverToBoxAdapter(child: Center(child: CircularProgressIndicator()));}
             if(snapshot.hasError) {return SliverToBoxAdapter(child: Center(child: Text('Ha ocurrido un error ${snapshot.error.toString()}')));}
-            if(snapshot.data!.isEmpty) {return const SliverToBoxAdapter(child: Center(child: Text('No hay canciones por el momento')));}
+            if(_allData.isEmpty) {return const SliverToBoxAdapter(child: Center(child: Text('No hay canciones por el momento')));}
             return StatefulBuilder(
               builder: (context, setState) {
                 return SliverGrid(
@@ -122,21 +164,32 @@ class _TWFindNavState extends State<TWFindNav> {
                     mainAxisSpacing: 10,
                     childAspectRatio: 1
                   ),
-                  delegate: SliverChildBuilderDelegate(childCount: snapshot.data!.length, (context, index) {
-                    final item = snapshot.data![index];
-                    return Builder(
-                      builder: (context) {
-                        return MusicElementView(
-                          item: item,
-                          selected: [item.uuid == selectUUID],
-                          onPlay: () {
-                            selectUUID = item.uuid;
-                            setState(() {});
-                          },
-                          isOnline: _selectedType == DataSourceType.online,
+                  delegate: SliverChildBuilderDelegate(childCount: _allData.length + (_hasMore ? 1 : 0), (context, index) {
+                    final item = _allData[index];
+                    if(index < _allData.length){
+                      return Builder(
+                        builder: (context) {
+                          return MusicElementView(
+                            item: item,
+                            selected: [item.uuid == selectUUID],
+                            onPlay: () {
+                              selectUUID = item.uuid;
+                              setState(() {});
+                            },
+                            isOnline: _selectedType == DataSourceType.online,
+                          );
+                        }
+                      );
+                    }
+                    else{
+                      if(_hasMore){
+                        return const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: CircularProgressIndicator(),
                         );
                       }
-                    );
+                      else {return const SizedBox.shrink();}
+                    }
                   }),
                 );
               }
@@ -145,5 +198,12 @@ class _TWFindNavState extends State<TWFindNav> {
         )
       ],
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
   }
 }

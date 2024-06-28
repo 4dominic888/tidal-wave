@@ -74,16 +74,12 @@ class MusicCubit extends Cubit<AudioPlayer> {
 
   Future<void> setClip(AudioSource audioSource, Duration moment) async {
 
-    final clip = ClippingAudioSource(
+    await state.setAudioSource(ClippingAudioSource(
         child: audioSource as UriAudioSource,
         start: moment,
         end: moment+const Duration(seconds: 5),
         duration: const Duration(seconds: 5),
         tag: audioSource.tag
-    );
-
-    await state.setAudioSource(
-      LockCachingAudioSource(clip.child.uri)
-    );
+    ));
   }
 }

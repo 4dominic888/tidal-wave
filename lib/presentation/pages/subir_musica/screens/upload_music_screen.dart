@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
 import 'package:tidal_wave/data/abstractions/tw_enums.dart';
 import 'package:tidal_wave/domain/use_case/interfaces/music_manager_use_case.dart';
@@ -146,8 +147,11 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
                     onChanged: () => setState(() {
                       _musicController.clipMoment = Duration.zero;
                       _bestDurationController.text = "";
-                      context.read<MusicCubit>().setClip(AudioSource.file(_musicController.value!.path), _musicController.clipMoment ?? Duration.zero);
-                      context.read<MusicCubit>().state.pause();
+                      context.read<MusicCubit>().setClip(
+                        AudioSource.file(_musicController.value!.path, tag: const MediaItem(id: '0', title: 'LOCAL-FILE', artist: 'Unknown')),
+                        _musicController.clipMoment ?? Duration.zero
+                      );
+                        context.read<MusicCubit>().state.pause();
                     })
                     ,
                   )
@@ -168,7 +172,8 @@ class _UploadMusicScreenState extends State<UploadMusicScreen> {
                                   stream: context.read<MusicCubit>().state.playerStateStream,
                                   builder: (context, snapshot) {
                                     if (snapshot.data?.processingState == ProcessingState.completed) {
-                                      context.read<MusicCubit>().setClip(AudioSource.file(_musicController.value!.path), _musicController.clipMoment ?? Duration.zero);
+                                      context.read<MusicCubit>().setClip(AudioSource.file(_musicController.value!.path, tag: const MediaItem(id: '0', title: 'LOCAL-FILE', artist: 'Unknown')),
+                                      _musicController.clipMoment ?? Duration.zero);
                                       context.read<MusicCubit>().state.pause();
                                     }
                                     return IconButton(

@@ -1,21 +1,22 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:tidal_wave/domain/models/music_list.dart';
 import 'package:tidal_wave/domain/use_case/interfaces/music_list_manager_use_case.dart';
 import 'package:tidal_wave/presentation/pages/lista_musica/screens/lista_musica_screen.dart';
 import 'package:tidal_wave/presentation/global_widgets/popup_message.dart';
+import 'package:tidal_wave/presentation/utils/function_utils.dart';
 
-// final _musicManagerUseCase = GetIt.I<MusicManagerUseCase>();
 final _musicListManagerUseCase = GetIt.I<MusicListManagerUseCase>();
 
 class TWMusicListViewItem extends StatelessWidget {
+  final MusicList item;
+  final bool? isOnline;
+
   const TWMusicListViewItem({
     super.key,
     required this.item,
+    this.isOnline = true
   });
-
-  final MusicList item;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +49,7 @@ class TWMusicListViewItem extends StatelessWidget {
                     decoration: BoxDecoration(
                       image: DecorationImage(
                         image: item.image != null ? 
-                        Image.file(File.fromUri(item.image!)).image : 
+                        getImage(item.image!, isOnline: isOnline) : 
                         Image.asset('assets/placeholder/music-placeholder.png').image,
                         fit: BoxFit.cover
                       )

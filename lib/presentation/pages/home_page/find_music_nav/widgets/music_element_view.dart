@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:ui';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -22,8 +21,9 @@ class MusicElementView extends StatelessWidget {
   final Music item;
   final List<bool>? selected;
   final void Function()? onPlay;
+  final bool? isOnline;
 
-  const MusicElementView({super.key, required this.item, this.onPlay, this.selected = const [false]});
+  const MusicElementView({super.key, required this.item, this.onPlay, this.isOnline = true, this.selected = const [false]});
 
   Future<void> showAddMusicToList(BuildContext context, Music music, MusicList listSelected) async {
     late Result<String> result;
@@ -87,10 +87,12 @@ class MusicElementView extends StatelessWidget {
       child: Stack(
         children: [
           //* Imagen de fondo
-          item.imagen != null ? CachedNetworkImage(
-            imageUrl: item.imagen.toString(),
+          item.imagen != null ? 
+          getWidgetImage(
+            item.imagen!,
             width: MediaQuery.of(context).size.width,
             fit: BoxFit.cover,
+            isOnline: isOnline
           ) : Image.asset('assets/placeholder/music-placeholder.png', 
             width: MediaQuery.of(context).size.width,
             fit: BoxFit.cover,
@@ -153,8 +155,8 @@ class MusicElementView extends StatelessWidget {
         children: [
           Ink.image(
             image: item.imagen != null ? 
-              CachedNetworkImageProvider(item.imagen!.toString()) : 
-              Image.asset('assets/placeholder/music-placeholder.png').image,
+            getImage(item.imagen!, isOnline: isOnline) : 
+            Image.asset('assets/placeholder/music-placeholder.png').image,
             child: InkWell(
               onTap: () => viewMoreMusicInfo(context),
             ),

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -88,7 +90,7 @@ class _TWUserListNavState extends State<TWUserListNav> {
 
   Widget _otherUserLists() {
     _musicManagerUseCase.obtenerCancionesDescargadas().then((value) {
-      print(value.data!);
+      inspect(value.data!);
     });
     return const Center(child: Icon(Icons.list));
   }

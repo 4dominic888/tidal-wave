@@ -115,6 +115,7 @@ class Music {
       uuid: uuid ?? this.uuid,
       titulo: titulo ?? this.titulo,
       artistas: artistas ?? this.artistas,
+      imagen: imagen ?? this.imagen,
       musica: musica ?? this.musica,
       duration: duration ?? this.duration,
       stars: stars ?? this.stars,

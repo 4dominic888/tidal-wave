@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:group_button/group_button.dart';
+import 'package:tidal_wave/data/abstractions/tw_enums.dart';
+import 'package:tidal_wave/data/result.dart';
 import 'package:tidal_wave/domain/use_case/interfaces/music_manager_use_case.dart';
 import 'package:tidal_wave/presentation/pages/home_page/find_music_nav/widgets/music_element_view.dart';
 import 'package:tidal_wave/presentation/pages/lista_musica/widgets/icon_button_music.dart';
@@ -19,6 +22,10 @@ class _TWFindNavState extends State<TWFindNav> {
 
   final _musicManagerUseCase = GetIt.I<MusicManagerUseCase>();
   String? selectUUID;
+  DataSourceType _selectedType = DataSourceType.online;
+
+  static final _buttonsController = GroupButtonController(selectedIndex: 0);
+  static final _buttonsOptions = ['Musicas publicas', 'Mis musicas descargadas'];
 
   void _findMusic(String query){
     setState(() {
@@ -33,8 +40,14 @@ class _TWFindNavState extends State<TWFindNav> {
     });
   }
 
-  Future<List<Music>> listOfMusic() async {
-    final result = await _musicManagerUseCase.obtenerCancionesPublicas();
+  Future<List<Music>> listOfMusic(DataSourceType dataSourceType) async {
+    late final Result<List<Music>> result;
+    if(dataSourceType == DataSourceType.online){
+      result = await _musicManagerUseCase.obtenerMusicasPublicas();
+    }
+    else{
+      result = await _musicManagerUseCase.obtenerMusicasDescargadas();
+    }
     if(result.onSuccess){return result.data!.toList();}
     throw Exception(result.errorMessage);
   }
@@ -71,14 +84,36 @@ class _TWFindNavState extends State<TWFindNav> {
           ],
         ),
     
+        SliverToBoxAdapter(child: 
+        
+        //* Seleccionar entre 2 opciones
+        GroupButton(
+          controller: _buttonsController,
+          buttonIndexedBuilder: (selected, index, context) => ElevatedButton(
+            onPressed: (){
+              setState(() {
+                _buttonsController.selectIndex(index);
+                _selectedType = index == 0 ? DataSourceType.online : DataSourceType.local;
+              });
+            },
+            style: ButtonStyle(
+              backgroundColor: WidgetStateColor.resolveWith((states) => selected ? const Color.fromARGB(255, 36, 161, 196) : const Color.fromARGB(255, 20, 84, 101))
+            ),
+            child: Text(_buttonsOptions[index], style: TextStyle(color: selected ? Colors.white : Colors.grey.shade300))
+          ),
+          isRadio: true,
+          buttons: _buttonsOptions
+        )
+        ),
+
         const SliverToBoxAdapter(child: SizedBox(height: 10)),
     
         FutureBuilder<List<Music>>(
-          future: listOfMusic(),
+          future: listOfMusic(_selectedType),
           builder: (context, snapshot) {
             if(snapshot.connectionState == ConnectionState.waiting) {return const SliverToBoxAdapter(child: Center(child: CircularProgressIndicator()));}
             if(snapshot.hasError) {return SliverToBoxAdapter(child: Center(child: Text('Ha ocurrido un error ${snapshot.error.toString()}')));}
-            if(snapshot.data!.isEmpty) {return const SliverToBoxAdapter(child: Center(child: Text('Vacio')));}
+            if(snapshot.data!.isEmpty) {return const SliverToBoxAdapter(child: Center(child: Text('No hay canciones por el momento')));}
             return StatefulBuilder(
               builder: (context, setState) {
                 return SliverGrid(
@@ -98,6 +133,7 @@ class _TWFindNavState extends State<TWFindNav> {
                             selectUUID = item.uuid;
                             setState(() {});
                           },
+                          isOnline: _selectedType == DataSourceType.online,
                         );
                       }
                     );

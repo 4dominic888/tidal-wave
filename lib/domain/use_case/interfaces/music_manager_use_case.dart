@@ -14,6 +14,8 @@ abstract class MusicManagerUseCase {
 
   Future<Result<String>> descargarMusica(String id, {ProgressOfDownload? progressOfDownload});
   
-  Future<Result<List<Music>>> obtenerCancionesPublicas({bool Function(Map<String, dynamic> query)? where, int limit = 10});
-  Future<Result<List<Music>>> obtenerCancionesDescargadas({String? where, List<String>? whereArgs, int limit = 10});
+  Future<Result<List<Music>>> obtenerMusicasPublicas({bool Function(Map<String, dynamic> query)? where, int limit = 10});
+  Future<Result<List<Music>>> obtenerMusicasDescargadas({String? where, List<String>? whereArgs, int limit = 10});
+
+  Future<bool> musicaExistente(String uuid);
 }

@@ -28,4 +28,6 @@ abstract class MusicRepository implements Addable<T>, GetOneable<T>, Updatable<T
   /// Sube una cancion a la nube
   /// TODO: Quitar luego
   Future<Result<T>> upload(T data, String? id);
+
+  Future<bool> existingId(String uuid);
 }

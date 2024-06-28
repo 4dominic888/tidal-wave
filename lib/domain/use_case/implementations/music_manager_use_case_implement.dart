@@ -150,12 +150,12 @@ class MusicManagerUseCaseImplement with SaveFiles implements MusicManagerUseCase
   }
 
   @override
-  Future<Result<List<Music>>> obtenerCancionesPublicas({bool Function(Map<String, dynamic> query)? where, int limit = 10}) async {
+  Future<Result<List<Music>>> obtenerMusicasPublicas({bool Function(Map<String, dynamic> query)? where, int limit = 10}) async {
     return await repo.getAllOnline(where: where, limit: limit);
   }
   
   @override
-  Future<Result<List<Music>>> obtenerCancionesDescargadas({String? where, List<String>? whereArgs, int limit = 10}) async {
+  Future<Result<List<Music>>> obtenerMusicasDescargadas({String? where, List<String>? whereArgs, int limit = 10}) async {
     return await repo.getAllLocal(where: where, whereArgs: whereArgs, limit: limit);
   }
   
@@ -202,5 +202,10 @@ class MusicManagerUseCaseImplement with SaveFiles implements MusicManagerUseCase
     } catch (e) {
       return Result.error('Ha ocurrido un error $e');
     }
+  }
+  
+  @override
+  Future<bool> musicaExistente(String uuid) async{
+    return repo.existingId(uuid);
   }
 }

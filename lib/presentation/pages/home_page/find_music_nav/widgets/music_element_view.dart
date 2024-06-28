@@ -140,8 +140,7 @@ class MusicElementView extends StatelessWidget {
                       ),
                       const Spacer(),
                       ElevatedButton(
-                        onPressed: () async => await descargarMusica(context, item.uuid!)
-                        ,
+                        onPressed: () async => await descargarMusica(context, item.uuid!),
                         style: ButtonStyle(backgroundColor: WidgetStateColor.resolveWith((states) => Colors.grey.shade900)),
                         child: const Text('Descargar')
                       )

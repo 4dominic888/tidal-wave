@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:just_audio/just_audio.dart';
@@ -89,13 +90,19 @@ class Music {
   }
 
   AudioSource toAudioSource(String index){
-    return AudioSource.uri(musica,
-    tag: MediaItem(
+
+    final tag = MediaItem(
       id: index,
       title: titulo,
       artist: artistasStr,
       artUri: imagen ?? Uri.parse('package:flutter_app/assets/placeholder/music-placeholder.png')
-    ));
+    );
+
+    if(type == DataSourceType.online){
+    return AudioSource.uri(musica, tag: tag);
+    }
+    return AudioSource.file(File(musica.toString()).path, tag: tag);
+
   }
 
   Music copyWith({

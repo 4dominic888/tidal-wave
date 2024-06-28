@@ -64,7 +64,7 @@ ImageProvider getImage(Uri uri, {bool? isOnline = true}){
   if(isOnline!){
     return CachedNetworkImageProvider(uri.toString());
   }
-  return Image.file(File.fromUri(uri)).image;
+  return Image.file(File(uri.toString())).image;
 }
 
 Widget getWidgetImage(Uri uri, {double? width, BoxFit? fit, bool? isOnline = true}){

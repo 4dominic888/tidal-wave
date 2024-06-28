@@ -76,7 +76,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
         {"Historial de canciones": (){}},
         {"Sube tu canción": () => Navigator.push(context, MaterialPageRoute(builder: (context) => const UploadMusicScreen())) },
         {"Lista old": () async {
-          final tempList = await _musicManagerUseCase.obtenerCancionesPublicas();
+          final tempList = await _musicManagerUseCase.obtenerMusicasPublicas();
           if(!context.mounted) return;
           Navigator.push(context, MaterialPageRoute(builder: (context) => ListaMusicaScreen(listado: tempList.data ?? [])));
         }}

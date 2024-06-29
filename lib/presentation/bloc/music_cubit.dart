@@ -33,7 +33,7 @@ class MusicCubit extends Cubit<AudioPlayer> {
     await state.setLoopMode(LoopMode.off);
   }
 
-  void setMusic(Music music, {bool onCache = false}) async {
+  Future<void> setMusic(Music music, {bool onCache = false}) async {
     await state.stop();
     if(onCache){
       await state.setAudioSource(LockCachingAudioSource(music.musica, tag: music.toAudioSource('0').sequence.first.tag));

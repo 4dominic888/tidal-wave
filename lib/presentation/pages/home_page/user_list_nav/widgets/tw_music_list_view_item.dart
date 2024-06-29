@@ -48,7 +48,7 @@ class TWMusicListViewItem extends StatelessWidget {
                   child: Container(
                     decoration: BoxDecoration(
                       image: DecorationImage(
-                        image: item.image?.data != null ? 
+                        image: item.image?.toString() != 'null' ? 
                         getImage(item.image!, isOnline: isOnline) : 
                         Image.asset('assets/placeholder/music-placeholder.png').image,
                         fit: BoxFit.cover

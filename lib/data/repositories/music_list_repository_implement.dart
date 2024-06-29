@@ -16,6 +16,9 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
   //* Para local se usa para consultar las listas locales
   //* Para online se usa para las listas publicadas por el usuario
   String get dataset => 'UserListMusics';
+  
+  //* Tabla de relacion de muchos a muchos de listas a musicas
+  static String manyToManyListMusicsLocal = 'MusicsLists';
 
   //* Solo funciona para online y sirve a modo de almacen global de todas las listas de todos los usuarios
   static String publicListsDataset = 'Lists';
@@ -39,7 +42,7 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
   @override
   Future<Result<String>> addMusic({required String musicUUID, required String listId}) async {
     try {
-      await offlinesqfliteContext.addManytoMany(dataset, {'music_id': musicUUID}, {'list_id': listId});
+      await offlinesqfliteContext.addManytoMany(manyToManyListMusicsLocal, {'music_id': musicUUID}, {'list_id': listId});
       return Result.success('Musica agregada con exito');
     } catch (e) {
       return Result.error('Ha ocurrido un error $e');
@@ -81,7 +84,7 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
 
       //* Llenado de musicas a la lista
       if(isLocal){
-        musicsMap = await offlinesqfliteContext.db.rawQuery(await rootBundle.loadString('assets/select_locale_songs_by_list_id.sql'), [id]);
+        musicsMap = await offlinesqfliteContext.db.rawQuery(await rootBundle.loadString('assets/raw_queries/select_locale_songs_by_list_id.sql'), [id]);
       }
       else{
         musicsMap = await onlinefirestoreContext.getAllByReferences(dataMap['musics'] as List<DocumentReference>);

@@ -24,7 +24,7 @@ class MediaMetaData extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             child: imgUrl != null ? 
             Image.file(
-              File.fromUri(Uri.parse(imgUrl!)),
+              File(imgUrl!),
               height: 300 * sizePercent!,
               width: 300 * sizePercent!,
               fit: BoxFit.cover,

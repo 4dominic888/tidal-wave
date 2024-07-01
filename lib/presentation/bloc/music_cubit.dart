@@ -54,7 +54,7 @@ class MusicCubit extends Cubit<AudioPlayer> {
   void setPlayList(List<Music> musics) async {
     await state.setAudioSource(
     ConcatenatingAudioSource(children: 
-      musics.map((e) => LockCachingAudioSource(e.musica, tag: e.toAudioSource(e.index.toString()).sequence.first.tag)).toList())
+      musics.map((e) => e.toAudioSource(e.index.toString())).toList())
     );
     emit(state);
   }

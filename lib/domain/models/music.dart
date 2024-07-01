@@ -9,7 +9,7 @@ import 'package:tidal_wave/presentation/utils/function_utils.dart';
 
 class Music {
   final String? uuid;
-  final int _index;
+  int _index;
   final String titulo;
   final List<String> artistas;
   final Uri? imagen;
@@ -53,6 +53,7 @@ class Music {
   }
 
   int get index => _index;
+  set index(int index) => _index = index;
 
   String get artistasStr {
     StringBuffer retorno = StringBuffer();

@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:group_button/group_button.dart';
 import 'package:tidal_wave/data/abstractions/tw_enums.dart';
 import 'package:tidal_wave/data/result.dart';
+import 'package:tidal_wave/data/utils/find_firebase.dart';
 import 'package:tidal_wave/domain/use_case/interfaces/music_manager_use_case.dart';
 import 'package:tidal_wave/presentation/bloc/connectivity_cubit.dart';
 import 'package:tidal_wave/presentation/pages/home_page/find_music_nav/widgets/music_element_view.dart';
@@ -69,27 +70,21 @@ class _TWFindNavState extends State<TWFindNav> {
   }
 
   Future<void> _findMusic(String query) async {
+      _allData.clear();
       if(_selectedType == DataSourceType.online){
         final result = await _musicManagerUseCase.obtenerMusicasPublicas(
-          where: (a) => (a['title'] as String).toLowerCase().contains(query.toLowerCase().trim()) ||
-           (a['artist'] as String).toLowerCase().contains(query.toLowerCase().trim()),
+          finder: FindManyFieldsToOneSearchFirebase(
+            field: 'title',
+            find: query.trim().toUpperCase()
+          ),
           limit: _limit,
           lastItem: _lastItem
         );
-        _allData.clear();
         _allData.addAll(result.data!);
       }
       else{
 
       }
-      // _list = widget.listado.where((element) {
-      //   if (value.trim().isEmpty) {
-      //     return true;
-      //   }
-      //   return element.titulo.toLowerCase().contains(value.toLowerCase().trim()) ||
-      //         element.artistasStr.toLowerCase().contains(value.toLowerCase().trim());
-
-      // }).toList();      
     setState(() {});
   }
 
@@ -103,29 +98,6 @@ class _TWFindNavState extends State<TWFindNav> {
     }
     if(result.onSuccess){return result.data!.toList();}
     throw Exception(result.errorMessage);
-  }
-
-  Widget _gridMusicsView(List<Music> list){
-    return SliverGrid(
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: 10,
-        childAspectRatio: 1
-      ),
-      delegate: SliverChildListDelegate(
-        list.map((e) => Builder(builder: (context) {
-          return MusicElementView(
-            item: e,
-            selected: [e.uuid == selectUUID],
-            onPlay: () {
-              selectUUID = e.uuid;
-              //setState(() {});
-            },
-            isOnline: _selectedType == DataSourceType.online
-          );
-        })).toList()
-      ),
-    );
   }
 
   @override
@@ -197,11 +169,55 @@ class _TWFindNavState extends State<TWFindNav> {
                   bloc: context.read<ConnectivityCubit>(),
                   builder: (context, connectivityStatus) {
                     if(!connectivityStatus) {return const SliverToBoxAdapter(child: Center(child: Text('Conectese a internet para poder acceder al listado')));}
-                    return _gridMusicsView(_allData);
+                    return StatefulBuilder(
+                      builder: (context, setState) {
+                        return SliverGrid(
+                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 10,
+                            childAspectRatio: 1
+                          ),
+                          delegate: SliverChildListDelegate(
+                            _allData.map((e) => Builder(builder: (context) {
+                              return MusicElementView(
+                                item: e,
+                                selected: [e.uuid == selectUUID],
+                                onPlay: () {
+                                  setState(() {selectUUID = e.uuid;});
+                                },
+                                isOnline: true
+                              );
+                            })).toList()
+                          ),
+                        );
+                      }
+                    );
                   }
                 );
               }
-              return _gridMusicsView(_allData);
+              return StatefulBuilder(
+                builder: (context, setState) {
+                  return SliverGrid(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 10,
+                      childAspectRatio: 1
+                    ),
+                    delegate: SliverChildListDelegate(
+                      _allData.map((e) => Builder(builder: (context) {
+                        return MusicElementView(
+                          item: e,
+                          selected: [e.uuid == selectUUID],
+                          onPlay: () {
+                            setState(() {selectUUID = e.uuid;});
+                          },
+                          isOnline: false
+                        );
+                      })).toList()
+                    ),
+                  );
+                }
+              );
             }
           )
         ],

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tidal_wave/data/abstractions/database_service.dart';
+import 'package:tidal_wave/data/utils/find_firebase.dart';
 
 class FirestoreDatabaseService extends DatabaseService<Map<String, dynamic>>{
   final FirebaseFirestore db = FirebaseFirestore.instance;
@@ -12,12 +13,20 @@ class FirestoreDatabaseService extends DatabaseService<Map<String, dynamic>>{
   }
 
   @override
-  Future<List<Map<String,dynamic>>> getAll(String dataset, [List<String> queryArray = const [], bool Function(Map<String, dynamic>)? where, int? timestamp, int limit = 10]) async{
+  Future<List<Map<String,dynamic>>> getAll(String dataset, [List<String> queryArray = const [], FindManyFieldsToOneSearchFirebase? finder, int? timestamp, int limit = 10]) async{
+    var basicQuery = _getSubCollection(dataset, queryArray).orderBy('upload_at', descending: true);
+    //* Apply where
+    if(finder != null && finder.find.toString().isNotEmpty){
+      basicQuery = basicQuery.where(finder.field, isGreaterThanOrEqualTo: finder.find);
+      basicQuery = basicQuery.where(finder.field, isLessThanOrEqualTo: finder.find+'\uf8ff');
+    }
+
     final query = timestamp != null ? 
-      await _getSubCollection(dataset, queryArray).orderBy('upload_at', descending: true).startAfter([timestamp]).limit(limit).get() :
-      await _getSubCollection(dataset, queryArray).orderBy('upload_at', descending: true).limit(limit).get();
+      await basicQuery.startAfter([timestamp]).limit(limit).get() :
+      await basicQuery.limit(limit).get();
+
     if(query.docs.isEmpty) return [];
-    return query.docs.map((d) => d.data()..addAll({"uuid": d.id})).where(where ?? (_) => true).toList();
+    return query.docs.map((d) => d.data()..addAll({"uuid": d.id})).toList();
   }
 
   @override

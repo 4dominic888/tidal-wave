@@ -2,6 +2,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:tidal_wave/data/abstractions/repository_implement_base.dart';
 import 'package:tidal_wave/data/abstractions/tw_enums.dart';
 import 'package:tidal_wave/data/result.dart';
+import 'package:tidal_wave/data/utils/find_firebase.dart';
 import 'package:tidal_wave/domain/repositories/music_repository.dart';
 
 class MusicRepositoryImplement extends RepositoryImplementBase with UseFirestore, UseSqflite implements MusicRepository {
@@ -42,10 +43,10 @@ class MusicRepositoryImplement extends RepositoryImplementBase with UseFirestore
   }
 
   @override
-  Future<Result<List<T>>> getAllOnline({List<String> queryArray = const [], bool Function(Map<String, dynamic> query)? where, T? lastItem, int limit = 10}) async {
+  Future<Result<List<T>>> getAllOnline({List<String> queryArray = const [], FindManyFieldsToOneSearchFirebase? finder, T? lastItem, int limit = 10}) async {
     try {
       final data = await onlinefirestoreContext.getAll(dataset,
-        queryArray, where,
+        queryArray, finder,
         lastItem?.uploadAt.millisecondsSinceEpoch,
         limit
       );

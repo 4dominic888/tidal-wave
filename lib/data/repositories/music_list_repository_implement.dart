@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:tidal_wave/data/abstractions/tw_enums.dart';
+import 'package:tidal_wave/data/utils/find_firebase.dart';
 import 'package:tidal_wave/domain/models/music.dart';
 import 'package:tidal_wave/domain/models/music_list.dart';
 import 'package:tidal_wave/data/abstractions/repository_implement_base.dart';
@@ -135,9 +136,9 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
   }
   
   @override
-  Future<Result<List<T>>> getAllGlobal({List<String> queryArray = const [], bool Function(Map<String, dynamic>)? where, int limit = 10}) async {
+  Future<Result<List<T>>> getAllGlobal({List<String> queryArray = const [], FindManyFieldsToOneSearchFirebase? finder, int limit = 10}) async {
     try {
-      final data = await onlinefirestoreContext.getAll(publicListsDataset, queryArray, where, limit);
+    final data = await onlinefirestoreContext.getAll(publicListsDataset, queryArray, finder, limit);
       return Result.success(data.map((e) => T.fromJson(e)).toList());
     } catch (e) {
       return Result.error('Ha ocurrido un error $e');
@@ -145,7 +146,7 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
   }
 
   @override
-  Future<Result<List<T>>> getAllUploaded({bool Function(Map<String, dynamic> p1)? where, int? limit = 10}) async {
+  Future<Result<List<T>>> getAllUploaded({FindManyFieldsToOneSearchFirebase? finder, int? limit = 10}) async {
     try {
       final data = await onlinefirestoreContext.getOne(dataset, FirebaseAuth.instance.currentUser!.uid);
       if(data == null) throw Exception('Elemento no encontrado');

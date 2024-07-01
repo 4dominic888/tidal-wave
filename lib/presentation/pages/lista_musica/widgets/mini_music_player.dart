@@ -1,11 +1,10 @@
-import 'dart:io';
-
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
 import 'package:tidal_wave/presentation/pages/reproductor_musica/screens/reproductor_musica_screen.dart';
+import 'package:tidal_wave/presentation/utils/function_utils.dart';
 import 'package:tidal_wave/presentation/utils/music_state_util.dart';
 class MiniMusicPlayer extends StatelessWidget {
 
@@ -39,7 +38,7 @@ class MiniMusicPlayer extends StatelessWidget {
               shape:BoxShape.circle,
               image: DecorationImage(
                 image: mediaItem.artUri != null ? 
-                Image.file(File(mediaItem.artUri!.toString())).image : Image.asset('assets/placeholder/music-placeholder.png').image,
+                getImage(mediaItem.artUri!, isOnline: isURL(mediaItem.artUri.toString())) : Image.asset('assets/placeholder/music-placeholder.png').image,
                 fit: BoxFit.cover
               )),
           ),

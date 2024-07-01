@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:tidal_wave/presentation/utils/function_utils.dart';
 
 class MediaMetaData extends StatelessWidget {
 
@@ -23,12 +22,13 @@ class MediaMetaData extends StatelessWidget {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: imgUrl != null ? 
-            Image.file(
-              File(imgUrl!),
+            getWidgetImage(Uri.parse(imgUrl!),
+              isOnline: isURL(imgUrl!),
               height: 300 * sizePercent!,
               width: 300 * sizePercent!,
               fit: BoxFit.cover,
-            ) : Container(
+            ) : 
+            Container(
               color: Colors.grey.shade600,
               height: 300 * sizePercent!,
               width: 300 * sizePercent!,

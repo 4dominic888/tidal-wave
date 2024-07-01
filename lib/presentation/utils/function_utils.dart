@@ -67,9 +67,9 @@ ImageProvider getImage(Uri uri, {bool? isOnline = true}){
   return Image.file(File(uri.toString())).image;
 }
 
-Widget getWidgetImage(Uri uri, {double? width, BoxFit? fit, bool? isOnline = true}){
+Widget getWidgetImage(Uri uri, {double? width, double? height, BoxFit? fit, bool? isOnline = true}){
   if(isOnline!){
-    return CachedNetworkImage(imageUrl: uri.toString(), width: width, fit: fit);
+    return CachedNetworkImage(imageUrl: uri.toString(), width: width, height: height, fit: fit);
   }
-  return Image(image: FileImage(File(uri.toString())), width: width, fit: fit);
+  return Image(image: FileImage(File(uri.toString())), width: width, height: height, fit: fit);
 }

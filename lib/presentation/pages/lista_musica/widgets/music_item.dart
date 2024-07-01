@@ -62,9 +62,9 @@ class MusicItem extends StatelessWidget {
           icon: const SizedBox(width: 35, child: Icon(Icons.more_vert)),
           itemBuilder: (context) => <PopupMenuEntry<String>>[
             //TODO: Colocar funcionalidades luego
-            const PopupMenuItem(value: 'delete', child: Text('Borrar cancion')),
-            const PopupMenuItem(value: 'edit', child: Text('Editar cancion')),
-            const PopupMenuItem(value: 'move', child: Text('Mover cancion')),
+            const PopupMenuItem(value: 'delete', child: Text('Borrar cancion', style: TextStyle(color: Colors.white))),
+            const PopupMenuItem(value: 'edit', child: Text('Editar cancion', style: TextStyle(color: Colors.white))),
+            const PopupMenuItem(value: 'move', child: Text('Mover cancion', style: TextStyle(color: Colors.white))),
           ],
           onSelected: (value) {
             //* codigo

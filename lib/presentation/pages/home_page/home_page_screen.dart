@@ -3,14 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:tidal_wave/domain/use_case/interfaces/authentication_manager_use_case.dart';
-import 'package:tidal_wave/domain/use_case/interfaces/music_manager_use_case.dart';
 import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
 import 'package:tidal_wave/presentation/bloc/user_cubit.dart';
 import 'package:tidal_wave/presentation/pages/autenticacion_usuario/screens/login_screen.dart';
 import 'package:tidal_wave/presentation/pages/autenticacion_usuario/screens/register_screen.dart';
-import 'package:tidal_wave/presentation/pages/lista_musica/screens/lista_musica_screen.dart';
+import 'package:tidal_wave/presentation/pages/lista_musica/widgets/mini_music_player.dart';
 import 'package:tidal_wave/presentation/pages/lista_musica/widgets/tw_drawer.dart';
-import 'package:tidal_wave/presentation/pages/subir_musica/screens/upload_music_screen.dart';
 import 'package:tidal_wave/presentation/pages/home_page/user_account_nav/screens/tw_account_nav.dart';
 import 'package:tidal_wave/presentation/pages/home_page/find_music_nav/screens/tw_find_nav.dart';
 import 'package:tidal_wave/presentation/pages/home_page/home_nav/screens/tw_home_nav.dart';
@@ -27,7 +25,6 @@ class _HomePageScreenState extends State<HomePageScreen> {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final _authenticationUseCase = GetIt.I<AuthenticationManagerUseCase>();
-  final _musicManagerUseCase = GetIt.I<MusicManagerUseCase>();
 
 
   int _selectedIndex = 0;
@@ -74,12 +71,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
       _drawerOptions.addAll([
         {"Canciones favoritas": (){}},
         {"Historial de canciones": (){}},
-        {"Sube tu canción": () => Navigator.push(context, MaterialPageRoute(builder: (context) => const UploadMusicScreen())) },
-        {"Lista old": () async {
-          final tempList = await _musicManagerUseCase.obtenerMusicasPublicas();
-          if(!context.mounted) return;
-          Navigator.push(context, MaterialPageRoute(builder: (context) => ListaMusicaScreen(listado: tempList.data ?? [])));
-        }}
+        // {"Sube tu canción": () => Navigator.push(context, MaterialPageRoute(builder: (context) => const UploadMusicScreen())) },
       ]);
     }
     _drawerOptions.add({
@@ -109,18 +101,31 @@ class _HomePageScreenState extends State<HomePageScreen> {
         onTap: (value) => setState(() => _selectedIndex = value),
         items: _titleArray.map((e) => BottomNavigationBarItem(icon: e.values.first, label: e.keys.first)).toList(),        
       ),
-      body: Container(
-        padding: const EdgeInsets.only(top: 10),
-        height: double.infinity,
-        width: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color.fromARGB(255, 30, 114, 138),Color(0xFF071A2C)]
-          )
-        ),
-        child: _currentScreen(_selectedIndex)),
+      body: Stack(
+        children: [
+          Container(
+            padding: const EdgeInsets.only(top: 10),
+            height: double.infinity,
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color.fromARGB(255, 30, 114, 138),Color(0xFF071A2C)]
+              )
+            ),
+            child: _currentScreen(_selectedIndex)
+          ),
+            AnimatedPositioned(
+              duration: const Duration(seconds: 1),
+              curve: Curves.easeInBack,
+              bottom: context.read<MusicCubit>().isActive ? 0 : -90,
+              width: MediaQuery.of(context).size.width,
+              height: 90,
+              child: MiniMusicPlayer(externalSetState: () => setState(() {}))
+            )
+        ],
+      ),
     );
   }
 

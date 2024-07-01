@@ -38,7 +38,8 @@ class MiniMusicPlayer extends StatelessWidget {
               color: Colors.grey,
               shape:BoxShape.circle,
               image: DecorationImage(
-                image: mediaItem.artUri != null ? Image.file(File(mediaItem.artUri!.toString())).image : Image.asset('assets/placeholder/music-placeholder.png').image,
+                image: mediaItem.artUri != null ? 
+                Image.file(File(mediaItem.artUri!.toString())).image : Image.asset('assets/placeholder/music-placeholder.png').image,
                 fit: BoxFit.cover
               )),
           ),

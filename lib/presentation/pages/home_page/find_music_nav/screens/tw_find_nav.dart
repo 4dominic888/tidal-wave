@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:group_button/group_button.dart';
 import 'package:tidal_wave/data/abstractions/tw_enums.dart';
 import 'package:tidal_wave/data/result.dart';
 import 'package:tidal_wave/domain/use_case/interfaces/music_manager_use_case.dart';
+import 'package:tidal_wave/presentation/bloc/connectivity_cubit.dart';
 import 'package:tidal_wave/presentation/pages/home_page/find_music_nav/widgets/music_element_view.dart';
 import 'package:tidal_wave/presentation/pages/lista_musica/widgets/icon_button_music.dart';
 import 'package:tidal_wave/presentation/pages/lista_musica/widgets/text_field_find.dart';
@@ -66,8 +68,20 @@ class _TWFindNavState extends State<TWFindNav> {
     });
   }
 
-  void _findMusic(String query){
-    setState(() {
+  Future<void> _findMusic(String query) async {
+      if(_selectedType == DataSourceType.online){
+        final result = await _musicManagerUseCase.obtenerMusicasPublicas(
+          where: (a) => (a['title'] as String).toLowerCase().contains(query.toLowerCase().trim()) ||
+           (a['artist'] as String).toLowerCase().contains(query.toLowerCase().trim()),
+          limit: _limit,
+          lastItem: _lastItem
+        );
+        _allData.clear();
+        _allData.addAll(result.data!);
+      }
+      else{
+
+      }
       // _list = widget.listado.where((element) {
       //   if (value.trim().isEmpty) {
       //     return true;
@@ -76,7 +90,7 @@ class _TWFindNavState extends State<TWFindNav> {
       //         element.artistasStr.toLowerCase().contains(value.toLowerCase().trim());
 
       // }).toList();      
-    });
+    setState(() {});
   }
 
   Future<List<Music>> listOfMusic(DataSourceType dataSourceType, {Music? lastItem}) async {
@@ -155,6 +169,7 @@ class _TWFindNavState extends State<TWFindNav> {
           Builder(
             builder: (context) {
               if(_allData.isEmpty) {return const SliverToBoxAdapter(child: Center(child: Text('No hay canciones por el momento')));}
+              if(!context.read<ConnectivityCubit>().state && _selectedType == DataSourceType.online) {return const SliverToBoxAdapter(child: Center(child: Text('Conectese a internet para poder acceder al listado')));}
               return StatefulBuilder(
                 builder: (context, setState) {
                   return SliverGrid(

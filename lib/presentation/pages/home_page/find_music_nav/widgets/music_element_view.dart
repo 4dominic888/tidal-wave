@@ -29,17 +29,17 @@ class MusicElementView extends StatelessWidget {
   const MusicElementView({super.key, required this.item, this.onPlay, this.isOnline = true, this.selected = const [false]});
 
   Future<void> showAddMusicToList(BuildContext context, Music music, MusicList listSelected) async {
-    late Result<String> result;
-    showLoadingDialog(context,  () async { 
-      await context.read<MusicCubit>().preLoadMusic(music);
+    Result<String>? result;
+    await showLoadingDialog(context,  () async { 
       result = await _musicListManagerUseCase.agregarMusicaALista(
         musicId: music.uuid!,
         listId: listSelected.id,
       );
     }, message: 'Cargando cancion a la lista');
+    if(!context.mounted) return;
 
-    if(!result.onSuccess){
-      showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: result.errorMessage!));
+    if(!result!.onSuccess){
+      showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: result!.errorMessage!));
     }
     else{
       showDialog(context: context, builder: (context) => PopupMessage(title: 'Exito', description: 'Se agrego correctamente la musica a la lista', onClose: () {
@@ -235,16 +235,18 @@ class MusicElementView extends StatelessWidget {
                             playCase: context.read<MusicCubit>().state.play,
                             stopCase: context.read<MusicCubit>().state.pause,
                             playStatic: () async{
-                              await context.read<MusicCubit>().setClip(item.toAudioSource('0'), item.betterMoment);
+                              await context.read<MusicCubit>().setMusic(item);
                               if(!context.mounted) return;
-                              await context.read<MusicCubit>().state.play();                              
+                              await context.read<MusicCubit>().state.play();
+                              context.read<MusicCubit>().isActive;
                             },
                           ) : 
                           () async {
                               onPlay?.call();
-                              await context.read<MusicCubit>().setClip(item.toAudioSource('0'), item.betterMoment);
+                              await context.read<MusicCubit>().setMusic(item);
                               if(!context.mounted) return;
                               await context.read<MusicCubit>().state.play();
+                              context.read<MusicCubit>().isActive;
                             },
                         );
                       }

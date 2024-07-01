@@ -105,6 +105,29 @@ class _TWFindNavState extends State<TWFindNav> {
     throw Exception(result.errorMessage);
   }
 
+  Widget _gridMusicsView(List<Music> list){
+    return SliverGrid(
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        mainAxisSpacing: 10,
+        childAspectRatio: 1
+      ),
+      delegate: SliverChildListDelegate(
+        list.map((e) => Builder(builder: (context) {
+          return MusicElementView(
+            item: e,
+            selected: [e.uuid == selectUUID],
+            onPlay: () {
+              selectUUID = e.uuid;
+              //setState(() {});
+            },
+            isOnline: _selectedType == DataSourceType.online
+          );
+        })).toList()
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scrollbar(
@@ -169,31 +192,16 @@ class _TWFindNavState extends State<TWFindNav> {
           Builder(
             builder: (context) {
               if(_allData.isEmpty) {return const SliverToBoxAdapter(child: Center(child: Text('No hay canciones por el momento')));}
-              if(!context.read<ConnectivityCubit>().state && _selectedType == DataSourceType.online) {return const SliverToBoxAdapter(child: Center(child: Text('Conectese a internet para poder acceder al listado')));}
-              return StatefulBuilder(
-                builder: (context, setState) {
-                  return SliverGrid(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 10,
-                      childAspectRatio: 1
-                    ),
-                    delegate: SliverChildListDelegate(
-                      _allData.map((e) => Builder(builder: (context) {
-                        return MusicElementView(
-                          item: e,
-                          selected: [e.uuid == selectUUID],
-                          onPlay: () {
-                            selectUUID = e.uuid;
-                            setState(() {});
-                          },
-                          isOnline: _selectedType == DataSourceType.online
-                        );
-                      })).toList()
-                  ),
-                  );
-                }
-              );
+              if(_selectedType == DataSourceType.online) {
+                return BlocBuilder<ConnectivityCubit, bool>(
+                  bloc: context.read<ConnectivityCubit>(),
+                  builder: (context, connectivityStatus) {
+                    if(!connectivityStatus) {return const SliverToBoxAdapter(child: Center(child: Text('Conectese a internet para poder acceder al listado')));}
+                    return _gridMusicsView(_allData);
+                  }
+                );
+              }
+              return _gridMusicsView(_allData);
             }
           )
         ],

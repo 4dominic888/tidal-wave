@@ -6,6 +6,7 @@ import 'package:just_audio_background/just_audio_background.dart';
 import 'package:tidal_wave/data/abstractions/connectivity_service_base.dart';
 import 'package:tidal_wave/data/abstractions/database_service.dart';
 import 'package:tidal_wave/locator.dart';
+import 'package:tidal_wave/presentation/bloc/connectivity_cubit.dart';
 import 'package:tidal_wave/presentation/bloc/music_color_cubit.dart';
 import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
 import 'package:tidal_wave/presentation/bloc/user_cubit.dart';
@@ -50,7 +51,8 @@ class _TidalWaveAppState extends State<TidalWaveApp> {
       providers: [
         BlocProvider(create: (_) => MusicCubit()),
         BlocProvider(create: (_) => MusicColorCubit()),
-        BlocProvider(create: (_) => UserCubit())
+        BlocProvider(create: (_) => UserCubit()),
+        BlocProvider(create: (_) => ConnectivityCubit())
       ],
       child: MaterialApp(
         title: 'Tidal Wave',

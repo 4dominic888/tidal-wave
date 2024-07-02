@@ -24,6 +24,14 @@ class SqfliteDatabaseService extends DatabaseService<Map<String, dynamic>>{
       for (String script in createScripts) {
         await db.execute(script);
       }
+      
+      //* Lista de favoritos creada por defecto
+      await db.insert('UserListMusics', {
+        'uuid': const Uuid().v4().toString(),
+        'name': 'Favoritos',
+        'type': 'DataSourceType.local',
+        'description': 'Lista de musicas favoritas'
+      });
     });
   }
 

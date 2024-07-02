@@ -52,6 +52,10 @@ class Music {
     );
   }
 
+  factory Music.fromJsonLocal(Map<String, dynamic> json, int? index){
+    return Music.fromJson(json, index).copyWith(favorito: json['favorite'] as int == 1);
+  }
+
   int get index => _index;
   set index(int index) => _index = index;
 
@@ -90,8 +94,11 @@ class Music {
     };
   }
 
-  AudioSource toAudioSource(String index){
+  Map<String, dynamic> toJsonLocal(){
+    return toJson()..addAll({'favorite': favorito! ? 1 : 0});
+  }
 
+  AudioSource toAudioSource(String index){
     final tag = MediaItem(
       id: index,
       title: titulo,

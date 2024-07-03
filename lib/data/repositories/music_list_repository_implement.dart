@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:tidal_wave/data/abstractions/tw_enums.dart';
-import 'package:tidal_wave/data/utils/find_firebase.dart';
+import 'package:tidal_wave/data/utils/find_field_on_firebase.dart';
 import 'package:tidal_wave/domain/models/music.dart';
 import 'package:tidal_wave/domain/models/music_list.dart';
 import 'package:tidal_wave/data/abstractions/repository_implement_base.dart';

@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tidal_wave/data/abstractions/database_service.dart';
-import 'package:tidal_wave/data/utils/find_firebase.dart';
+import 'package:tidal_wave/data/utils/find_field_on_firebase.dart';
 
 class FirestoreDatabaseService extends DatabaseService<Map<String, dynamic>>{
   final FirebaseFirestore db = FirebaseFirestore.instance;

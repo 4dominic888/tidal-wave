@@ -1,4 +1,4 @@
-import 'package:tidal_wave/data/utils/find_firebase.dart';
+import 'package:tidal_wave/data/utils/find_field_on_firebase.dart';
 import 'package:tidal_wave/domain/models/tw_user.dart';
 import 'package:tidal_wave/data/abstractions/repository_implement_base.dart';
 import 'package:tidal_wave/data/result.dart';

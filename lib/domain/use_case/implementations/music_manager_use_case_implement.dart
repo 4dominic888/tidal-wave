@@ -5,7 +5,7 @@ import 'package:tidal_wave/data/abstractions/save_file_local.dart';
 import 'package:tidal_wave/data/abstractions/tw_enums.dart';
 import 'package:tidal_wave/data/dataSources/firebase/firebase_storage_service.dart';
 import 'package:tidal_wave/data/result.dart';
-import 'package:tidal_wave/data/utils/find_firebase.dart';
+import 'package:tidal_wave/data/utils/find_field_on_firebase.dart';
 import 'package:tidal_wave/domain/models/music.dart';
 import 'package:tidal_wave/domain/repositories/music_repository.dart';
 import 'package:tidal_wave/domain/use_case/interfaces/music_manager_use_case.dart';

@@ -5,7 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:group_button/group_button.dart';
 import 'package:tidal_wave/data/abstractions/tw_enums.dart';
 import 'package:tidal_wave/data/result.dart';
-import 'package:tidal_wave/data/utils/find_firebase.dart';
+import 'package:tidal_wave/data/utils/find_field_on_firebase.dart';
 import 'package:tidal_wave/domain/use_case/interfaces/music_manager_use_case.dart';
 import 'package:tidal_wave/presentation/bloc/connectivity_cubit.dart';
 import 'package:tidal_wave/presentation/pages/home_page/find_music_nav/widgets/music_element_view.dart';

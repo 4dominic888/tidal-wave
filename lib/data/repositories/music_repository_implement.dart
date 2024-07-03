@@ -2,7 +2,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:tidal_wave/data/abstractions/repository_implement_base.dart';
 import 'package:tidal_wave/data/abstractions/tw_enums.dart';
 import 'package:tidal_wave/data/result.dart';
-import 'package:tidal_wave/data/utils/find_firebase.dart';
+import 'package:tidal_wave/data/utils/find_field_on_firebase.dart';
 import 'package:tidal_wave/domain/repositories/music_repository.dart';
 
 class MusicRepositoryImplement extends RepositoryImplementBase with UseFirestore, UseSqflite implements MusicRepository {

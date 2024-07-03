@@ -16,9 +16,9 @@ class FirestoreDatabaseService extends DatabaseService<Map<String, dynamic>>{
   Future<List<Map<String,dynamic>>> getAll(String dataset, [List<String> queryArray = const [], FindManyFieldsToOneSearchFirebase? finder, int? timestamp, int limit = 10]) async{
     var basicQuery = _getSubCollection(dataset, queryArray).orderBy('upload_at', descending: true);
     //* Apply where
-    if(finder != null && finder.find.toString().isNotEmpty){
+    if(finder != null && finder.find != null && finder.find.toString().isNotEmpty){
       basicQuery = basicQuery.where(finder.field, isGreaterThanOrEqualTo: finder.find);
-      basicQuery = basicQuery.where(finder.field, isLessThanOrEqualTo: finder.find+'\uf8ff');
+      basicQuery = basicQuery.where(finder.field, isLessThanOrEqualTo: finder.find);
     }
 
     final query = timestamp != null ? 

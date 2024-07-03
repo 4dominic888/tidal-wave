@@ -38,6 +38,7 @@ class _TWFindNavState extends State<TWFindNav> {
   bool _hasMore = true;
   bool _loading = false;
   static const int _limit = 10;
+  String? _query;
 
   @override
   void initState() {
@@ -61,37 +62,42 @@ class _TWFindNavState extends State<TWFindNav> {
 
     _lastItem = _allData.isNotEmpty ? _allData.last : null;
 
-    final newData = await listOfMusic(dataSourceType, lastItem: _lastItem);
+    final newData = await listOfMusic(dataSourceType, lastItem: _lastItem, query: _query);
     _allData.addAll(newData);
     if(newData.length < _limit){_hasMore = false;}
-    _loading = false;
     setState(() {
+      _loading = false;
     });
   }
 
   Future<void> _findMusic(String query) async {
-      _allData.clear();
-      if(_selectedType == DataSourceType.online){
-        final result = await _musicManagerUseCase.obtenerMusicasPublicas(
-          finder: FindManyFieldsToOneSearchFirebase(
-            field: 'title',
-            find: query.trim().toUpperCase()
-          ),
-          limit: _limit,
-          lastItem: _lastItem
-        );
-        _allData.addAll(result.data!);
-      }
-      else{
+    _query = query;
+    _allData.clear();
+    if(query.trim().isEmpty){
+      _lastItem = null;
+      _hasMore = true;
+    }
+    if(_selectedType == DataSourceType.online){
+      final data = await listOfMusic(_selectedType, lastItem: _lastItem, query: _query);
+      _allData.addAll(data);
+    }
+    else{
 
-      }
+    }
     setState(() {});
   }
 
-  Future<List<Music>> listOfMusic(DataSourceType dataSourceType, {Music? lastItem}) async {
+  Future<List<Music>> listOfMusic(DataSourceType dataSourceType, {Music? lastItem, String? query}) async {
     late final Result<List<Music>> result;
     if(dataSourceType == DataSourceType.online){
-      result = await _musicManagerUseCase.obtenerMusicasPublicas(lastItem: lastItem, limit: _limit);
+      result = await _musicManagerUseCase.obtenerMusicasPublicas(
+        finder: FindManyFieldsToOneSearchFirebase(
+          field: 'title',
+          find: query
+        ),
+        lastItem: lastItem,
+        limit: _limit
+      );
     }
     else{
       result = await _musicManagerUseCase.obtenerMusicasDescargadas(limit: _limit);

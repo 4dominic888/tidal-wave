@@ -1,6 +1,6 @@
-class FindManyFieldsToOneSearchFirebase<T> {
-  final T field;
-  final T find;
+class FindManyFieldsToOneSearchFirebase {
+  final String field;
+  final String? find;
 
   FindManyFieldsToOneSearchFirebase({
     required this.field,

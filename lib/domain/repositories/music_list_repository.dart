@@ -1,5 +1,6 @@
 import 'package:tidal_wave/data/abstractions/tw_enums.dart';
 import 'package:tidal_wave/data/result.dart';
+import 'package:tidal_wave/data/utils/find_field_on_firebase.dart';
 import 'package:tidal_wave/domain/models/music_list.dart';
 import 'package:tidal_wave/domain/repositories/crud_interfaces.dart';
 
@@ -25,10 +26,10 @@ abstract class MusicListRepository implements Addable<T>, GetOneable<T>, Updatab
   Future<Result<List<T>>> getAllLocal({String? where, List<String>? whereArgs, int limit = 10});
   
   /// Obtiene todas las listas subidas por el usuario a la nube
-  Future<Result<List<T>>> getAllUploaded({bool Function(Map<String, dynamic>)? where, int limit = 10});
+  Future<Result<List<T>>> getAllUploaded({FindManyFieldsToOneSearchFirebase? finder, int limit = 10});
   
   /// Obtiene todas las listas existentes en la nube subidas por todos los usuarios
-  Future<Result<List<T>>> getAllGlobal({List<String> queryArray = const [], bool Function(Map<String, dynamic>)? where, int limit = 10});
+  Future<Result<List<T>>> getAllGlobal({List<String> queryArray = const [], FindManyFieldsToOneSearchFirebase? finder, int limit = 10});
 
   /// Agrega una musica a la lista, solo de manera local
   Future<Result<String>> addMusic({required String musicUUID, required String listId});

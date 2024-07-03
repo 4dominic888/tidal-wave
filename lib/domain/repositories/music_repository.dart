@@ -1,5 +1,6 @@
 import 'package:tidal_wave/data/abstractions/tw_enums.dart';
 import 'package:tidal_wave/data/result.dart';
+import 'package:tidal_wave/data/utils/find_field_on_firebase.dart';
 import 'package:tidal_wave/domain/models/music.dart';
 import 'package:tidal_wave/domain/repositories/crud_interfaces.dart';
 
@@ -20,7 +21,7 @@ abstract class MusicRepository implements Addable<T>, GetOneable<T>, Updatable<T
   @override Future<Result<String>> deleteOne(String id);
 
   /// Obtiene todas las musicas subidas disponibles en la nube.
-  Future<Result<List<T>>> getAllOnline({bool Function(Map<String, dynamic> query)? where, int limit = 10});
+  Future<Result<List<T>>> getAllOnline({FindManyFieldsToOneSearchFirebase? finder, T? lastItem, int limit = 10});
   
   /// Obtiene todas las musicas locales que tenga el usuario, osea las descargadas.
   Future<Result<List<T>>> getAllLocal({String? where, List<String>? whereArgs, int limit = 10});
@@ -28,4 +29,6 @@ abstract class MusicRepository implements Addable<T>, GetOneable<T>, Updatable<T
   /// Sube una cancion a la nube
   /// TODO: Quitar luego
   Future<Result<T>> upload(T data, String? id);
+
+  Future<bool> existingId(String uuid);
 }

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:tidal_wave/data/abstractions/tw_enums.dart';
+import 'package:tidal_wave/data/utils/find_field_on_firebase.dart';
 import 'package:tidal_wave/domain/models/music.dart';
 import 'package:tidal_wave/domain/models/music_list.dart';
 import 'package:tidal_wave/data/abstractions/repository_implement_base.dart';
@@ -16,6 +17,9 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
   //* Para local se usa para consultar las listas locales
   //* Para online se usa para las listas publicadas por el usuario
   String get dataset => 'UserListMusics';
+  
+  //* Tabla de relacion de muchos a muchos de listas a musicas
+  static String manyToManyListMusicsLocal = 'MusicsLists';
 
   //* Solo funciona para online y sirve a modo de almacen global de todas las listas de todos los usuarios
   static String publicListsDataset = 'Lists';
@@ -39,7 +43,7 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
   @override
   Future<Result<String>> addMusic({required String musicUUID, required String listId}) async {
     try {
-      await offlinesqfliteContext.addManytoMany(dataset, {'music_id': musicUUID}, {'list_id': listId});
+      await offlinesqfliteContext.addManytoMany(manyToManyListMusicsLocal, {'music_id': musicUUID}, {'list_id': listId});
       return Result.success('Musica agregada con exito');
     } catch (e) {
       return Result.error('Ha ocurrido un error $e');
@@ -81,7 +85,7 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
 
       //* Llenado de musicas a la lista
       if(isLocal){
-        musicsMap = await offlinesqfliteContext.db.rawQuery(await rootBundle.loadString('assets/select_locale_songs_by_list_id.sql'), [id]);
+        musicsMap = await offlinesqfliteContext.db.rawQuery(await rootBundle.loadString('assets/raw_queries/select_locale_songs_by_list_id.sql'), [id]);
       }
       else{
         musicsMap = await onlinefirestoreContext.getAllByReferences(dataMap['musics'] as List<DocumentReference>);
@@ -132,9 +136,9 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
   }
   
   @override
-  Future<Result<List<T>>> getAllGlobal({List<String> queryArray = const [], bool Function(Map<String, dynamic>)? where, int limit = 10}) async {
+  Future<Result<List<T>>> getAllGlobal({List<String> queryArray = const [], FindManyFieldsToOneSearchFirebase? finder, int limit = 10}) async {
     try {
-      final data = await onlinefirestoreContext.getAll(publicListsDataset, queryArray, where, limit);
+    final data = await onlinefirestoreContext.getAll(publicListsDataset, queryArray, finder, limit);
       return Result.success(data.map((e) => T.fromJson(e)).toList());
     } catch (e) {
       return Result.error('Ha ocurrido un error $e');
@@ -142,7 +146,7 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
   }
 
   @override
-  Future<Result<List<T>>> getAllUploaded({bool Function(Map<String, dynamic> p1)? where, int? limit = 10}) async {
+  Future<Result<List<T>>> getAllUploaded({FindManyFieldsToOneSearchFirebase? finder, int? limit = 10}) async {
     try {
       final data = await onlinefirestoreContext.getOne(dataset, FirebaseAuth.instance.currentUser!.uid);
       if(data == null) throw Exception('Elemento no encontrado');
@@ -163,7 +167,13 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
 
       //* Subir la metadata al servidor
       await onlinefirestoreContext.setOne(publicListsDataset, list.toJson()..addAll(
-        {'upload by': onlinefirestoreContext.db.collection('Users').doc(userUid)}
+        {
+          'upload by': onlinefirestoreContext.db.collection('Users').doc(userUid),
+          
+          'musics': list.musics?.where((m) => m.type == DataSourceType.fromOnline).map(
+            (e) => onlinefirestoreContext.db.collection('Musics').doc(e.uuid)
+          ).toList()
+        }
       ), list.id);
       await updateOne(list, list.id);
       
@@ -201,7 +211,7 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
       await onlinefirestoreContext.updateOne(
         publicListsDataset,
         list.toJson()..addAll({
-          'musics': list.musics?.where((m) => m.type == DataSourceType.online).map(
+          'musics': list.musics?.where((m) => m.type == DataSourceType.fromOnline).map(
             (e) => onlinefirestoreContext.db.collection('Musics').doc(e.uuid)
           ).toList()
         }),

@@ -23,7 +23,7 @@ class ColorUtil{
     if(imgUrl != null){
       final PaletteGenerator paletteGenerator = await PaletteGenerator.fromImageProvider(
         //*TODO: Cambiar segun la disponibilidad a internet
-        Image.file(File.fromUri(Uri.parse(imgUrl))).image,
+        Image.file(File(imgUrl)).image,
         size: const Size(300, 300),
         maximumColorCount: 2
       );

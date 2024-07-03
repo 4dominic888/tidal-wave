@@ -19,7 +19,7 @@ class MusicList {
     name: json['name'],
     description: json['description'],
     type: getDataSourceTypeByString(json['type']),
-    image: Uri.parse(json['image'])
+    image: json['image'] != null ? Uri.parse(json['image']) : null
   );
 
   Map<String, dynamic> toJson() {

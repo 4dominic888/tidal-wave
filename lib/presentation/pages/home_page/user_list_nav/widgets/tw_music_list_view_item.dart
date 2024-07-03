@@ -69,7 +69,7 @@ class TWMusicListViewItem extends StatelessWidget {
                           scrollDirection: Axis.horizontal,
                           child: Text(item.name, style: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold))
                         ),
-                        Text('${item.musics!.length} canciones', style: TextStyle(color: Colors.grey.shade200)),
+                        // Text('${item.musics!.length} canciones', style: TextStyle(color: Colors.grey.shade200)),
                         Expanded(
                           child: Container(
                             padding: const EdgeInsets.only(bottom: 10.0, top: 4.0),

@@ -5,6 +5,7 @@ import 'package:tidal_wave/data/abstractions/save_file_local.dart';
 import 'package:tidal_wave/data/abstractions/tw_enums.dart';
 import 'package:tidal_wave/data/dataSources/firebase/firebase_storage_service.dart';
 import 'package:tidal_wave/data/result.dart';
+import 'package:tidal_wave/data/utils/find_field_on_firebase.dart';
 import 'package:tidal_wave/domain/models/music.dart';
 import 'package:tidal_wave/domain/repositories/music_repository.dart';
 import 'package:tidal_wave/domain/use_case/interfaces/music_manager_use_case.dart';
@@ -98,7 +99,6 @@ class MusicManagerUseCaseImplement with SaveFiles implements MusicManagerUseCase
   @override
   Future<Result<String>> editarMusica(Music musica, String id, {required DataSourceType type}) async {
     try {
-
       Uri? imageUri;
       final Uri musicUri;
 
@@ -151,12 +151,12 @@ class MusicManagerUseCaseImplement with SaveFiles implements MusicManagerUseCase
   }
 
   @override
-  Future<Result<List<Music>>> obtenerCancionesPublicas({bool Function(Map<String, dynamic> query)? where, int limit = 10}) async {
-    return await repo.getAllOnline(where: where, limit: limit);
+  Future<Result<List<Music>>> obtenerMusicasPublicas({FindManyFieldsToOneSearchFirebase? finder, Music? lastItem, int limit = 10}) async {
+    return await repo.getAllOnline(finder: finder, lastItem: lastItem, limit: limit);
   }
   
   @override
-  Future<Result<List<Music>>> obtenerCancionesDescargadas({String? where, List<String>? whereArgs, int limit = 10}) async {
+  Future<Result<List<Music>>> obtenerMusicasDescargadas({String? where, List<String>? whereArgs, int limit = 10}) async {
     return await repo.getAllLocal(where: where, whereArgs: whereArgs, limit: limit);
   }
   
@@ -194,7 +194,8 @@ class MusicManagerUseCaseImplement with SaveFiles implements MusicManagerUseCase
 
       final Music musicOffline = musicResult.data!.copyWith(
         imagen: musicImageUri,
-        musica: musicUri
+        musica: musicUri,
+        type: DataSourceType.fromOnline
       );
 
       await repo.addOne(musicOffline, musicOffline.uuid);
@@ -202,5 +203,10 @@ class MusicManagerUseCaseImplement with SaveFiles implements MusicManagerUseCase
     } catch (e) {
       return Result.error('Ha ocurrido un error $e');
     }
+  }
+  
+  @override
+  Future<bool> musicaExistente(String uuid) async{
+    return repo.existingId(uuid);
   }
 }

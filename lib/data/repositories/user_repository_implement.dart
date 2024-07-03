@@ -1,3 +1,4 @@
+import 'package:tidal_wave/data/utils/find_field_on_firebase.dart';
 import 'package:tidal_wave/domain/models/tw_user.dart';
 import 'package:tidal_wave/data/abstractions/repository_implement_base.dart';
 import 'package:tidal_wave/data/result.dart';
@@ -12,9 +13,9 @@ class UserRepositoryImplement extends RepositoryImplementBase with UseFirestore 
   String get dataset => 'Users';
 
   @override
-  Future<Result<List<T>>> getAll({List<String> queryArray = const [], bool Function(Map<String, dynamic>)? where, int limit = 10}) async{
+  Future<Result<List<T>>> getAll({List<String> queryArray = const [], FindManyFieldsToOneSearchFirebase? finder, int? timestamp, int limit = 10}) async{
     try {
-      final data = await onlinefirestoreContext.getAll(dataset, queryArray, where, limit);
+      final data = await onlinefirestoreContext.getAll(dataset, queryArray, finder, timestamp, limit);
       return Result.success(data.map((e) => T.fromJson(e)).toList());
     } on Exception catch (e) {
       return Result.error('Ha ocurrido un error: $e');

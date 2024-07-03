@@ -1,6 +1,7 @@
 import 'package:tidal_wave/data/abstractions/save_file_local.dart';
 import 'package:tidal_wave/data/abstractions/tw_enums.dart';
 import 'package:tidal_wave/data/result.dart';
+import 'package:tidal_wave/data/utils/find_field_on_firebase.dart';
 import 'package:tidal_wave/domain/models/music_list.dart';
 import 'package:tidal_wave/domain/repositories/music_list_repository.dart';
 import 'package:tidal_wave/domain/use_case/interfaces/music_list_manager_use_case.dart';
@@ -16,7 +17,7 @@ class MusicListManagerUseCaseImplement with SaveFiles implements MusicListManage
   Future<Result<String>> agregarLista(MusicList lista, {void Function(double)? progressCallback}) async {
     try {
       final String uuid = const Uuid().v4();
-      late final Uri? imageUri;
+      Uri? imageUri;
       if(lista.image != null) { 
         final uploadResult = await saveLocalFile(
           uri: lista.image!,
@@ -41,7 +42,7 @@ class MusicListManagerUseCaseImplement with SaveFiles implements MusicListManage
   @override
   Future<Result<String>> editarLista(MusicList lista, String id) async {
     try {
-      late final Uri? imageUri;
+      Uri? imageUri;
       if(lista.image != null) { 
         final uploadResult = await saveLocalFile(
           uri: lista.image!,
@@ -91,13 +92,13 @@ class MusicListManagerUseCaseImplement with SaveFiles implements MusicListManage
   }
 
   @override
-  Future<Result<List<MusicList>>> obtenerListasPublicas({bool Function(Map<String, dynamic> query)? where, int limit = 10}) async {
-    return await repo.getAllGlobal(where: where, limit: limit);
+  Future<Result<List<MusicList>>> obtenerListasPublicas({FindManyFieldsToOneSearchFirebase? finder, int limit = 10}) async {
+    return await repo.getAllGlobal(finder: finder, limit: limit);
   }
   
   @override
-  Future<Result<List<MusicList>>> obtenerListasSubidas({bool Function(Map<String, dynamic> query)? where, int limit = 10}) async {
-    return await repo.getAllUploaded(where: where, limit: limit);
+  Future<Result<List<MusicList>>> obtenerListasSubidas({FindManyFieldsToOneSearchFirebase? finder, int limit = 10}) async {
+    return await repo.getAllUploaded(finder: finder, limit: limit);
   }
 
   @override

@@ -59,7 +59,6 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
     ];
   }
 
-  //TODO: Agregar funcionalidad de extraer mas datos de la base de datos a medida que se baja
   void _scrollListener(){
     const offset = 10;
     if(_scrollController.offset > offset && !_isScrolled){
@@ -78,6 +77,11 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
   void initState() {
     super.initState();
     _scrollController.addListener(_scrollListener);
+    
+    for (int i = 0; i < widget.listado.length; i++) {
+      widget.listado[i].index = i;
+    }
+
     context.read<MusicCubit>().setPlayList(widget.listado);
     _list = widget.listado;
   }

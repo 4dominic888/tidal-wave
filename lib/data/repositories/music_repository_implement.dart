@@ -1,6 +1,8 @@
+import 'package:sqflite/sqflite.dart';
 import 'package:tidal_wave/data/abstractions/repository_implement_base.dart';
 import 'package:tidal_wave/data/abstractions/tw_enums.dart';
 import 'package:tidal_wave/data/result.dart';
+import 'package:tidal_wave/data/utils/find_field_on_firebase.dart';
 import 'package:tidal_wave/domain/repositories/music_repository.dart';
 
 class MusicRepositoryImplement extends RepositoryImplementBase with UseFirestore, UseSqflite implements MusicRepository {
@@ -13,7 +15,7 @@ class MusicRepositoryImplement extends RepositoryImplementBase with UseFirestore
   @override
   Future<Result<T>> addOne(T data, [String? id]) async {
     try {
-      final lData = data.copyWith(type: DataSourceType.local);
+      final lData = data;
       if(id == null){
         await offlinesqfliteContext.addOne(dataset, lData.toJson());
       } else{
@@ -41,9 +43,13 @@ class MusicRepositoryImplement extends RepositoryImplementBase with UseFirestore
   }
 
   @override
-  Future<Result<List<T>>> getAllOnline({List<String> queryArray = const [], bool Function(Map<String, dynamic> query)? where, int limit = 10}) async {
+  Future<Result<List<T>>> getAllOnline({List<String> queryArray = const [], FindManyFieldsToOneSearchFirebase? finder, T? lastItem, int limit = 10}) async {
     try {
-      final data = await onlinefirestoreContext.getAll(dataset, queryArray, where, limit);
+      final data = await onlinefirestoreContext.getAll(dataset,
+        queryArray, finder,
+        lastItem?.uploadAt.millisecondsSinceEpoch,
+        limit
+      );
       return Result.success(data.map((e) => T.fromJson(e,0)).toList());
     } on Exception catch (e) {
       return Result.error('Ha ocurrido un error: $e');
@@ -90,6 +96,13 @@ class MusicRepositoryImplement extends RepositoryImplementBase with UseFirestore
     } catch (e) {
       return Result.error('Ha ocurrido un error: $e');
     }
+  }
+  
+  @override
+  Future<bool> existingId(String uuid) async {
+    final result = await offlinesqfliteContext.db.rawQuery('SELECT COUNT(*) as count FROM $dataset WHERE uuid = ?', [uuid]);
+    int count = Sqflite.firstIntValue(result) ?? 0;
+    return count > 0;
   }
   
 }

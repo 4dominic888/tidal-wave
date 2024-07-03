@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
@@ -6,7 +9,7 @@ import 'package:tidal_wave/presentation/utils/function_utils.dart';
 
 class Music {
   final String? uuid;
-  final int _index;
+  int _index;
   final String titulo;
   final List<String> artistas;
   final Uri? imagen;
@@ -38,7 +41,7 @@ class Music {
       index: index ?? -1,
       uuid: json['uuid'],
       titulo: json['title'],
-      artistas: json['artist'] is Iterable ? List.from(json['artist']) : [],
+      artistas: (jsonDecode(json['artist']) is List) ? List.from(jsonDecode(json['artist'])) : [],
       musica: Uri.parse(json['musicUri'] as String),
       imagen: Uri.parse(json['artUri']),
       duration: Duration(milliseconds: json['duration'] as int),
@@ -49,7 +52,12 @@ class Music {
     );
   }
 
+  factory Music.fromJsonLocal(Map<String, dynamic> json, int? index){
+    return Music.fromJson(json, index).copyWith(favorito: json['favorite'] as int == 1);
+  }
+
   int get index => _index;
+  set index(int index) => _index = index;
 
   String get artistasStr {
     StringBuffer retorno = StringBuffer();
@@ -75,7 +83,7 @@ class Music {
   Map<String,dynamic> toJson(){
     return {
       "title": titulo,
-      "artist": artistas,
+      "artist": jsonEncode(artistas),
       "musicUri": musica.toString(),
       "artUri": imagen.toString(),
       "duration": duration.inMilliseconds,
@@ -86,14 +94,23 @@ class Music {
     };
   }
 
+  Map<String, dynamic> toJsonLocal(){
+    return toJson()..addAll({'favorite': favorito! ? 1 : 0});
+  }
+
   AudioSource toAudioSource(String index){
-    return AudioSource.uri(musica,
-    tag: MediaItem(
+    final tag = MediaItem(
       id: index,
       title: titulo,
       artist: artistasStr,
       artUri: imagen ?? Uri.parse('package:flutter_app/assets/placeholder/music-placeholder.png')
-    ));
+    );
+
+    if(type == DataSourceType.online){
+    return AudioSource.uri(musica, tag: tag);
+    }
+    return AudioSource.file(File(musica.toString()).path, tag: tag);
+
   }
 
   Music copyWith({

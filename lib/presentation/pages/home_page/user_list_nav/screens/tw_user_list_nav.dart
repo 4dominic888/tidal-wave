@@ -4,6 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:group_button/group_button.dart';
 import 'package:tidal_wave/domain/models/music_list.dart';
 import 'package:tidal_wave/domain/use_case/interfaces/music_list_manager_use_case.dart';
+import 'package:tidal_wave/domain/use_case/interfaces/music_manager_use_case.dart';
 import 'package:tidal_wave/presentation/pages/home_page/user_account_nav/screens/create_user_list_screen.dart';
 import 'package:tidal_wave/presentation/pages/home_page/user_list_nav/widgets/tw_music_list_view_item.dart';
 
@@ -17,6 +18,8 @@ class TWUserListNav extends StatefulWidget {
 class _TWUserListNavState extends State<TWUserListNav> {
 
   final _playListManagerUseCase = GetIt.I<MusicListManagerUseCase>();
+  final _musicManagerUseCase = GetIt.I<MusicManagerUseCase>();
+
   static final _buttonsController = GroupButtonController(selectedIndex: 0);
   static final _buttonsOptions = ['Mis listas', 'Otras listas'];
 
@@ -72,7 +75,7 @@ class _TWUserListNavState extends State<TWUserListNav> {
                   itemCount: snapshot.data!.length,
                   itemBuilder: (context, index) {
                     final item = snapshot.data![index];
-                    return TWMusicListViewItem(item: item);
+                    return TWMusicListViewItem(item: item, isOnline: false);
                   },
                 );
               }
@@ -83,9 +86,10 @@ class _TWUserListNavState extends State<TWUserListNav> {
     );
   }
 
-  final Widget _otherUserLists = const Center(
-    child: Icon(Icons.list),
-  );
+  Widget _otherUserLists() {
+    _musicManagerUseCase.obtenerMusicasDescargadas();
+    return const Center(child: Icon(Icons.list));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -99,9 +103,7 @@ class _TWUserListNavState extends State<TWUserListNav> {
           controller: _buttonsController,
           buttonIndexedBuilder: (selected, index, context) => ElevatedButton(
             onPressed: (){
-              setState(() {
-                _buttonsController.selectIndex(index);
-              });
+              setState(() {_buttonsController.selectIndex(index);});
             },
             style: ButtonStyle(
               backgroundColor: WidgetStateColor.resolveWith((states) => selected ? const Color.fromARGB(255, 36, 161, 196) : const Color.fromARGB(255, 20, 84, 101))
@@ -115,8 +117,7 @@ class _TWUserListNavState extends State<TWUserListNav> {
         const SizedBox(height: 10),
 
         if(_buttonsController.selectedIndex == 0) _userMusicList()
-        else _otherUserLists
-
+        else _otherUserLists()
       ],
     );
   }

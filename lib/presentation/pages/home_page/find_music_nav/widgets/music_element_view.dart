@@ -205,6 +205,20 @@ class MusicElementView extends StatelessWidget {
       margin: const EdgeInsets.all(10),
       child: Stack(
         children: [
+          //? Para hacer pruebas
+          //TODO: Luego se quita
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Text(item.uuid!, 
+              style: const TextStyle(
+                color: Colors.grey,
+                fontSize: 8,
+                shadows: [Shadow(offset: Offset(2, 2), blurRadius: 10)]
+              ),
+              textAlign: TextAlign.center
+            ),
+          ),
+
           Ink.image(
             image: item.imagen != null ? 
             getImage(item.imagen!, isOnline: isOnline) : 

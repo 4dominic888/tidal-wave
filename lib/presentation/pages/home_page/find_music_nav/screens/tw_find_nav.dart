@@ -173,61 +173,43 @@ class _TWFindNavState extends State<TWFindNav> {
               if(_selectedType == DataSourceType.online) {
                 return BlocBuilder<ConnectivityCubit, bool>(
                   bloc: context.read<ConnectivityCubit>(),
-                  builder: (context, connectivityStatus) {
+                  builder: (blocContext, connectivityStatus) {
                     if(!connectivityStatus) {return const SliverToBoxAdapter(child: Center(child: Text('Conectese a internet para poder acceder al listado')));}
-                    return StatefulBuilder(
-                      builder: (context, setState) {
-                        return SliverGrid(
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 10,
-                            childAspectRatio: 1
-                          ),
-                          delegate: SliverChildListDelegate(
-                            _allData.map((e) => Builder(builder: (context) {
-                              return MusicElementView(
-                                item: e,
-                                selected: [e.uuid == selectUUID],
-                                onPlay: () {
-                                  setState(() {selectUUID = e.uuid;});
-                                },
-                                isOnline: true
-                              );
-                            })).toList()
-                          ),
-                        );
-                      }
-                    );
+                    return _gridMusicContainer(blocContext, isOnline: true);
                   }
                 );
               }
-              return StatefulBuilder(
-                builder: (context, setState) {
-                  return SliverGrid(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 10,
-                      childAspectRatio: 1
-                    ),
-                    delegate: SliverChildListDelegate(
-                      _allData.map((e) => Builder(builder: (context) {
-                        return MusicElementView(
-                          item: e,
-                          selected: [e.uuid == selectUUID],
-                          onPlay: () {
-                            setState(() {selectUUID = e.uuid;});
-                          },
-                          isOnline: false
-                        );
-                      })).toList()
-                    ),
-                  );
-                }
-              );
+              return _gridMusicContainer(context, isOnline: false);
             }
           )
         ],
       ),
+    );
+  }
+
+  StatefulBuilder _gridMusicContainer(BuildContext context, {bool? isOnline = true}) {
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return SliverGrid(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            mainAxisSpacing: 10,
+            childAspectRatio: 1
+          ),
+          delegate: SliverChildListDelegate(
+            _allData.map((e) => Builder(builder: (context) {
+              return MusicElementView(
+                item: e,
+                selected: [e.uuid == selectUUID],
+                onPlay: () {
+                  setState(() {selectUUID = e.uuid;});
+                },
+                isOnline: isOnline
+              );
+            })).toList()
+          ),
+        );
+      }
     );
   }
 

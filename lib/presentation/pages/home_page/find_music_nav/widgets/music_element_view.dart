@@ -164,11 +164,6 @@ class MusicElementView extends StatelessWidget {
         if(snapshot.connectionState == ConnectionState.waiting) return const CircularProgressIndicator();
         if(!snapshot.data!) {
           rowList = [
-            // ElevatedButton(
-            //   onPressed: () async => _showListOfMusics(context, item),
-            //   style: ButtonStyle(backgroundColor: WidgetStateColor.resolveWith((states) => Colors.grey.shade900)),
-            //   child: const Text('Agregar a lista')
-            // ),
             Expanded(
               child: ElevatedButton(
                 onPressed: () async => await _downloadMusic(context, item.uuid!),
@@ -238,43 +233,54 @@ class MusicElementView extends StatelessWidget {
             children: [
               Column(
                 children: [
+
                   Padding(
                     padding: const EdgeInsets.all(14.0),
-                    child: StreamBuilder<PlayerState>(
+                    child: StreamBuilder<PlayerState>( //* Para poder actualizar los botones correctamente segun el estado de la musica
                       stream: context.read<MusicCubit>().state.playerStateStream.asBroadcastStream(),
                       builder: (context, snapshot) {
-                        return IconButtonUIMusic(
-                          borderColor: selected!.first && snapshot.data?.processingState == ProcessingState.loading ? Colors.yellowAccent.withOpacity(0.6) : Colors.transparent,
-                          borderSize: 3.0,
-                          fillColor: Colors.grey.shade700.withOpacity(0.6),
-                          icon: selected!.first ? 
-                            snapshot.data?.processingState == ProcessingState.loading ? const Icon(Icons.watch_later) : MusicStateUtil.playIcon(snapshot.data) :
-                            const Icon(Icons.play_arrow_rounded),
-
-                          onTap: selected!.first ? MusicStateUtil.playReturns(snapshot.data,
-                            playCase: context.read<MusicCubit>().state.play,
-                            stopCase: context.read<MusicCubit>().state.pause,
-                            playStatic: () async{
-                              await context.read<MusicCubit>().setMusic(item);
-                              if(!context.mounted) return;
-                              await context.read<MusicCubit>().state.play();
-                              if(!context.mounted) return;
-                              context.read<MusicCubit>().isActive;
-                            },
-                          ) : 
-                          () async {
-                              onPlay?.call();
-                              await context.read<MusicCubit>().setMusic(item);
-                              if(!context.mounted) return;
-                              await context.read<MusicCubit>().state.play();
-                              context.read<MusicCubit>().isActive;
-                            },
+                        return StreamBuilder<Duration>( //* Actualizar la barra de progreso circular segun el progreso de la musica
+                          stream: context.read<MusicCubit>().state.positionStream.asBroadcastStream(),
+                          builder: (context, snapshotDuration) {
+                            return IconButtonUIMusic(
+                              borderColor: selected!.first && snapshot.data?.processingState == ProcessingState.loading ? Colors.yellowAccent.withOpacity(0.6) : Colors.transparent,
+                              borderSize: 3.0,
+                              progress: 
+                                //* Si esta seleccionado y se esta escuchando
+                                selected!.first && context.read<MusicCubit>().state.playerState.processingState != ProcessingState.completed ? 
+                                (snapshotDuration.data?.inMilliseconds ?? 0) / (context.read<MusicCubit>().state.duration?.inMilliseconds ?? 1) : 0.0,
+                              fillColor: Colors.grey.shade700.withOpacity(0.6),
+                              icon: selected!.first ? 
+                                snapshot.data?.processingState == ProcessingState.loading ? const Icon(Icons.watch_later) : MusicStateUtil.playIcon(snapshot.data) :
+                                const Icon(Icons.play_arrow_rounded),
+                            
+                              onTap: selected!.first ? MusicStateUtil.playReturns(snapshot.data,
+                                playCase: context.read<MusicCubit>().state.play,
+                                stopCase: context.read<MusicCubit>().state.pause,
+                                playStatic: () async{
+                                  await context.read<MusicCubit>().setMusic(item);
+                                  if(!context.mounted) return;
+                                  await context.read<MusicCubit>().state.play();
+                                  if(!context.mounted) return;
+                                  context.read<MusicCubit>().isActive;
+                                },
+                              ) : 
+                              () async {
+                                  onPlay?.call();
+                                  await context.read<MusicCubit>().setMusic(item);
+                                  if(!context.mounted) return;
+                                  await context.read<MusicCubit>().state.play();
+                                  if(!context.mounted) return;
+                                  context.read<MusicCubit>().isActive;
+                                },
+                            );
+                          }
                         );
                       }
                     ),
                   ),
 
-                  //* Barra de progreso
+                  //* Barra de progreso de descarga
                   StreamBuilder<Duration>(
                     stream: context.read<MusicCubit>().state.positionStream.asBroadcastStream(),
                     builder: (context, snapshot) {

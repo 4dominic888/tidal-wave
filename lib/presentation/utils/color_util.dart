@@ -1,6 +1,6 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:palette_generator/palette_generator.dart';
+import 'package:tidal_wave/presentation/utils/function_utils.dart';
 
 class ColorUtil{
 
@@ -23,7 +23,8 @@ class ColorUtil{
     if(imgUrl != null){
       final PaletteGenerator paletteGenerator = await PaletteGenerator.fromImageProvider(
         //*TODO: Cambiar segun la disponibilidad a internet
-        Image.file(File(imgUrl)).image,
+        getImage(Uri.parse(imgUrl), isOnline: isURL(imgUrl)),
+        //Image.file(File(imgUrl)).image,
         size: const Size(300, 300),
         maximumColorCount: 2
       );

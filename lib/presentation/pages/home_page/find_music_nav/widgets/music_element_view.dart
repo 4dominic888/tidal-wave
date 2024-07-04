@@ -13,6 +13,7 @@ import 'package:tidal_wave/domain/use_case/interfaces/music_manager_use_case.dar
 import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
 import 'package:tidal_wave/presentation/global_widgets/popup_message.dart';
 import 'package:tidal_wave/presentation/pages/lista_musica/widgets/icon_button_music.dart';
+import 'package:tidal_wave/presentation/pages/reproductor_musica/screens/reproductor_musica_screen.dart';
 import 'package:tidal_wave/presentation/utils/function_utils.dart';
 import 'package:tidal_wave/presentation/utils/music_state_util.dart';
 
@@ -28,7 +29,7 @@ class MusicElementView extends StatelessWidget {
 
   const MusicElementView({super.key, required this.item, this.onPlay, this.isOnline = true, this.selected = const [false]});
 
-  Future<void> showAddMusicToList(BuildContext context, Music music, MusicList listSelected) async {
+  Future<void> _showAddMusicToList(BuildContext context, Music music, MusicList listSelected) async {
     Result<String>? result;
     await showLoadingDialog(context,  () async { 
       result = await _musicListManagerUseCase.agregarMusicaALista(
@@ -48,7 +49,7 @@ class MusicElementView extends StatelessWidget {
     }
   }
 
-  Future<void> showListOfMusics(BuildContext context, Music music) async {
+  Future<void> _showListOfMusics(BuildContext context, Music music) async {
     late Result<List<MusicList>> listResult;
     await showLoadingDialog(context, () async => listResult = await _musicListManagerUseCase.obtenerListasLocales());
     if(!context.mounted) return;
@@ -72,7 +73,7 @@ class MusicElementView extends StatelessWidget {
                   children: listas.map((list) => 
                   ListTile(
                     title: Text(list.name),
-                    onTap: () async => await showAddMusicToList(context, music, list)
+                    onTap: () async => await _showAddMusicToList(context, music, list)
                   )).toList(),
                 ),
               ),
@@ -83,7 +84,7 @@ class MusicElementView extends StatelessWidget {
     ));
   }
 
-  Future<void> descargarMusica(BuildContext context, String idMusic) async{
+  Future<void> _downloadMusic(BuildContext context, String idMusic) async{
     late final Result<String> downloadResult;
     await showLoadingDialog(context, () async => downloadResult = await _musicManagerUseCase.descargarMusica(idMusic, 
       progressOfDownload: (total, downloaded, progress) {
@@ -98,7 +99,7 @@ class MusicElementView extends StatelessWidget {
     showDialog(context: context, builder: (context) => PopupMessage(title: 'Exito', description: downloadResult.data!));
   }
 
-  Future<void> viewMoreMusicInfo(BuildContext context) => showModalBottomSheet(context: context, 
+  Future<void> _viewMoreMusicInfo(BuildContext context) => showModalBottomSheet(context: context, 
     backgroundColor: Colors.grey.shade800, builder: (context) => SizedBox(
       height: 200,
       child: Stack(
@@ -146,7 +147,7 @@ class MusicElementView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ElevatedButton(
-          onPressed: () async => showListOfMusics(context, item),
+          onPressed: () async => _showListOfMusics(context, item),
           style: ButtonStyle(backgroundColor: WidgetStateColor.resolveWith((states) => Colors.grey.shade900)),
           child: const Text('Agregar a lista')
         ),
@@ -163,16 +164,17 @@ class MusicElementView extends StatelessWidget {
         if(snapshot.connectionState == ConnectionState.waiting) return const CircularProgressIndicator();
         if(!snapshot.data!) {
           rowList = [
-            ElevatedButton(
-              onPressed: () async => showListOfMusics(context, item),
-              style: ButtonStyle(backgroundColor: WidgetStateColor.resolveWith((states) => Colors.grey.shade900)),
-              child: const Text('Agregar a lista')
-            ),
-            const Spacer(),
-            ElevatedButton(
-              onPressed: () async => await descargarMusica(context, item.uuid!),
-              style: ButtonStyle(backgroundColor: WidgetStateColor.resolveWith((states) => Colors.grey.shade900)),
-              child: const Text('Descargar')
+            // ElevatedButton(
+            //   onPressed: () async => _showListOfMusics(context, item),
+            //   style: ButtonStyle(backgroundColor: WidgetStateColor.resolveWith((states) => Colors.grey.shade900)),
+            //   child: const Text('Agregar a lista')
+            // ),
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () async => await _downloadMusic(context, item.uuid!),
+                style: ButtonStyle(backgroundColor: WidgetStateColor.resolveWith((states) => Colors.grey.shade900)),
+                child: const Text('Descargar')
+              ),
             )
           ];
         }
@@ -224,7 +226,11 @@ class MusicElementView extends StatelessWidget {
             getImage(item.imagen!, isOnline: isOnline) : 
             Image.asset('assets/placeholder/music-placeholder.png').image,
             child: InkWell(
-              onTap: () => viewMoreMusicInfo(context),
+              onTap: (){
+                if(context.read<MusicCubit>().state.playing && selected!.first){
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => const ReproductorMusicaScreen()));
+                }
+              }
             ),
           ),
 
@@ -252,6 +258,7 @@ class MusicElementView extends StatelessWidget {
                               await context.read<MusicCubit>().setMusic(item);
                               if(!context.mounted) return;
                               await context.read<MusicCubit>().state.play();
+                              if(!context.mounted) return;
                               context.read<MusicCubit>().isActive;
                             },
                           ) : 
@@ -284,29 +291,38 @@ class MusicElementView extends StatelessWidget {
               //* Metadata
               Expanded(child: ClipRRect(
                 borderRadius: BorderRadius.circular(8.0),
-                  child: Container(
-                    color: Colors.grey.shade700.withOpacity(0.8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 12.0),
-                          title: Text(item.titulo,
-                            textAlign: TextAlign.center,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: Text('por ${item.artistasStr}',
-                            textAlign: TextAlign.center,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        )
-                      ],
+                  child: Ink(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      splashColor: Colors.white,
+                      onTap: () => _viewMoreMusicInfo(context),                      
+                      child: Container(
+                        color: Colors.grey.shade700.withOpacity(0.8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ListTile(
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 12.0),
+                              title: Text(item.titulo,
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              subtitle: Text('por ${item.artistasStr}',
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
                     ),
                   )
                 )
-              ),
+              )
+
+
             ],
           )
         ],

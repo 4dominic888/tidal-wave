@@ -8,7 +8,20 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:tidal_wave/data/result.dart';
 
-typedef ProgressOfDownload = void Function(int total, int downloaded, double progress);
+typedef ProgressOfDownload = void Function(ProgressOfDownloadData data);
+
+class ProgressOfDownloadData{
+  final int total;
+  final int downloaded;
+  final double progress;
+
+  ProgressOfDownloadData({
+    required this.total,
+    required this.downloaded,
+    required this.progress
+  });
+}
+
 mixin SaveFiles{
   /// Obtiene la carpeta especifica para guardar los archivos, se creara o hara referencia a la subcarpeta definida por `nameFolder`
   Future<String> _pathToLocalFiles(String folderName) async{
@@ -73,7 +86,7 @@ mixin SaveFiles{
     await File.fromUri(uri).delete();
   }
 
-  Future<Uint8List> _downloadFile({required Uri uri, required ProgressOfDownload progressOfDownload}) async {
+  Future<Uint8List> _downloadFile({required Uri uri, ProgressOfDownload? progressOfDownload}) async {
     final completer = Completer<Uint8List>();
     final response = http.Client().send(http.Request('GET', uri));
 
@@ -84,14 +97,18 @@ mixin SaveFiles{
         (chunk) {
           final contentLenght = streamedResponse.contentLength ?? 0;
           final progress = (downloadedBytes / contentLenght) * 100;
-          progressOfDownload(contentLenght, downloadedBytes, progress);
+          if(progressOfDownload != null){
+            progressOfDownload(ProgressOfDownloadData(total: contentLenght, downloaded: downloadedBytes, progress: progress));
+          }
           chunkList.add(chunk);
           downloadedBytes += chunk.length;
         },
         onDone: () {
           final contentLenght = streamedResponse.contentLength ?? 0;
           final progress = (downloadedBytes / contentLenght) * 100;
-          progressOfDownload(contentLenght, downloadedBytes, progress);
+          if(progressOfDownload != null){
+            progressOfDownload(ProgressOfDownloadData(total: contentLenght, downloaded: downloadedBytes, progress: progress));
+          }
 
           int start = 0;
           final bytes = Uint8List(contentLenght);
@@ -109,10 +126,10 @@ mixin SaveFiles{
     return completer.future;
   }
 
-  Future<Result<String>> saveOnlineFile({required Uri uri, required String folderName, required String fileName, required ProgressOfDownload progressOfDownload}) async {
+  Future<Result<String>> saveOnlineFile({required Uri uri, required String folderName, required String fileName, ProgressOfDownload? progressOfDownload}) async {
     try {
       final folderBase = await _pathToLocalFiles(folderName);
-      File file = File(join(folderBase, '$fileName${extension(uri.toString())}'));
+      File file = File(join(folderBase, fileName));
       file.writeAsBytes(await _downloadFile(uri: uri, progressOfDownload: progressOfDownload));
       return Result.success(file.path);
     } catch (e) {

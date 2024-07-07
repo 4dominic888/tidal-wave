@@ -200,10 +200,6 @@ class _TWFindNavState extends State<TWFindNav> {
             _allData.map((e) => Builder(builder: (context) {
               return MusicElementView(
                 item: e,
-                selected: [e.uuid == selectUUID],
-                onPlay: () {
-                  setState(() {selectUUID = e.uuid;});
-                },
                 isOnline: isOnline
               );
             })).toList()

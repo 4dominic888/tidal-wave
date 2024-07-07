@@ -8,6 +8,9 @@ import 'package:tidal_wave/domain/models/position_data.dart';
 /// Cubit para la musica escuchada actualmente
 class MusicCubit extends Cubit<AudioPlayer> {
 
+  bool isActive = false;
+  String? idSelected;
+
   MusicCubit() :super(AudioPlayer(
     audioLoadConfiguration: const AudioLoadConfiguration(
       //* Comenzar la carga del audio lo mas rapido posible, aunque no este cargado u optimizado
@@ -23,7 +26,10 @@ class MusicCubit extends Cubit<AudioPlayer> {
     );
   }
 
-  bool isActive = false;
+  void setSelectedId(String selected){
+    idSelected = selected;
+    emit(state);
+  }
 
   void enableLoop() async {
     await state.setLoopMode(LoopMode.all);

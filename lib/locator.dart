@@ -13,6 +13,7 @@ import 'package:tidal_wave/domain/use_case/implementations/music_list_manager_us
 import 'package:tidal_wave/domain/use_case/interfaces/authentication_manager_use_case.dart';
 import 'package:tidal_wave/domain/use_case/interfaces/music_manager_use_case.dart';
 import 'package:tidal_wave/domain/use_case/interfaces/music_list_manager_use_case.dart';
+import 'package:tidal_wave/presentation/bloc/download_music_cubit.dart';
 
 final GetIt locator = GetIt.instance;
 
@@ -29,6 +30,8 @@ void setupLocator() {
   locator.registerLazySingleton<DatabaseService<Map<String,dynamic>>>(
     () => SqfliteDatabaseService(), instanceName: 'Sqflite'
   );
+
+  locator.registerLazySingleton<DownloadMusicCubit>(() => DownloadMusicCubit());
 
   locator.registerLazySingleton<AuthenticationManagerUseCase>(() => 
     AuthenticationManagerUseCaseImplement(UserRepositoryImplement(

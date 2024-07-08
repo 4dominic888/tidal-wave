@@ -20,7 +20,6 @@ class TWFindNav extends StatefulWidget {
   State<TWFindNav> createState() => _TWFindNavState();
 }
 
-
 class _TWFindNavState extends State<TWFindNav> {
 
   final _scrollController = ScrollController();
@@ -32,8 +31,8 @@ class _TWFindNavState extends State<TWFindNav> {
   final _buttonsController = GroupButtonController(selectedIndex: 0);
   static final _buttonsOptions = ['Musicas publicas', 'Mis musicas descargadas'];
 
-
   final List<Music> _allData = [];
+  final List<String> _localMusicIds = [];
   Music? _lastItem;
   bool _hasMore = true;
   bool _loading = false;
@@ -43,8 +42,16 @@ class _TWFindNavState extends State<TWFindNav> {
   @override
   void initState() {
     super.initState();
+    _fillIdsList();
     _fetchData(DataSourceType.online);
     _scrollController.addListener(_scrollListener);
+  }
+
+  Future<void> _fillIdsList() async {
+    _localMusicIds.clear();
+    _localMusicIds.addAll(
+      (await _musicManagerUseCase.obtenerMusicasDescargadas(limit: -1))
+        .data!.map((e) => e.uuid!));
   }
 
   void _scrollListener(){
@@ -189,7 +196,7 @@ class _TWFindNavState extends State<TWFindNav> {
 
   StatefulBuilder _gridMusicContainer(BuildContext context, {bool? isOnline = true}) {
     return StatefulBuilder(
-      builder: (context, setState) {
+      builder: (context, stfSetState) {
         return SliverGrid(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
@@ -200,7 +207,22 @@ class _TWFindNavState extends State<TWFindNav> {
             _allData.map((e) => Builder(builder: (context) {
               return MusicElementView(
                 item: e,
-                isOnline: isOnline
+                isOnline: isOnline,
+                isDownloaded: _localMusicIds.contains(e.uuid!),
+                onLocalUpdate: () async {
+                  await _fillIdsList();
+                  if(_selectedType == DataSourceType.online){
+                    stfSetState(() {});
+                    return;
+                  }
+                  setState(() {
+                    _allData.clear();
+                    _lastItem = null;
+                    _hasMore = true;
+                    _loading = false;
+                    _fetchData(_selectedType);                    
+                  });
+                },
               );
             })).toList()
           ),

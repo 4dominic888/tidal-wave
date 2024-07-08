@@ -20,7 +20,7 @@ import 'package:tidal_wave/presentation/pages/lista_musica/widgets/icon_button_m
 import 'package:tidal_wave/presentation/pages/reproductor_musica/screens/reproductor_musica_screen.dart';
 import 'package:tidal_wave/presentation/utils/function_utils.dart';
 import 'package:tidal_wave/presentation/utils/music_state_util.dart';
-import 'package:tidal_wave/presentation/utils/snackbar_util.dart';
+import 'package:tidal_wave/presentation/utils/notification_util.dart';
 
 final _musicListManagerUseCase = GetIt.I<MusicListManagerUseCase>();
 final _musicManagerUseCase = GetIt.I<MusicManagerUseCase>();
@@ -30,14 +30,23 @@ class MusicElementView extends StatefulWidget {
 
   final Music item;
   final bool? isOnline;
+  final bool? isDownloaded;
+  final Future<void> Function()? onLocalUpdate;
 
-  const MusicElementView({super.key, required this.item, this.isOnline = true});
+  const MusicElementView({
+    super.key,
+    required this.item,
+    this.isOnline = true,
+    this.isDownloaded = false,
+    this.onLocalUpdate
+  });
 
   @override
   State<MusicElementView> createState() => _MusicElementViewState();
 }
 
 class _MusicElementViewState extends State<MusicElementView> {
+
   Future<void> _showAddMusicToList(BuildContext context, Music music, MusicList listSelected) async {
     Result<String>? result;
     await showLoadingDialog(context,  () async { 
@@ -93,27 +102,69 @@ class _MusicElementViewState extends State<MusicElementView> {
     ));
   }
 
-  Future<void> _downloadMusic(BuildContext context, String idMusic) async{
-    setState(() => _downloadMusicCubit.addDownloadElement(idMusic));
+  //* UpdateCallBack es para actualizar el popup
+  //* ThenCallBack vendria a hacer la accion a realizar
+  Future<void> _downloadMusic(BuildContext context, BuildContext popupContext, {void Function()? updateCallback, Future<void> Function()? thenCallback}) async{
+    setState(() => _downloadMusicCubit.addDownloadElement(widget.item.uuid!));
     _musicManagerUseCase.descargarMusica(
-      idMusic,
-      progressOfDownload: (data) => _downloadMusicCubit.addProgressOfDownload(idMusic, data)
+      widget.item.uuid!,
+      progressOfDownload: (data) => _downloadMusicCubit.addProgressOfDownload(widget.item.uuid!, data)
     ).then((downloadResult) async {
+      await thenCallback?.call();
       if(!downloadResult.onSuccess){
-        await _downloadMusicCubit.closeStreamController(idMusic);
-        _downloadMusicCubit.removeDownloadElement(idMusic);
-        SnackbarUtil.failureSnack(context, message: 'Error', details: downloadResult.errorMessage!);
-        setState(() {});
-        return;
+        await _downloadMusicCubit.closeStreamController(widget.item.uuid!);
+        _downloadMusicCubit.removeDownloadElement(widget.item.uuid!);
+
+        NotificationUtil.showErrorNotification(
+          title: 'Descarga fallida de ${widget.item.titulo}',
+          description: downloadResult.errorMessage!
+        );
       }
-      SnackbarUtil.successSnack(context, message: downloadResult.data!);
-      await _downloadMusicCubit.closeStreamController(idMusic);
-      _downloadMusicCubit.removeDownloadElement(idMusic);
+      else{
+        NotificationUtil.showSuccessNotification(
+          title: 'Musica descargada',
+          description: widget.item.titulo
+        );
+        await _downloadMusicCubit.closeStreamController(widget.item.uuid!);
+        _downloadMusicCubit.removeDownloadElement(widget.item.uuid!);        
+      }
+
+      if(popupContext.mounted){
+        updateCallback?.call();
+      }
       setState(() {});
     });
   }
 
-  Future<void> _viewMoreMusicInfo(BuildContext contextBottomSheet) => showModalBottomSheet(context: contextBottomSheet, 
+  Future<void> _deleteMusic(BuildContext context) async {
+    late final Result<String> result;
+
+    showDialog(context: context, builder: (context) => PopupDialog(
+      title: 'Borrar musica',
+      description: '¿Estás seguro que deseas eliminar esta música? Esta acción no se puede deshacer.',
+      onOK: () async {
+        Navigator.of(context).pop();
+        showLoadingDialog(
+          context, 
+          () async {
+            result = await _musicManagerUseCase.eliminarMusica(widget.item.uuid!);
+          },
+          message: 'Eliminando'
+        ).then((_) async {
+          await widget.onLocalUpdate?.call();
+          if(!result.onSuccess){
+            showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: result.errorMessage!));
+            setState(() {});
+            return;
+          }
+          showDialog(context: context, builder: (context) => PopupMessage(title: 'Exito', description: result.data!));
+          setState(() {});
+        });
+      },
+    ));
+  }
+
+  Future<void> _viewMoreInfo(BuildContext contextBottomSheet) => showModalBottomSheet(context: contextBottomSheet, 
     backgroundColor: Colors.grey.shade800, builder: (contextBottomSheet) => SizedBox(
       height: 200,
       child: Stack(
@@ -165,14 +216,19 @@ class _MusicElementViewState extends State<MusicElementView> {
           style: ButtonStyle(backgroundColor: WidgetStateColor.resolveWith((states) => Colors.grey.shade900)),
           child: const Text('Agregar a lista')
         ),
-        const Spacer(),  
+        const Spacer(),
+        ElevatedButton(
+          onPressed: () async => _deleteMusic(context),
+          style: ButtonStyle(backgroundColor: WidgetStateColor.resolveWith((states) => Colors.grey.shade900)),
+          child: const Text('Eliminar')
+        ),        
       ],
     );
   }
 
   StatefulBuilder _rowInfoOnline(BuildContext context) {
     return StatefulBuilder(
-      builder: (stfContext, setState) {
+      builder: (stfContext, insideSetState) {
         return FutureBuilder<bool>(
           future: _musicManagerUseCase.musicaExistente(widget.item.uuid!),
           builder: (stfContext, snapshot) {
@@ -212,8 +268,11 @@ class _MusicElementViewState extends State<MusicElementView> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      _downloadMusic(this.context, widget.item.uuid!);
-                      setState((){});
+                      _downloadMusic(this.context, stfContext, 
+                          thenCallback: () async => await widget.onLocalUpdate?.call(),
+                          updateCallback: () => insideSetState(() {})
+                      );
+                      insideSetState((){});
                     },
                     style: ButtonStyle(backgroundColor: WidgetStateColor.resolveWith((states) => Colors.grey.shade900)),
                     child: const Text('Descargar'),
@@ -224,11 +283,13 @@ class _MusicElementViewState extends State<MusicElementView> {
             }
             else{
               rowList = [
-                ElevatedButton(
-                  onPressed: null,
-                  style: ButtonStyle(backgroundColor: WidgetStateColor.resolveWith((states) => Colors.grey.shade600)),
-                  child: const Text('Obtenido')
-                ),
+                Expanded(
+                  child: Card(
+                    borderOnForeground: false,
+                    color: Colors.grey.shade700.withOpacity(0.6),
+                    child: const ListTile(title: Text('Descargado', textAlign: TextAlign.center)),
+                  ),
+                )
               ];
             }
         
@@ -249,6 +310,7 @@ class _MusicElementViewState extends State<MusicElementView> {
       clipBehavior: Clip.antiAliasWithSaveLayer,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
+        side: widget.isDownloaded! && widget.isOnline! ? const BorderSide(color: Colors.green, width: 2.5) : BorderSide.none
       ),
       elevation: 5,
       margin: const EdgeInsets.all(10),
@@ -275,7 +337,7 @@ class _MusicElementViewState extends State<MusicElementView> {
             child: InkWell(
               onTap: (){
                 if(context.read<MusicCubit>().state.audioSource != null && context.read<MusicCubit>().idSelected == (widget.item.uuid ?? '')){
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => const ReproductorMusicaScreen()));
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => ReproductorMusicaScreen(canFavoriteSelected: widget.item.type != DataSourceType.online)));
                 }
               }
             ),
@@ -302,7 +364,8 @@ class _MusicElementViewState extends State<MusicElementView> {
                                 //* Si esta seleccionado y se esta escuchando
                                 context.read<MusicCubit>().idSelected == (widget.item.uuid ?? '') && context.read<MusicCubit>().state.playerState.processingState != ProcessingState.completed ? 
                                 (snapshotDuration.data?.inMilliseconds ?? 0) / (context.read<MusicCubit>().state.duration?.inMilliseconds ?? 1) : 0.0,
-                              fillColor: Colors.grey.shade700.withOpacity(0.6),
+                              fillColor: context.read<MusicCubit>().idSelected == (widget.item.uuid ?? '') ? 
+                                Colors.black.withOpacity(0.6) : Colors.grey.shade700.withOpacity(0.6),
                               icon: context.read<MusicCubit>().idSelected == (widget.item.uuid ?? '') ? 
                                 snapshot.data?.processingState == ProcessingState.loading ? const Icon(Icons.watch_later) : MusicStateUtil.playIcon(snapshot.data) :
                                 const Icon(Icons.play_arrow_rounded),
@@ -360,7 +423,7 @@ class _MusicElementViewState extends State<MusicElementView> {
                     color: Colors.transparent,
                     child: InkWell(
                       splashColor: Colors.white,
-                      onTap: () => _viewMoreMusicInfo(context),                      
+                      onTap: () => _viewMoreInfo(context),                      
                       child: Container(
                         color: Colors.grey.shade700.withOpacity(0.8),
                         child: Column(
@@ -378,6 +441,7 @@ class _MusicElementViewState extends State<MusicElementView> {
                                 textAlign: TextAlign.center,
                                 overflow: TextOverflow.ellipsis,
                               ),
+                              trailing: iconMapper[widget.item.type],
                             )
                           ],
                         ),

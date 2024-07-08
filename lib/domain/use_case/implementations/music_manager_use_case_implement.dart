@@ -133,7 +133,7 @@ class MusicManagerUseCaseImplement with SaveFiles implements MusicManagerUseCase
   }
 
   @override
-  Future<Result<String>> eliminarMusica(String id, {required DataSourceType type}) async {
+  Future<Result<String>> eliminarMusica(String id) async {
     try {
       final musicaResult = await repo.getOne(id);
       if(!musicaResult.onSuccess) return Result.error(musicaResult.errorMessage!);

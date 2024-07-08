@@ -11,7 +11,7 @@ abstract class MusicManagerUseCase {
   Future<Result<String>> subirMusicaOnline(Music musica, {void Function(TaskSnapshot)? onLoadImagen, void Function(TaskSnapshot)? onLoadMusic});
   Future<Result<String>> agregarMusica(Music musica);
   Future<Result<String>> editarMusica(Music musica, String id, {required DataSourceType type});
-  Future<Result<String>> eliminarMusica(String id, {required DataSourceType type});
+  Future<Result<String>> eliminarMusica(String id);
 
   Future<Result<String>> descargarMusica(String id, {ProgressOfDownload? progressOfDownload});
   

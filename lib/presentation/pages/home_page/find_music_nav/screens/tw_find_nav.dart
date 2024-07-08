@@ -38,6 +38,7 @@ class _TWFindNavState extends State<TWFindNav> {
   bool _loading = false;
   static const int _limit = 10;
   String? _query;
+  bool _isTopScrollAvailable = false;
 
   @override
   void initState() {
@@ -57,6 +58,14 @@ class _TWFindNavState extends State<TWFindNav> {
   void _scrollListener(){
   final double viewportExtent = _scrollController.position.viewportDimension;
   final double offsetActivation = 0.8 * viewportExtent; //* 80% de viewport
+  const upOffset = 300;
+
+    if(_scrollController.offset > upOffset && !_isTopScrollAvailable){
+      setState(() => _isTopScrollAvailable = true);
+    }
+    else if(_scrollController.offset <= upOffset && _isTopScrollAvailable){
+      setState(() => _isTopScrollAvailable = false);
+    }
 
     if(!_loading && _hasMore && _scrollController.position.pixels >= _scrollController.position.maxScrollExtent - offsetActivation){
       _fetchData(_selectedType);
@@ -115,81 +124,92 @@ class _TWFindNavState extends State<TWFindNav> {
 
   @override
   Widget build(BuildContext context) {
-    return Scrollbar(
-      child: CustomScrollView(
-        scrollDirection: Axis.vertical,
-        shrinkWrap: true,
-        controller: _scrollController,
-        slivers: [
-      
-          //* Barra de busqueda
-          SliverAppBar(
-            automaticallyImplyLeading: false,
-            toolbarHeight: 80,
-            backgroundColor: Colors.transparent,
-            actions: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: TextFieldFind(
-                    hintText:'Buscar cancion...',
-                    suffixIcon: IconButtonUIMusic(
-                      borderColor: Colors.blue.shade400.withAlpha(50),
-                      borderSize: 2.0,
-                      fillColor: Colors.transparent,
-                      icon: const Icon(Icons.search, size: 25),
-                      onTap: () {},
+    return Scaffold(
+      floatingActionButton: 
+      _isTopScrollAvailable ? FloatingActionButton(
+        onPressed: (){
+          _scrollController.animateTo(0.0, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+        },
+        backgroundColor: Colors.blueAccent,
+        foregroundColor: Colors.white,
+        child: const Icon(Icons.arrow_upward_rounded, size: 35)
+      ) : null,
+      body: Scrollbar(
+        child: CustomScrollView(
+          scrollDirection: Axis.vertical,
+          shrinkWrap: true,
+          controller: _scrollController,
+          slivers: [
+        
+            //* Barra de busqueda
+            SliverAppBar(
+              automaticallyImplyLeading: false,
+              toolbarHeight: 80,
+              backgroundColor: Colors.transparent,
+              actions: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: TextFieldFind(
+                      hintText:'Buscar cancion...',
+                      suffixIcon: IconButtonUIMusic(
+                        borderColor: Colors.blue.shade400.withAlpha(50),
+                        borderSize: 2.0,
+                        fillColor: Colors.transparent,
+                        icon: const Icon(Icons.search, size: 25),
+                        onTap: () {},
+                      ),
+                      onChanged: _findMusic
                     ),
-                    onChanged: _findMusic
-                  ),
-                )
-              ),
-            ],
-          ),
-      
-          //* Seleccionar entre 2 opciones
-          SliverToBoxAdapter(child: 
-            GroupButton(
-              controller: _buttonsController,
-              buttonIndexedBuilder: (selected, index, context) => ElevatedButton(
-                onPressed: (){
-                  setState(() {
-                    _buttonsController.selectIndex(index);
-                    _allData.clear();
-                    _lastItem = null;
-                    _hasMore = true;
-                    _loading = false;
-                    _selectedType = index == 0 ? DataSourceType.online : DataSourceType.local;
-                    _fetchData(_selectedType);
-                  });
-                },
-                style: ButtonStyle(
-                  backgroundColor: WidgetStateColor.resolveWith((states) => selected ? const Color.fromARGB(255, 36, 161, 196) : const Color.fromARGB(255, 20, 84, 101))
+                  )
                 ),
-                child: Text(_buttonsOptions[index], style: TextStyle(color: selected ? Colors.white : Colors.grey.shade300))
-              ),
-              isRadio: true,
-              buttons: _buttonsOptions
-            )
-          ),
-      
-          const SliverToBoxAdapter(child: SizedBox(height: 10)),
-          Builder(
-            builder: (context) {
-              if(_allData.isEmpty) {return const SliverToBoxAdapter(child: Center(child: Text('No hay canciones por el momento')));}
-              if(_selectedType == DataSourceType.online) {
-                return BlocBuilder<ConnectivityCubit, bool>(
-                  bloc: context.read<ConnectivityCubit>(),
-                  builder: (blocContext, connectivityStatus) {
-                    if(!connectivityStatus) {return const SliverToBoxAdapter(child: Center(child: Text('Conectese a internet para poder acceder al listado')));}
-                    return _gridMusicContainer(blocContext, isOnline: true);
-                  }
-                );
+              ],
+            ),
+        
+            //* Seleccionar entre 2 opciones
+            SliverToBoxAdapter(child: 
+              GroupButton(
+                controller: _buttonsController,
+                buttonIndexedBuilder: (selected, index, context) => ElevatedButton(
+                  onPressed: (){
+                    setState(() {
+                      _buttonsController.selectIndex(index);
+                      _allData.clear();
+                      _lastItem = null;
+                      _hasMore = true;
+                      _loading = false;
+                      _selectedType = index == 0 ? DataSourceType.online : DataSourceType.local;
+                      _fetchData(_selectedType);
+                    });
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStateColor.resolveWith((states) => selected ? const Color.fromARGB(255, 36, 161, 196) : const Color.fromARGB(255, 20, 84, 101))
+                  ),
+                  child: Text(_buttonsOptions[index], style: TextStyle(color: selected ? Colors.white : Colors.grey.shade300))
+                ),
+                isRadio: true,
+                buttons: _buttonsOptions
+              )
+            ),
+        
+            const SliverToBoxAdapter(child: SizedBox(height: 10)),
+            Builder(
+              builder: (context) {
+                if(_allData.isEmpty) {return const SliverToBoxAdapter(child: Center(child: Text('No hay canciones por el momento')));}
+                if(_selectedType == DataSourceType.online) {
+                  return BlocBuilder<ConnectivityCubit, bool>(
+                    bloc: context.read<ConnectivityCubit>(),
+                    builder: (blocContext, connectivityStatus) {
+                      if(!connectivityStatus) {return const SliverToBoxAdapter(child: Center(child: Text('Conectese a internet para poder acceder al listado')));}
+                      return _gridMusicContainer(blocContext, isOnline: true);
+                    }
+                  );
+                }
+                return _gridMusicContainer(context, isOnline: false);
               }
-              return _gridMusicContainer(context, isOnline: false);
-            }
-          )
-        ],
+            )
+          ],
+        ),
       ),
     );
   }

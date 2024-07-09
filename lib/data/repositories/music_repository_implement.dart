@@ -56,9 +56,9 @@ class MusicRepositoryImplement extends RepositoryImplementBase with UseFirestore
   }
 
   @override
-  Future<Result<List<T>>> getAllLocal({String? where, List<String>? whereArgs, int limit = 10}) async {
+  Future<Result<List<T>>> getAllLocal({String? where, List<String>? whereArgs, int limit = 10, int page = 1}) async {
     try {
-      final data = await offlinesqfliteContext.getAll(dataset, where: where, whereArgs: whereArgs, limit: limit);
+      final data = await offlinesqfliteContext.getAll(dataset, where: where, whereArgs: whereArgs, limit: limit, page: page);
       return Result.success(data.map((e) => T.fromJson(e,0)).toList());
     } on Exception catch (e) {
       return Result.error('Ha ocurrido un error: $e');

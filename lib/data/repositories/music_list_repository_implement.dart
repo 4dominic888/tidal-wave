@@ -126,7 +126,7 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
   }
 
   @override
-  Future<Result<List<T>>> getAllLocal({String? where, List<String>? whereArgs, int? limit = 10}) async {
+  Future<Result<List<T>>> getAllLocal({String? where, List<String>? whereArgs, int limit = 10}) async {
     try {
       final data = await offlinesqfliteContext.getAll(dataset, where:where, whereArgs:whereArgs, limit:limit);
       return Result.success(data.map((e) => T.fromJson(e)).toList());

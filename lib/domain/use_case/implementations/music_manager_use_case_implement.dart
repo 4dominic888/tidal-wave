@@ -156,8 +156,8 @@ class MusicManagerUseCaseImplement with SaveFiles implements MusicManagerUseCase
   }
   
   @override
-  Future<Result<List<Music>>> obtenerMusicasDescargadas({String? where, List<String>? whereArgs, int limit = 10}) async {
-    return await repo.getAllLocal(where: where, whereArgs: whereArgs, limit: limit);
+  Future<Result<List<Music>>> obtenerMusicasDescargadas({String? where, List<String>? whereArgs, int limit = 10, int page = 1}) async {
+    return await repo.getAllLocal(where: where, whereArgs: whereArgs, limit: limit, page: page);
   }
   
   @override

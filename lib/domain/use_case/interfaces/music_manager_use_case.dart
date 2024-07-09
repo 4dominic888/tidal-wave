@@ -16,7 +16,7 @@ abstract class MusicManagerUseCase {
   Future<Result<String>> descargarMusica(String id, {ProgressOfDownload? progressOfDownload});
   
   Future<Result<List<Music>>> obtenerMusicasPublicas({FindManyFieldsToOneSearchFirebase? finder, Music? lastItem, int limit = 10});
-  Future<Result<List<Music>>> obtenerMusicasDescargadas({String? where, List<String>? whereArgs, int limit = 10});
+  Future<Result<List<Music>>> obtenerMusicasDescargadas({String? where, List<String>? whereArgs, int limit = 10, int page = 1});
 
   Future<bool> musicaExistente(String uuid);
 }

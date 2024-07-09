@@ -105,7 +105,9 @@ class _MusicElementViewState extends State<MusicElementView> {
   //* UpdateCallBack es para actualizar el popup
   //* ThenCallBack vendria a hacer la accion a realizar
   Future<void> _downloadMusic(BuildContext context, BuildContext popupContext, {void Function()? updateCallback, Future<void> Function()? thenCallback}) async{
-    setState(() => _downloadMusicCubit.addDownloadElement(widget.item.uuid!));
+    if(context.mounted){
+      setState(() => _downloadMusicCubit.addDownloadElement(widget.item.uuid!));
+    }
     _musicManagerUseCase.descargarMusica(
       widget.item.uuid!,
       progressOfDownload: (data) => _downloadMusicCubit.addProgressOfDownload(widget.item.uuid!, data)
@@ -132,7 +134,9 @@ class _MusicElementViewState extends State<MusicElementView> {
       if(popupContext.mounted){
         updateCallback?.call();
       }
-      setState(() {});
+      if(context.mounted){
+        setState(() {});
+      }
     });
   }
 
@@ -143,21 +147,25 @@ class _MusicElementViewState extends State<MusicElementView> {
       title: 'Borrar musica',
       description: '¿Estás seguro que deseas eliminar esta música? Esta acción no se puede deshacer.',
       onOK: () async {
+        if(context.read<MusicCubit>().state.playing && context.read<MusicCubit>().idSelected == widget.item.uuid!){
+          await context.read<MusicCubit>().state.stop();
+          await context.read<MusicCubit>().setMusic(null);
+        }        
         Navigator.of(context).pop();
-        showLoadingDialog(
-          context, 
-          () async {
+        await showLoadingDialog(
+          this.context, () async {
             result = await _musicManagerUseCase.eliminarMusica(widget.item.uuid!);
           },
           message: 'Eliminando'
         ).then((_) async {
+          Navigator.of(this.context).pop();
           await widget.onLocalUpdate?.call();
           if(!result.onSuccess){
-            showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: result.errorMessage!));
+            await showDialog(context: this.context, builder: (context) => PopupMessage(title: 'Error', description: result.errorMessage!));
             setState(() {});
             return;
           }
-          showDialog(context: context, builder: (context) => PopupMessage(title: 'Exito', description: result.data!));
+          await showDialog(context: this.context, builder: (context) => PopupMessage(title: 'Exito', description: result.data!));
           setState(() {});
         });
       },
@@ -197,7 +205,7 @@ class _MusicElementViewState extends State<MusicElementView> {
                 SingleChildScrollView(scrollDirection: Axis.horizontal ,child: Text(widget.item.artistasStr, style: const TextStyle(fontSize: 15))),
                 const SizedBox(height: 10),
                 Expanded(
-                  child: widget.item.type == DataSourceType.online ? _rowInfoOnline(contextBottomSheet) : _rowInfoDownloaded(context),
+                  child: widget.item.type == DataSourceType.online ? _rowInfoOnline(contextBottomSheet) : _rowInfoDownloaded(contextBottomSheet),
                 ),
               ],
             ),
@@ -218,7 +226,9 @@ class _MusicElementViewState extends State<MusicElementView> {
         ),
         const Spacer(),
         ElevatedButton(
-          onPressed: () async => _deleteMusic(context),
+          onPressed: () async {
+            await _deleteMusic(context);
+          },
           style: ButtonStyle(backgroundColor: WidgetStateColor.resolveWith((states) => Colors.grey.shade900)),
           child: const Text('Eliminar')
         ),        

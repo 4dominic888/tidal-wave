@@ -31,13 +31,18 @@ class _TWFindNavState extends State<TWFindNav> {
   final _buttonsController = GroupButtonController(selectedIndex: 0);
   static final _buttonsOptions = ['Musicas publicas', 'Mis musicas descargadas'];
 
+  //* Listas auxiliares
   final List<Music> _allData = [];
   final List<String> _localMusicIds = [];
-  Music? _lastItem;
+
+  //* Variables auxiliares para paginado
+  Music? _lastItem; //* Paginado online con Firebase
+  int _localPage = 0; //* Paginado local con SqfLite
   bool _hasMore = true;
   bool _loading = false;
   static const int _limit = 10;
-  String? _query;
+
+  //* Variable para hacer aparecer el boton para ir al inicio del scroll
   bool _isTopScrollAvailable = false;
 
   @override
@@ -76,9 +81,14 @@ class _TWFindNavState extends State<TWFindNav> {
     if(_loading || !_hasMore) return;
     _loading = true;
 
-    _lastItem = _allData.isNotEmpty ? _allData.last : null;
+    if(dataSourceType == DataSourceType.online){
+      _lastItem = _allData.isNotEmpty ? _allData.last : null;
+    }
+    else{
+      _localPage++;
+    }
 
-    final newData = await listOfMusic(dataSourceType, lastItem: _lastItem, query: _query);
+    final newData = await listOfMusic(dataSourceType);
     _allData.addAll(newData);
     if(newData.length < _limit){_hasMore = false;}
     setState(() {
@@ -86,24 +96,21 @@ class _TWFindNavState extends State<TWFindNav> {
     });
   }
 
-  Future<void> _findMusic(String query) async {
-    _query = query;
+  Future<void> _findMusic(String? query) async {
+    final fQuery = query != null && query.trim().isNotEmpty ? query.trim() : null;
+    print(fQuery);
     _allData.clear();
-    if(query.trim().isEmpty){
-      _lastItem = null;
+    if(fQuery == null){
+      if(_selectedType == DataSourceType.online) { _lastItem = null; }
+      else { _localPage = 0; }
       _hasMore = true;
     }
-    if(_selectedType == DataSourceType.online){
-      final data = await listOfMusic(_selectedType, lastItem: _lastItem, query: _query);
-      _allData.addAll(data);
-    }
-    else{
-
-    }
+    final data = await listOfMusic(_selectedType, query: fQuery);
+    _allData.addAll(data);
     setState(() {});
   }
 
-  Future<List<Music>> listOfMusic(DataSourceType dataSourceType, {Music? lastItem, String? query}) async {
+  Future<List<Music>> listOfMusic(DataSourceType dataSourceType, {String? query}) async {
     late final Result<List<Music>> result;
     if(dataSourceType == DataSourceType.online){
       result = await _musicManagerUseCase.obtenerMusicasPublicas(
@@ -111,15 +118,28 @@ class _TWFindNavState extends State<TWFindNav> {
           field: 'title',
           find: query
         ),
-        lastItem: lastItem,
+        lastItem: _lastItem,
         limit: _limit
       );
     }
     else{
-      result = await _musicManagerUseCase.obtenerMusicasDescargadas(limit: _limit);
+      result = await _musicManagerUseCase.obtenerMusicasDescargadas(
+        limit: _limit,
+        page: _localPage,
+        where: query != null ?  'LOWER(title) LIKE ?' : null,
+        whereArgs: query != null ? ['%${query.toLowerCase()}%'] : null
+      );
     }
     if(result.onSuccess){return result.data!.toList();}
     throw Exception(result.errorMessage);
+  }
+
+  void _resetList(){
+    _allData.clear();
+    _lastItem = null;
+    _hasMore = true;
+    _loading = false;
+    _localPage = -1;
   }
 
   @override
@@ -128,7 +148,7 @@ class _TWFindNavState extends State<TWFindNav> {
       floatingActionButton: 
       _isTopScrollAvailable ? FloatingActionButton(
         onPressed: (){
-          _scrollController.animateTo(0.0, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut);
+          _scrollController.animateTo(0.0, duration: const Duration(milliseconds: 100), curve: Curves.easeInOut);
         },
         backgroundColor: Colors.blueAccent,
         foregroundColor: Colors.white,
@@ -174,10 +194,7 @@ class _TWFindNavState extends State<TWFindNav> {
                   onPressed: (){
                     setState(() {
                       _buttonsController.selectIndex(index);
-                      _allData.clear();
-                      _lastItem = null;
-                      _hasMore = true;
-                      _loading = false;
+                      _resetList();
                       _selectedType = index == 0 ? DataSourceType.online : DataSourceType.local;
                       _fetchData(_selectedType);
                     });
@@ -216,7 +233,7 @@ class _TWFindNavState extends State<TWFindNav> {
 
   StatefulBuilder _gridMusicContainer(BuildContext context, {bool? isOnline = true}) {
     return StatefulBuilder(
-      builder: (context, stfSetState) {
+      builder: (stfContext, stfSetState) {
         return SliverGrid(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
@@ -232,14 +249,13 @@ class _TWFindNavState extends State<TWFindNav> {
                 onLocalUpdate: () async {
                   await _fillIdsList();
                   if(_selectedType == DataSourceType.online){
-                    stfSetState(() {});
+                    if(stfContext.mounted){
+                      stfSetState((){});
+                    }
                     return;
                   }
                   setState(() {
-                    _allData.clear();
-                    _lastItem = null;
-                    _hasMore = true;
-                    _loading = false;
+                    _resetList();
                     _fetchData(_selectedType);                    
                   });
                 },

@@ -107,7 +107,7 @@ class Music {
     );
 
     if(type == DataSourceType.online){
-    return AudioSource.uri(musica, tag: tag);
+      return AudioSource.uri(musica, tag: tag);
     }
     return AudioSource.file(File(musica.toString()).path, tag: tag);
 

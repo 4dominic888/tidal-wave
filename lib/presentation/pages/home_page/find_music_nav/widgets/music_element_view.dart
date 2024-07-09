@@ -147,7 +147,8 @@ class _MusicElementViewState extends State<MusicElementView> {
       title: 'Borrar musica',
       description: '¿Estás seguro que deseas eliminar esta música? Esta acción no se puede deshacer.',
       onOK: () async {
-        if(context.read<MusicCubit>().state.playing && context.read<MusicCubit>().idSelected == widget.item.uuid!){
+        final musicCubitState = context.read<MusicCubit>();
+        if(musicCubitState.state.playing && musicCubitState.idSelected == widget.item.uuid! && musicCubitState.dataSourceTypeSelected == widget.item.type){
           await context.read<MusicCubit>().state.stop();
           await context.read<MusicCubit>().setMusic(null);
         }        
@@ -346,7 +347,8 @@ class _MusicElementViewState extends State<MusicElementView> {
             Image.asset('assets/placeholder/music-placeholder.png').image,
             child: InkWell(
               onTap: (){
-                if(context.read<MusicCubit>().state.audioSource != null && context.read<MusicCubit>().idSelected == (widget.item.uuid ?? '')){
+                final musicCubitState = context.read<MusicCubit>();
+                if(musicCubitState.state.audioSource != null && musicCubitState.idSelected == (widget.item.uuid ?? '') && musicCubitState.dataSourceTypeSelected == widget.item.type){
                   Navigator.of(context).push(MaterialPageRoute(builder: (context) => ReproductorMusicaScreen(canFavoriteSelected: widget.item.type != DataSourceType.online)));
                 }
               }
@@ -367,43 +369,48 @@ class _MusicElementViewState extends State<MusicElementView> {
                         return StreamBuilder<Duration>( //* Actualizar la barra de progreso circular segun el progreso de la musica
                           stream: context.read<MusicCubit>().state.positionStream.asBroadcastStream(),
                           builder: (context, snapshotDuration) {
+                            final musicCubitState = context.read<MusicCubit>();
+                            final bool selected = musicCubitState.idSelected == (widget.item.uuid ?? '') && musicCubitState.dataSourceTypeSelected == widget.item.type;
                             return IconButtonUIMusic(
-                              borderColor: context.read<MusicCubit>().idSelected == (widget.item.uuid ?? '') && snapshot.data?.processingState == ProcessingState.loading ? Colors.yellowAccent.withOpacity(0.6) : Colors.transparent,
+                              borderColor: selected && snapshot.data?.processingState == ProcessingState.loading ? Colors.yellowAccent.withOpacity(0.6) : Colors.transparent,
                               borderSize: 3.0,
                               progress: 
                                 //* Si esta seleccionado y se esta escuchando
-                                context.read<MusicCubit>().idSelected == (widget.item.uuid ?? '') && context.read<MusicCubit>().state.playerState.processingState != ProcessingState.completed ? 
-                                (snapshotDuration.data?.inMilliseconds ?? 0) / (context.read<MusicCubit>().state.duration?.inMilliseconds ?? 1) : 0.0,
-                              fillColor: context.read<MusicCubit>().idSelected == (widget.item.uuid ?? '') ? 
-                                Colors.black.withOpacity(0.6) : Colors.grey.shade700.withOpacity(0.6),
-                              icon: context.read<MusicCubit>().idSelected == (widget.item.uuid ?? '') ? 
+                                selected && musicCubitState.state.playerState.processingState != ProcessingState.completed ? 
+                                (snapshotDuration.data?.inMilliseconds ?? 0) / (musicCubitState.state.duration?.inMilliseconds ?? 1) : 0.0,
+
+                              fillColor: selected ?Colors.black.withOpacity(0.6) : Colors.grey.shade700.withOpacity(0.6),
+                              icon: selected ? 
                                 snapshot.data?.processingState == ProcessingState.loading ? const Icon(Icons.watch_later) : MusicStateUtil.playIcon(snapshot.data) :
                                 const Icon(Icons.play_arrow_rounded),
                             
-                              onTap: context.read<MusicCubit>().idSelected == (widget.item.uuid ?? '') ? 
+                              onTap: selected ? 
                               MusicStateUtil.playReturns(
                                 snapshot.data,
                                 playCase: () {
                                   context.read<MusicCubit>().setSelectedId(widget.item.uuid!);
+                                  context.read<MusicCubit>().setSelectDataSourceType(widget.item.type);
                                   context.read<MusicCubit>().state.play();
                                 },
                                 stopCase: context.read<MusicCubit>().state.pause,
                                 playStatic: () async{
                                   context.read<MusicCubit>().setSelectedId(widget.item.uuid!);
+                                  context.read<MusicCubit>().setSelectDataSourceType(widget.item.type);
                                   await context.read<MusicCubit>().setMusic(widget.item);
-                                  if(!context.mounted) return;
-                                  await context.read<MusicCubit>().state.play();
-                                  if(!context.mounted) return;
-                                  context.read<MusicCubit>().isActive;
+                                  if(context.mounted){
+                                    await context.read<MusicCubit>().state.play();
+                                    context.read<MusicCubit>().isActive;
+                                  }
                                 },
                               ) : 
                               () async {
                                   context.read<MusicCubit>().setSelectedId(widget.item.uuid!);
+                                  context.read<MusicCubit>().setSelectDataSourceType(widget.item.type);
                                   await context.read<MusicCubit>().setMusic(widget.item);
-                                  if(!context.mounted) return;
-                                  await context.read<MusicCubit>().state.play();
-                                  if(!context.mounted) return;
-                                  context.read<MusicCubit>().isActive;
+                                  if(!context.mounted){
+                                    await context.read<MusicCubit>().state.play();
+                                    context.read<MusicCubit>().isActive;
+                                  }
                                 },
                             );
                           }

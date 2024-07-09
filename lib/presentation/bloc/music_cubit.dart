@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:tidal_wave/data/abstractions/tw_enums.dart';
 import 'package:tidal_wave/domain/models/music.dart';
 import 'package:tidal_wave/domain/models/position_data.dart';
 
@@ -10,6 +11,7 @@ class MusicCubit extends Cubit<AudioPlayer> {
 
   bool isActive = false;
   String? idSelected;
+  DataSourceType? dataSourceTypeSelected;
 
   MusicCubit() :super(_initAudioPlayer);
 
@@ -30,6 +32,11 @@ class MusicCubit extends Cubit<AudioPlayer> {
 
   void setSelectedId(String selected){
     idSelected = selected;
+    emit(state);
+  }
+
+  void setSelectDataSourceType(DataSourceType type){
+    dataSourceTypeSelected = type;
     emit(state);
   }
 

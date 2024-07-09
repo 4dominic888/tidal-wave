@@ -23,7 +23,7 @@ class _TWUserListNavState extends State<TWUserListNav> {
   static final _buttonsController = GroupButtonController(selectedIndex: 0);
   static final _buttonsOptions = ['Mis listas', 'Otras listas'];
 
-  Future<List<MusicList>>? _listOfMusic() async {
+  Future<List<MusicList>>? _listOfMusicList() async {
     final result = await _playListManagerUseCase.obtenerListasLocales();
     if(result.onSuccess){
       return result.data!.toList();
@@ -63,7 +63,7 @@ class _TWUserListNavState extends State<TWUserListNav> {
           ),
           Expanded(
             child: FutureBuilder<List<MusicList>>(
-              future: _listOfMusic(),
+              future: _listOfMusicList(),
               builder: (context, snapshot) {
                 if(snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
                 if(snapshot.hasError) return Center(child: Text(snapshot.error.toString()));

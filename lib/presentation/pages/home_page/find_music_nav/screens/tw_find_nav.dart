@@ -98,7 +98,6 @@ class _TWFindNavState extends State<TWFindNav> {
 
   Future<void> _findMusic(String? query) async {
     final fQuery = query != null && query.trim().isNotEmpty ? query.trim() : null;
-    print(fQuery);
     _allData.clear();
     if(fQuery == null){
       if(_selectedType == DataSourceType.online) { _lastItem = null; }

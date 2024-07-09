@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:tidal_wave/data/abstractions/tw_enums.dart';
 
 Duration parseDuration(String s) {
 
@@ -36,6 +37,12 @@ String toStringDurationFormat(Duration duration) {
 bool isURL(String cadena) {
   return cadena.startsWith('http://') || cadena.startsWith('https://');
 }
+
+final Map<DataSourceType,Icon> iconMapper = {
+  DataSourceType.online: const Icon(Icons.language),
+  DataSourceType.fromOnline: const Icon(Icons.cloud_done),
+  DataSourceType.local : const Icon(Icons.save)
+};
 
 Future showLoadingDialog(BuildContext context, AsyncCallback action, {String message = "Cargando"}) {
   return showDialog(context: context, barrierDismissible: false, builder: (context) {

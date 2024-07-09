@@ -47,8 +47,8 @@ class SqfliteDatabaseService extends DatabaseService<Map<String, dynamic>>{
   }  
 
   @override
-  Future<List<Map<String, dynamic>>> getAll(String dataset, {String? where, List<String>? whereArgs, int? limit}) async {
-    return await _db!.query(dataset, limit: limit, where: where, whereArgs: whereArgs);
+  Future<List<Map<String, dynamic>>> getAll(String dataset, {String? where, List<String>? whereArgs, int limit = 10, int page = 1}) async {
+    return await _db!.query(dataset, limit: limit, where: where, whereArgs: whereArgs, offset: limit * page);
   }
   
   @override

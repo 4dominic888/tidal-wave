@@ -19,7 +19,7 @@ class Music {
   final Timestamp uploadAt;
   final Duration betterMoment;
   final DataSourceType type;
-  bool? favorito = false;
+  bool favorito = false;
 
   Music({
     int? index,
@@ -33,7 +33,7 @@ class Music {
     this.stars,
     this.uuid,
     this.imagen,
-    this.favorito,
+    this.favorito = false,
   }) : _index = index ?? -1;  
 
   factory Music.fromJson(Map<String,dynamic> json, int? index){
@@ -95,7 +95,7 @@ class Music {
   }
 
   Map<String, dynamic> toJsonLocal(){
-    return toJson()..addAll({'favorite': favorito! ? 1 : 0});
+    return toJson()..addAll({'favorite': favorito ? 1 : 0});
   }
 
   AudioSource toAudioSource(String index){
@@ -107,7 +107,7 @@ class Music {
     );
 
     if(type == DataSourceType.online){
-    return AudioSource.uri(musica, tag: tag);
+      return AudioSource.uri(musica, tag: tag);
     }
     return AudioSource.file(File(musica.toString()).path, tag: tag);
 

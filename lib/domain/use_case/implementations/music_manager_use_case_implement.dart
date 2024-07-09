@@ -133,7 +133,7 @@ class MusicManagerUseCaseImplement with SaveFiles implements MusicManagerUseCase
   }
 
   @override
-  Future<Result<String>> eliminarMusica(String id, {required DataSourceType type}) async {
+  Future<Result<String>> eliminarMusica(String id) async {
     try {
       final musicaResult = await repo.getOne(id);
       if(!musicaResult.onSuccess) return Result.error(musicaResult.errorMessage!);
@@ -156,8 +156,8 @@ class MusicManagerUseCaseImplement with SaveFiles implements MusicManagerUseCase
   }
   
   @override
-  Future<Result<List<Music>>> obtenerMusicasDescargadas({String? where, List<String>? whereArgs, int limit = 10}) async {
-    return await repo.getAllLocal(where: where, whereArgs: whereArgs, limit: limit);
+  Future<Result<List<Music>>> obtenerMusicasDescargadas({String? where, List<String>? whereArgs, int limit = 10, int page = 1}) async {
+    return await repo.getAllLocal(where: where, whereArgs: whereArgs, limit: limit, page: page);
   }
   
   @override
@@ -175,18 +175,18 @@ class MusicManagerUseCaseImplement with SaveFiles implements MusicManagerUseCase
           uri: musicResult.data!.imagen!,
           folderName: 'music-thumb',
           fileName: 'i-${musicResult.data!.uuid}',
-          progressOfDownload: progressOfDownload ?? (int total, int downloaded, double progress){}
+          progressOfDownload: progressOfDownload
         );
         if(!musicImagePathResult.onSuccess) return Result.error(musicImagePathResult.errorMessage!);
         musicImageUri = Uri.parse(musicImagePathResult.data!);
       }
 
-      //* Descargar cancion
+      //* Descargar musica
       final musicPathResult = await saveOnlineFile(
         uri: musicResult.data!.musica,
         folderName: 'music',
         fileName: 'm-${musicResult.data!.uuid}',
-        progressOfDownload: progressOfDownload ?? (int total, int downloaded, double progress){}
+        progressOfDownload: progressOfDownload
       );
 
       if(!musicPathResult.onSuccess) return Result.error(musicPathResult.errorMessage!);
@@ -195,7 +195,8 @@ class MusicManagerUseCaseImplement with SaveFiles implements MusicManagerUseCase
       final Music musicOffline = musicResult.data!.copyWith(
         imagen: musicImageUri,
         musica: musicUri,
-        type: DataSourceType.fromOnline
+        type: DataSourceType.fromOnline,
+        favorito: false
       );
 
       await repo.addOne(musicOffline, musicOffline.uuid);

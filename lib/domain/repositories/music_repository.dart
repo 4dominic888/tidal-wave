@@ -24,7 +24,7 @@ abstract class MusicRepository implements Addable<T>, GetOneable<T>, Updatable<T
   Future<Result<List<T>>> getAllOnline({FindManyFieldsToOneSearchFirebase? finder, T? lastItem, int limit = 10});
   
   /// Obtiene todas las musicas locales que tenga el usuario, osea las descargadas.
-  Future<Result<List<T>>> getAllLocal({String? where, List<String>? whereArgs, int limit = 10});
+  Future<Result<List<T>>> getAllLocal({String? where, List<String>? whereArgs, int limit = 10, int page = 1});
   
   /// Sube una cancion a la nube
   /// TODO: Quitar luego

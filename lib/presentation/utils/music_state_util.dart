@@ -43,7 +43,7 @@ class MusicStateUtil {
   static void Function() playAction(AudioPlayer audioPlayer){
     return playReturns<void Function()>(audioPlayer.playerState, 
       playCase: audioPlayer.play,
-      stopCase: audioPlayer.stop,
+      stopCase: audioPlayer.pause,
       playStatic: () {},
     );
   }

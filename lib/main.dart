@@ -3,10 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:just_audio_background/just_audio_background.dart';
+import 'package:overlay_support/overlay_support.dart';
 import 'package:tidal_wave/data/abstractions/connectivity_service_base.dart';
 import 'package:tidal_wave/data/abstractions/database_service.dart';
 import 'package:tidal_wave/locator.dart';
 import 'package:tidal_wave/presentation/bloc/connectivity_cubit.dart';
+import 'package:tidal_wave/presentation/bloc/download_music_cubit.dart';
 import 'package:tidal_wave/presentation/bloc/music_color_cubit.dart';
 import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
 import 'package:tidal_wave/presentation/bloc/user_cubit.dart';
@@ -52,14 +54,17 @@ class _TidalWaveAppState extends State<TidalWaveApp> {
         BlocProvider(create: (_) => MusicCubit()),
         BlocProvider(create: (_) => MusicColorCubit()),
         BlocProvider(create: (_) => UserCubit()),
-        BlocProvider(create: (_) => ConnectivityCubit())
+        BlocProvider(create: (_) => ConnectivityCubit()),
+        BlocProvider(create: (_) => DownloadMusicCubit())
       ],
-      child: MaterialApp(
-        title: 'Tidal Wave',
-        debugShowCheckedModeBanner: false,
-        //* Tema por defecto
-        theme: defaultTheme(context),
-        home: const HomePageScreen(),
+      child: OverlaySupport(
+        child: MaterialApp(
+          title: 'Tidal Wave',
+          debugShowCheckedModeBanner: false,
+          //* Tema por defecto
+          theme: defaultTheme(context),
+          home: const HomePageScreen(),
+        ),
       ),
     );
   }

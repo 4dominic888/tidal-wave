@@ -11,7 +11,7 @@ class Controls extends StatelessWidget {
 
   const Controls({super.key, required this.audioPlayer, required this.color});
 
-  Widget _buttonBuilder(Icon icon, double size, void Function() onPressed, {bool locked = false}){
+  Widget _buttonBuilder(Icon icon, double size, void Function()? onPressed, {bool locked = false}){
     return IconButton(
       icon: icon,
       color: locked ? color.withOpacity(0.3) : color,
@@ -54,7 +54,17 @@ class Controls extends StatelessWidget {
             Expanded(
               child: Container(),
             ),
-            Container(child: _buttonBuilder(const Icon(Icons.shuffle_rounded), 30, random)),
+            StreamBuilder<List<IndexedAudioSource>?>(
+              stream: audioPlayer.sequenceStream,
+              builder: (context, snapshot) {
+                snapshot.data?.length == 1;
+                return Container(
+                  child: _buttonBuilder(const Icon(Icons.shuffle_rounded),
+                  30,
+                  snapshot.data != null && snapshot.data!.length > 2 ? random : null
+                ));
+              }
+            ),
 
             // Volumen
             VolumeControl(

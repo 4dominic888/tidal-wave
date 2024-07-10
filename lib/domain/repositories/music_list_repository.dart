@@ -25,6 +25,9 @@ abstract class MusicListRepository implements Addable<T>, GetOneable<T>, Updatab
   /// Obtiene todas las listas locales
   Future<Result<List<T>>> getAllLocal({String? where, List<String>? whereArgs, int limit = 10});
   
+  /// Obtiene todas las listas a excepcion de las listas donde la musica ha sido agregada segun el 'musicId' ingresado
+  Future<Result<List<T>>> getAllNonRepetitiveMusicAdded(String musicId);
+  
   /// Obtiene todas las listas subidas por el usuario a la nube
   Future<Result<List<T>>> getAllUploaded({FindManyFieldsToOneSearchFirebase? finder, int limit = 10});
   

@@ -49,7 +49,8 @@ class _MusicElementViewState extends State<MusicElementView> {
 
   Future<void> _showAddMusicToList(BuildContext context, Music music, MusicList listSelected) async {
     Result<String>? result;
-    await showLoadingDialog(context,  () async { 
+    Navigator.of(context).pop();
+    await showLoadingDialog(context, () async { 
       result = await _musicListManagerUseCase.agregarMusicaALista(
         musicId: music.uuid!,
         listId: listSelected.id,
@@ -67,10 +68,10 @@ class _MusicElementViewState extends State<MusicElementView> {
     }
   }
 
-  Future<void> _showListOfMusics(BuildContext context, Music music) async {
+  Future<void> _showListOfMusics(BuildContext context) async {
     late Result<List<MusicList>> listResult;
-    await showLoadingDialog(context, () async => listResult = await _musicListManagerUseCase.obtenerListasLocales());
-    if(!context.mounted) return;
+    await showLoadingDialog(context, () async => listResult = await _musicListManagerUseCase.obtenerListasSinMusicaAColocar(widget.item.uuid!));
+
     if(!listResult.onSuccess) {
       showDialog(context: context, builder: (context) => PopupMessage(title: 'Error', description: listResult.errorMessage!));
       return;
@@ -91,7 +92,7 @@ class _MusicElementViewState extends State<MusicElementView> {
                   children: listas.map((list) => 
                   ListTile(
                     title: Text(list.name),
-                    onTap: () async => await _showAddMusicToList(context, music, list)
+                    onTap: () async => await _showAddMusicToList(context, widget.item, list)
                   )).toList(),
                 ),
               ),
@@ -221,7 +222,7 @@ class _MusicElementViewState extends State<MusicElementView> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ElevatedButton(
-          onPressed: () async => _showListOfMusics(context, widget.item),
+          onPressed: () async => _showListOfMusics(context),
           style: ButtonStyle(backgroundColor: WidgetStateColor.resolveWith((states) => Colors.grey.shade900)),
           child: const Text('Agregar a lista')
         ),

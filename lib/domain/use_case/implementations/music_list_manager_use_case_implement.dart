@@ -92,10 +92,15 @@ class MusicListManagerUseCaseImplement with SaveFiles implements MusicListManage
   }
 
   @override
+  Future<Result<List<MusicList>>> obtenerListasSinMusicaAColocar(String musicId) async {
+    return await repo.getAllNonRepetitiveMusicAdded(musicId);
+  }
+
+  @override
   Future<Result<List<MusicList>>> obtenerListasPublicas({FindManyFieldsToOneSearchFirebase? finder, int limit = 10}) async {
     return await repo.getAllGlobal(finder: finder, limit: limit);
   }
-  
+
   @override
   Future<Result<List<MusicList>>> obtenerListasSubidas({FindManyFieldsToOneSearchFirebase? finder, int limit = 10}) async {
     return await repo.getAllUploaded(finder: finder, limit: limit);
@@ -115,5 +120,6 @@ class MusicListManagerUseCaseImplement with SaveFiles implements MusicListManage
   Future<Result<String>> limpiarLista({required String listId}) async {
     return await repo.clearList(listId);
   }
+  
 
 }

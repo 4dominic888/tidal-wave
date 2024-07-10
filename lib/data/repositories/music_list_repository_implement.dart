@@ -53,8 +53,8 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
   @override
   Future<Result<String>> removeMusic({required String musicUUID, required String listId}) async {
     try {
-      await offlinesqfliteContext.db.rawDelete('DELETE FROM MusicsLists WHERE music_id = ? AND list_id = ?', [musicUUID, listId]);
-      return Result.success('Musica agregada con exito');
+      await offlinesqfliteContext.db.rawDelete('DELETE FROM $manyToManyListMusicsLocal WHERE music_id = ? AND list_id = ?', [musicUUID, listId]);
+      return Result.success('Musica removida con exito de la lista');
     } catch (e) {
       return Result.error('Ha ocurrido un error $e');
     }
@@ -63,7 +63,7 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
   @override
   Future<Result<String>> clearList(String listId) async {
     try {
-      await offlinesqfliteContext.db.rawDelete('DELETE FROM MusicsLists WHERE list_id = ?', [listId]);
+      await offlinesqfliteContext.db.rawDelete('DELETE FROM $manyToManyListMusicsLocal WHERE list_id = ?', [listId]);
       return Result.success('Musica agregada con exito');
     } catch (e) {
       return Result.error('Ha ocurrido un error $e');
@@ -143,6 +143,19 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
     } catch (e) {
       return Result.error('Ha ocurrido un error $e');
     }
+  }
+
+  @override
+  Future<Result<List<T>>> getAllNonRepetitiveMusicAdded(String musicId) async {
+    try {
+      //* Consulta anidada de SELECT que retorna las listas que no contengan el musicID dado, ademas de mostrar las listas vacias
+      final data = await offlinesqfliteContext.db.rawQuery(
+        "SELECT * FROM $dataset WHERE uuid IN( SELECT list_id from $manyToManyListMusicsLocal WHERE list_id NOT IN( SELECT list_id FROM $manyToManyListMusicsLocal WHERE music_id = '$musicId' ) ) OR uuid IN( SELECT uuid FROM $dataset WHERE uuid NOT IN( SELECT list_id FROM $manyToManyListMusicsLocal) )"
+      );
+      return Result.success(data.map((e) => T.fromJson(e)).toList());
+    } catch (e) {
+      return Result.error('Ha ocurrido un error $e');
+    }    
   }
 
   @override

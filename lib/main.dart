@@ -11,6 +11,8 @@ import 'package:tidal_wave/presentation/bloc/connectivity_cubit.dart';
 import 'package:tidal_wave/presentation/bloc/download_music_cubit.dart';
 import 'package:tidal_wave/presentation/bloc/music_color_cubit.dart';
 import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
+import 'package:tidal_wave/presentation/bloc/music_playing_cubit.dart';
+import 'package:tidal_wave/presentation/bloc/play_list_state_cubit.dart';
 import 'package:tidal_wave/presentation/bloc/user_cubit.dart';
 import 'package:tidal_wave/firebase_options.dart';
 import 'package:tidal_wave/presentation/pages/home_page/home_page_screen.dart';
@@ -55,7 +57,9 @@ class _TidalWaveAppState extends State<TidalWaveApp> {
         BlocProvider(create: (_) => MusicColorCubit()),
         BlocProvider(create: (_) => UserCubit()),
         BlocProvider(create: (_) => ConnectivityCubit()),
-        BlocProvider(create: (_) => DownloadMusicCubit())
+        BlocProvider(create: (_) => DownloadMusicCubit()),
+        BlocProvider(create: (_) => MusicPlayingCubit()),
+        BlocProvider(create: (_) => PlayListStateCubit())
       ],
       child: OverlaySupport(
         child: MaterialApp(

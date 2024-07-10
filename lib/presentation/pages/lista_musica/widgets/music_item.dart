@@ -11,18 +11,18 @@ class MusicItem extends StatelessWidget {
   final Music music;
   final void Function() onPlay;
   final void Function() onOptions;
-  final List<bool>? selected; //? Es simplemente un bool pasado como referencia, ignora que sea lista.
+  final bool? selected;
 
-  const MusicItem({super.key, required this.music, required this.onPlay, required this.onOptions, this.selected = const [false]});
+  const MusicItem({super.key, required this.music, required this.onPlay, required this.onOptions, this.selected = false});
 
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 4.0,
-      color: selected![0] ? Colors.white.withOpacity(0.1) : Colors.transparent,
+      color: selected! ? Colors.white.withOpacity(0.1) : Colors.transparent,
       surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(
-        side: BorderSide(color: selected![0] ? Colors.blue.shade100.withAlpha(100) : Colors.blue.shade100.withAlpha(800), width: 2),
+        side: BorderSide(color: selected! ? Colors.blue.shade100.withAlpha(100) : Colors.blue.shade100.withAlpha(800), width: 2),
         borderRadius: BorderRadius.circular(8.0)
       ),
       child: ListTile(
@@ -34,8 +34,8 @@ class MusicItem extends StatelessWidget {
               borderColor: Colors.blue.shade100.withAlpha(100),
               borderSize: 2.5,
               fillColor: Colors.black.withOpacity(0.3),
-              icon: selected![0] ? MusicStateUtil.playIcon(snapshot.data) : const Icon(Icons.play_arrow_rounded, color: Colors.white),
-              onTap: selected![0] ? MusicStateUtil.playAction(context.read<MusicCubit>().state) : onPlay,
+              icon: selected! ? MusicStateUtil.playIcon(snapshot.data) : const Icon(Icons.play_arrow_rounded, color: Colors.white),
+              onTap: selected! ? MusicStateUtil.playAction(context.read<MusicCubit>().state) : onPlay,
             );
           }
         ),

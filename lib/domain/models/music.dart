@@ -103,7 +103,7 @@ class Music {
       id: index,
       title: titulo,
       artist: artistasStr,
-      artUri: imagen ?? Uri.parse('package:flutter_app/assets/placeholder/music-placeholder.png')
+      artUri: imagen != null && imagen!.scheme.isEmpty ? imagen ?? Uri.parse('package:flutter_app/assets/placeholder/music-placeholder.png') : null
     );
 
     if(type == DataSourceType.online){

@@ -1,16 +1,16 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
+import 'package:tidal_wave/presentation/bloc/play_list_state_cubit.dart';
 import 'package:tidal_wave/presentation/pages/reproductor_musica/screens/reproductor_musica_screen.dart';
 import 'package:tidal_wave/presentation/utils/function_utils.dart';
 import 'package:tidal_wave/presentation/utils/music_state_util.dart';
 class MiniMusicPlayer extends StatelessWidget {
 
-  final void Function()? externalSetState;
-
-  const MiniMusicPlayer({super.key, this.externalSetState});
+  const MiniMusicPlayer({super.key});
 
   Widget _circularImage(AudioPlayer state){
     return StreamBuilder<SequenceState?>(
@@ -112,7 +112,11 @@ class MiniMusicPlayer extends StatelessWidget {
                     stream: state.currentIndexStream.asBroadcastStream(),
                     builder: (context, snapshot) {
                       return MusicStateUtil.previousReturns<Widget>(snapshot.data, 
-                        active: IconButton(onPressed: state.seekToPrevious, icon: const Icon(Icons.skip_previous_sharp), color: Colors.grey.shade500),
+                        active: IconButton(onPressed: () {
+                          GetIt.I<PlayListStateCubit>().previousIndex();
+                          state.seekToPrevious();
+                        },
+                        icon: const Icon(Icons.skip_previous_sharp), color: Colors.grey.shade500),
                         noActive: IconButton(onPressed: (){}, icon: const Icon(Icons.skip_previous_sharp), color: Colors.grey.shade800)
                       );
                     }
@@ -135,7 +139,11 @@ class MiniMusicPlayer extends StatelessWidget {
                     stream: state.currentIndexStream.asBroadcastStream(),
                     builder: (context, snapshot) {
                       return MusicStateUtil.nextReturns<Widget>(snapshot.data, state,
-                        active: IconButton(onPressed: state.seekToNext, icon: const Icon(Icons.skip_next_rounded), color: Colors.grey.shade500),
+                        active: IconButton(onPressed: () {
+                          GetIt.I<PlayListStateCubit>().nextIndex();
+                          state.seekToNext();
+                        },
+                        icon: const Icon(Icons.skip_next_rounded), color: Colors.grey.shade500),
                         noActive: IconButton(onPressed: (){}, icon: Icon(Icons.skip_next_rounded, color: Colors.grey.shade800))
                       );
                     }
@@ -143,8 +151,10 @@ class MiniMusicPlayer extends StatelessWidget {
 
                   IconButton(
                     icon: Icon(Icons.close_rounded, color: Colors.grey.shade500),
-                    onPressed: (){
-                      context.read<MusicCubit>().stopMusic(externalSetState);
+                    onPressed: () async {
+                      GetIt.I<PlayListStateCubit>().clear();
+                      await context.read<MusicCubit>().stopMusic();
+                      GetIt.I<PlayListStateCubit>().clear();
                     }
                   )
                 ],

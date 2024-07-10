@@ -388,28 +388,20 @@ class _MusicElementViewState extends State<MusicElementView> {
                               MusicStateUtil.playReturns(
                                 snapshot.data,
                                 playCase: () {
-                                  context.read<MusicCubit>().setSelectedId(widget.item.uuid!);
-                                  context.read<MusicCubit>().setSelectDataSourceType(widget.item.type);
                                   context.read<MusicCubit>().state.play();
                                 },
                                 stopCase: context.read<MusicCubit>().state.pause,
                                 playStatic: () async{
-                                  context.read<MusicCubit>().setSelectedId(widget.item.uuid!);
-                                  context.read<MusicCubit>().setSelectDataSourceType(widget.item.type);
                                   await context.read<MusicCubit>().setMusic(widget.item);
                                   if(context.mounted){
                                     await context.read<MusicCubit>().state.play();
-                                    context.read<MusicCubit>().isActive;
                                   }
                                 },
                               ) : 
                               () async {
-                                  context.read<MusicCubit>().setSelectedId(widget.item.uuid!);
-                                  context.read<MusicCubit>().setSelectDataSourceType(widget.item.type);
                                   await context.read<MusicCubit>().setMusic(widget.item);
                                   if(!context.mounted){
                                     await context.read<MusicCubit>().state.play();
-                                    context.read<MusicCubit>().isActive;
                                   }
                                 },
                             );

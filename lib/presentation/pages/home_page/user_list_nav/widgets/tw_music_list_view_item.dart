@@ -33,7 +33,7 @@ class TWMusicListViewItem extends StatelessWidget {
             ));
             return;
           }
-          Navigator.of(context).push(MaterialPageRoute(builder: (context) => ListaMusicaScreen(listado: musicListResult.data!.musics!)));
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) => ListaMusicaScreen(musicList: musicListResult.data!)));
         },
         splashColor: Colors.white,
         child: Card(

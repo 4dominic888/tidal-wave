@@ -42,8 +42,8 @@ class MusicStateUtil {
 
   static void Function() playAction(AudioPlayer audioPlayer){
     return playReturns<void Function()>(audioPlayer.playerState, 
-      playCase: audioPlayer.play,
-      stopCase: audioPlayer.pause,
+      playCase: () async => await audioPlayer.play(),
+      stopCase: () async => await audioPlayer.pause(),
       playStatic: () {},
     );
   }

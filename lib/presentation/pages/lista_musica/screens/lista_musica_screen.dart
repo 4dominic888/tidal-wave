@@ -1,8 +1,12 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:tidal_wave/domain/models/music_list.dart';
 import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
+import 'package:tidal_wave/presentation/bloc/music_playing_cubit.dart';
+import 'package:tidal_wave/presentation/bloc/play_list_state_cubit.dart';
 import 'package:tidal_wave/presentation/pages/lista_musica/widgets/icon_button_music.dart';
 import 'package:tidal_wave/presentation/pages/lista_musica/widgets/mini_music_player.dart';
 import 'package:tidal_wave/presentation/pages/lista_musica/widgets/music_item.dart';
@@ -11,9 +15,9 @@ import 'package:tidal_wave/presentation/pages/lista_musica/widgets/title_contain
 import 'package:tidal_wave/domain/models/music.dart';
 class ListaMusicaScreen extends StatefulWidget {
 
-  final List<Music> listado;
+  final MusicList musicList;
 
-  const ListaMusicaScreen({super.key, required this.listado});
+  const ListaMusicaScreen({super.key, required this.musicList});
 
   @override
   State<ListaMusicaScreen> createState() => _ListaMusicaScreenState();
@@ -23,7 +27,11 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
 
   final ScrollController _scrollController = ScrollController();
   bool _isScrolled = false;
+  bool firstPlayed = false;
+
   late List<Music> _list;
+
+  final _playListStateCubit = GetIt.I<PlayListStateCubit>();
 
   List<Widget> _appBarWidgets(){
     return [      
@@ -41,7 +49,8 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
           ),
           onChanged: (value) {
             setState(() {
-              _list = widget.listado.where((element) {
+              if(widget.musicList.musics == null) return;
+              _list = widget.musicList.musics!.where((element) {
                 if (value.trim().isEmpty) {
                   return true;
                 }
@@ -78,12 +87,14 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
     super.initState();
     _scrollController.addListener(_scrollListener);
     
-    for (int i = 0; i < widget.listado.length; i++) {
-      widget.listado[i].index = i;
-    }
+    final int musicLenght = widget.musicList.musics != null ? widget.musicList.musics!.length : 0;
 
-    context.read<MusicCubit>().setPlayList(widget.listado);
-    _list = widget.listado;
+    if(musicLenght > 0){
+      for (int i = 0; i < musicLenght; i++) {
+        widget.musicList.musics![i].index = i;
+      }
+    }
+    _list = widget.musicList.musics ?? [];
   }
 
   @override
@@ -143,7 +154,7 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
                               stream: context.read<MusicCubit>().state.sequenceStateStream.asBroadcastStream(),
                               builder: (context, snapshot) {
                                 final mediaData = snapshot.data?.currentSource?.tag as MediaItem?;
-                                final String text = (mediaData != null) && context.read<MusicCubit>().isActive ? 'Escuchando ${mediaData.title}' : 'En silencio...';
+                                final String text = (mediaData != null) && context.read<MusicPlayingCubit>().isActive ? 'Escuchando ${mediaData.title}' : 'En silencio...';
                                 return TitleContainer(text: text);
                               }
                             ),
@@ -158,17 +169,27 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
                               delegate: 
                                 SliverChildBuilderDelegate(childCount: _list.length, (context, index) {
                                   final musica = _list[index];
-                                  return MusicItem(
-                                    selected: [musica.index == (context.read<MusicCubit>().isActive ? _list[snapshot.data ?? 0].index : -1)],
-                                    music: musica,
-                                    onPlay: () async {
-                                      if (!context.read<MusicCubit>().isActive) {
-                                        setState(() => context.read<MusicCubit>().isActive = true); 
-                                      }
-                                      context.read<MusicCubit>().seekTo(musica.index);
-                                    },
-                                    onOptions: (){
-                                      //* Codigo por si se desea hacer algo al abrir el menu desplegable de cada cancion
+                                  return BlocBuilder<PlayListStateCubit, Map<String, int>>(
+                                    bloc: _playListStateCubit,
+                                    builder: (context, state) {
+                                      return MusicItem(
+                                        selected: state[widget.musicList.id] == index,
+                                        music: musica,
+                                        onPlay: () async {
+                                          _playListStateCubit.playingMusicOnAList(listId: widget.musicList.id, index: index);
+                                          if(!firstPlayed){
+                                            firstPlayed = true;
+                                            await context.read<MusicCubit>().setPlayList(widget.musicList.musics ?? []);
+                                          }
+                                          if (!context.read<MusicPlayingCubit>().isActive) {
+                                            setState(() => context.read<MusicPlayingCubit>().active); 
+                                          }
+                                          await context.read<MusicCubit>().seekTo(index);
+                                        },
+                                        onOptions: (){
+                                          //* Codigo por si se desea hacer algo al abrir el menu desplegable de cada cancion
+                                        }
+                                      );
                                     }
                                   );
                                 }
@@ -178,7 +199,7 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
                         ) else const SliverToBoxAdapter(child: Center(child: Text('Sin musica'))),
                         
                         //? En caso el mini reproductor de musica no este activo
-                        if(context.read<MusicCubit>().isActive) const SliverToBoxAdapter(
+                        if(GetIt.I<MusicPlayingCubit>().isActive) const SliverToBoxAdapter(
                           child: SizedBox(height: 110)
                         ),
                       ],                  
@@ -186,13 +207,18 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
                   ),
                   
                   //? Mini music player
-                  AnimatedPositioned(
-                    duration: const Duration(seconds: 1),
-                    curve: Curves.easeInBack,
-                    bottom: context.read<MusicCubit>().isActive ? 0 : -90,
-                    width: MediaQuery.of(context).size.width,
-                    height: 90,
-                    child: MiniMusicPlayer(externalSetState: () => setState(() {}))
+                  BlocBuilder<MusicPlayingCubit, bool>(
+                    bloc: GetIt.I<MusicPlayingCubit>(),
+                    builder: (context, state) {
+                      return AnimatedPositioned(
+                        duration: const Duration(seconds: 1),
+                        curve: Curves.easeInBack,
+                        bottom: state ? 0 : -90,
+                        width: MediaQuery.of(context).size.width,
+                        height: 90,
+                        child: const MiniMusicPlayer()
+                      );
+                    }
                   )
                 ],
               ),

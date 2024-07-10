@@ -14,6 +14,8 @@ import 'package:tidal_wave/domain/use_case/interfaces/authentication_manager_use
 import 'package:tidal_wave/domain/use_case/interfaces/music_manager_use_case.dart';
 import 'package:tidal_wave/domain/use_case/interfaces/music_list_manager_use_case.dart';
 import 'package:tidal_wave/presentation/bloc/download_music_cubit.dart';
+import 'package:tidal_wave/presentation/bloc/music_playing_cubit.dart';
+import 'package:tidal_wave/presentation/bloc/play_list_state_cubit.dart';
 
 final GetIt locator = GetIt.instance;
 
@@ -32,6 +34,8 @@ void setupLocator() {
   );
 
   locator.registerLazySingleton<DownloadMusicCubit>(() => DownloadMusicCubit());
+  locator.registerLazySingleton<MusicPlayingCubit>(() => MusicPlayingCubit());
+  locator.registerLazySingleton<PlayListStateCubit>(() => PlayListStateCubit());
 
   locator.registerLazySingleton<AuthenticationManagerUseCase>(() => 
     AuthenticationManagerUseCaseImplement(UserRepositoryImplement(

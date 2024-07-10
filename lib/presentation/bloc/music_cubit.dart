@@ -1,15 +1,20 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:tidal_wave/data/abstractions/tw_enums.dart';
 import 'package:tidal_wave/domain/models/music.dart';
 import 'package:tidal_wave/domain/models/position_data.dart';
+import 'package:tidal_wave/presentation/bloc/music_playing_cubit.dart';
+import 'package:tidal_wave/presentation/bloc/play_list_state_cubit.dart';
 
 /// Cubit para la musica escuchada actualmente
 class MusicCubit extends Cubit<AudioPlayer> {
 
-  bool isActive = false;
   String? idSelected;
+  DataSourceType? dataSourceTypeSelected;
+  final _playingCubit = GetIt.I<MusicPlayingCubit>();
 
   MusicCubit() :super(_initAudioPlayer);
 
@@ -28,11 +33,6 @@ class MusicCubit extends Cubit<AudioPlayer> {
     );
   }
 
-  void setSelectedId(String selected){
-    idSelected = selected;
-    emit(state);
-  }
-
   void enableLoop() async {
     await state.setLoopMode(LoopMode.all);
   }
@@ -42,12 +42,18 @@ class MusicCubit extends Cubit<AudioPlayer> {
   }
 
   Future<void> setMusic(Music? music, {bool onCache = false}) async {
+    GetIt.I<PlayListStateCubit>().clear();
+    idSelected = music?.uuid;
+    dataSourceTypeSelected = music?.type;
     await state.stop();
     if(music == null){
-      emit(_initAudioPlayer);
+      _playingCubit.desactive();
       state.setAudioSource(ConcatenatingAudioSource(children: []));
+      emit(_initAudioPlayer);
+      return;
     }
-    else if(onCache){
+    _playingCubit.active();
+    if(onCache){
       await state.setAudioSource(LockCachingAudioSource(music.musica, tag: music.toAudioSource('0').sequence.first.tag));
     }
     else{
@@ -57,35 +63,30 @@ class MusicCubit extends Cubit<AudioPlayer> {
     emit(state);
   }
 
-  Future<void> preLoadMusic(Music music) async {
-    await state.setAudioSource(LockCachingAudioSource(music.musica, tag: music.toAudioSource('0').sequence.first.tag));
-    await state.load();
-    emit(state);
-  }
-
-  void setPlayList(List<Music> musics) async {
+  Future<void> setPlayList(List<Music> musics) async {
     await state.setAudioSource(
     ConcatenatingAudioSource(children: 
       musics.map((e) => e.toAudioSource(e.index.toString())).toList())
     );
+    await state.stop();
     emit(state);
   }
 
-  void seekTo(int? index) async{
+  Future<void> seekTo(int? index) async{
+    _playingCubit.active();
     await state.seek(Duration.zero, index: index);
   }
 
-  void stopMusic(void Function()? toEnd){
-    if (isActive) {
-      state.stop();
-      state.seek(null, index: -1);
-      isActive = false;
-      toEnd?.call();
-    }
+  Future<void> stopMusic() async {
+    idSelected = null;
+    dataSourceTypeSelected = null;
+    _playingCubit.desactive();
+    await state.stop();
+    await state.seek(null, index: -1);
+    emit(state);
   }
 
   Future<void> setClip(AudioSource audioSource, Duration moment) async {
-
     await state.setAudioSource(ClippingAudioSource(
         child: audioSource as UriAudioSource,
         start: moment,

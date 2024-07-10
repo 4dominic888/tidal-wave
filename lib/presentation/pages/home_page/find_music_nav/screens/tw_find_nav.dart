@@ -8,6 +8,7 @@ import 'package:tidal_wave/data/result.dart';
 import 'package:tidal_wave/data/utils/find_field_on_firebase.dart';
 import 'package:tidal_wave/domain/use_case/interfaces/music_manager_use_case.dart';
 import 'package:tidal_wave/presentation/bloc/connectivity_cubit.dart';
+import 'package:tidal_wave/presentation/bloc/music_playing_cubit.dart';
 import 'package:tidal_wave/presentation/pages/home_page/find_music_nav/widgets/music_element_view.dart';
 import 'package:tidal_wave/presentation/pages/lista_musica/widgets/icon_button_music.dart';
 import 'package:tidal_wave/presentation/pages/lista_musica/widgets/text_field_find.dart';
@@ -144,14 +145,18 @@ class _TWFindNavState extends State<TWFindNav> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerTop,
       floatingActionButton: 
-      _isTopScrollAvailable ? FloatingActionButton(
-        onPressed: (){
-          _scrollController.animateTo(0.0, duration: const Duration(milliseconds: 100), curve: Curves.easeInOut);
-        },
-        backgroundColor: Colors.blueAccent,
-        foregroundColor: Colors.white,
-        child: const Icon(Icons.arrow_upward_rounded, size: 35)
+      _isTopScrollAvailable ? Padding(
+        padding: const EdgeInsets.only(top: 30),
+        child: FloatingActionButton(
+          onPressed: (){
+            _scrollController.animateTo(0.0, duration: const Duration(milliseconds: 100), curve: Curves.easeInOut);
+          },
+          backgroundColor: Colors.blueAccent,
+          foregroundColor: Colors.white,
+          child: const Icon(Icons.arrow_upward_rounded, size: 35)
+        ),
       ) : null,
       body: Scrollbar(
         child: CustomScrollView(
@@ -223,7 +228,15 @@ class _TWFindNavState extends State<TWFindNav> {
                 }
                 return _gridMusicContainer(context, isOnline: false);
               }
-            )
+            ),
+            if(GetIt.I<MusicPlayingCubit>().isActive) SliverToBoxAdapter(
+              child: BlocBuilder<MusicPlayingCubit, bool>(
+                bloc: GetIt.I<MusicPlayingCubit>(),
+                builder: (context, state) {
+                  return state ? const SizedBox(height: 110) : const SizedBox.shrink();
+                }
+              )
+            ),
           ],
         ),
       ),

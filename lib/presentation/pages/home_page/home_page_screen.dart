@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:tidal_wave/domain/use_case/interfaces/authentication_manager_use_case.dart';
 import 'package:tidal_wave/presentation/bloc/music_cubit.dart';
+import 'package:tidal_wave/presentation/bloc/music_playing_cubit.dart';
 import 'package:tidal_wave/presentation/bloc/user_cubit.dart';
 import 'package:tidal_wave/presentation/pages/autenticacion_usuario/screens/login_screen.dart';
 import 'package:tidal_wave/presentation/pages/autenticacion_usuario/screens/register_screen.dart';
@@ -116,14 +117,21 @@ class _HomePageScreenState extends State<HomePageScreen> {
             ),
             child: _currentScreen(_selectedIndex)
           ),
-            AnimatedPositioned(
-              duration: const Duration(seconds: 1),
-              curve: Curves.easeInBack,
-              bottom: context.read<MusicCubit>().isActive ? 0 : -90,
-              width: MediaQuery.of(context).size.width,
-              height: 90,
-              child: MiniMusicPlayer(externalSetState: () => setState(() {}))
-            )
+
+          //* Mini reproductor de musica
+          BlocBuilder<MusicPlayingCubit, bool>(
+            bloc: GetIt.I<MusicPlayingCubit>(),
+            builder: (context, state) {
+              return AnimatedPositioned(
+                duration: const Duration(seconds: 1),
+                curve: Curves.easeInBack,
+                bottom: state ? 0 : -90,
+                width: MediaQuery.of(context).size.width,
+                height: 90,
+                child: const MiniMusicPlayer()
+              );
+            }
+          )
         ],
       ),
     );
@@ -131,7 +139,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
 
   @override
   void dispose() {
-    context.read<MusicCubit>().stopMusic(() {});
+    context.read<MusicCubit>().stopMusic();
     super.dispose();
   }
 }

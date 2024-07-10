@@ -385,12 +385,12 @@ class _MusicElementViewState extends State<MusicElementView> {
                                 const Icon(Icons.play_arrow_rounded),
                             
                               onTap: selected ? 
-                              MusicStateUtil.playReturns(
+                              MusicStateUtil.playReturns<Future<void> Function()>(
                                 snapshot.data,
-                                playCase: () {
-                                  context.read<MusicCubit>().state.play();
+                                playCase: () async {
+                                  await context.read<MusicCubit>().state.play();
                                 },
-                                stopCase: context.read<MusicCubit>().state.pause,
+                                stopCase: () async => await context.read<MusicCubit>().state.pause(),
                                 playStatic: () async{
                                   await context.read<MusicCubit>().setMusic(widget.item);
                                   if(context.mounted){

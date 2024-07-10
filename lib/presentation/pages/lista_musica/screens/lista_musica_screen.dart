@@ -184,7 +184,7 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
                                           if (!context.read<MusicPlayingCubit>().isActive) {
                                             setState(() => context.read<MusicPlayingCubit>().active); 
                                           }
-                                          context.read<MusicCubit>().seekTo(index);
+                                          await context.read<MusicCubit>().seekTo(index);
                                         },
                                         onOptions: (){
                                           //* Codigo por si se desea hacer algo al abrir el menu desplegable de cada cancion

@@ -75,6 +75,7 @@ class MiniMusicPlayer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<MusicCubit, AudioPlayer>(
+      bloc: context.read<MusicCubit>(),
       builder: (context, state) {
         return Container(
           color: Colors.black,
@@ -154,7 +155,6 @@ class MiniMusicPlayer extends StatelessWidget {
                     onPressed: () async {
                       GetIt.I<PlayListStateCubit>().clear();
                       await context.read<MusicCubit>().stopMusic();
-                      GetIt.I<PlayListStateCubit>().clear();
                     }
                   )
                 ],

@@ -7,6 +7,7 @@ import 'package:tidal_wave/data/abstractions/tw_enums.dart';
 import 'package:tidal_wave/domain/models/music.dart';
 import 'package:tidal_wave/domain/models/position_data.dart';
 import 'package:tidal_wave/presentation/bloc/music_playing_cubit.dart';
+import 'package:tidal_wave/presentation/bloc/play_list_state_cubit.dart';
 
 /// Cubit para la musica escuchada actualmente
 class MusicCubit extends Cubit<AudioPlayer> {
@@ -41,6 +42,7 @@ class MusicCubit extends Cubit<AudioPlayer> {
   }
 
   Future<void> setMusic(Music? music, {bool onCache = false}) async {
+    GetIt.I<PlayListStateCubit>().clear();
     idSelected = music?.uuid;
     dataSourceTypeSelected = music?.type;
     await state.stop();
@@ -50,7 +52,6 @@ class MusicCubit extends Cubit<AudioPlayer> {
       emit(_initAudioPlayer);
       return;
     }
-
     _playingCubit.active();
     if(onCache){
       await state.setAudioSource(LockCachingAudioSource(music.musica, tag: music.toAudioSource('0').sequence.first.tag));
@@ -71,7 +72,7 @@ class MusicCubit extends Cubit<AudioPlayer> {
     emit(state);
   }
 
-  void seekTo(int? index) async{
+  Future<void> seekTo(int? index) async{
     _playingCubit.active();
     await state.seek(Duration.zero, index: index);
   }

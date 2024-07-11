@@ -9,6 +9,7 @@ import 'package:tidal_wave/domain/use_case/interfaces/authentication_manager_use
 import 'package:tidal_wave/presentation/bloc/user_cubit.dart';
 import 'package:tidal_wave/presentation/controllers/tw_select_file_controller.dart';
 import 'package:tidal_wave/presentation/global_widgets/popup_message.dart';
+import 'package:tidal_wave/presentation/global_widgets/tidal_wave_logo.dart';
 import 'package:tidal_wave/presentation/global_widgets/tw_select_file.dart';
 import 'package:tidal_wave/presentation/global_widgets/tw_text_field.dart';
 
@@ -76,7 +77,7 @@ class _UpdateUserScreenState extends State<UpdateUserScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,          
             children: [
               //* Logo
-              const FlutterLogo(style: FlutterLogoStyle.stacked, size: 250),
+              const TidalWaveLogo(size: 150),
 
               //* Username
               Padding(

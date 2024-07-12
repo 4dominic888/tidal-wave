@@ -150,7 +150,7 @@ class MusicListRepositoryImplement extends RepositoryImplementBase with UseFires
     try {
       //* Consulta anidada de SELECT que retorna las listas que no contengan el musicID dado, ademas de mostrar las listas vacias
       final data = await offlinesqfliteContext.db.rawQuery(
-        "SELECT * FROM $dataset WHERE uuid IN( SELECT list_id from $manyToManyListMusicsLocal WHERE list_id NOT IN( SELECT list_id FROM $manyToManyListMusicsLocal WHERE music_id = '$musicId' ) ) OR uuid IN( SELECT uuid FROM $dataset WHERE uuid NOT IN( SELECT list_id FROM $manyToManyListMusicsLocal) )"
+        "SELECT * FROM $dataset WHERE uuid IN( SELECT list_id from $manyToManyListMusicsLocal WHERE list_id NOT IN( SELECT list_id FROM $manyToManyListMusicsLocal WHERE music_id = '$musicId' ) ) OR uuid IN( SELECT uuid FROM $dataset WHERE uuid NOT IN( SELECT list_id FROM $manyToManyListMusicsLocal) AND name != 'Favoritos')"
       );
       return Result.success(data.map((e) => T.fromJson(e)).toList());
     } catch (e) {

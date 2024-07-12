@@ -8,14 +8,14 @@ import 'package:tidal_wave/domain/use_case/interfaces/music_manager_use_case.dar
 import 'package:tidal_wave/presentation/pages/home_page/user_account_nav/screens/create_user_list_screen.dart';
 import 'package:tidal_wave/presentation/pages/home_page/user_list_nav/widgets/tw_music_list_view_item.dart';
 
-class TWUserListNav extends StatefulWidget {
-  const TWUserListNav({super.key});
+class UserListNav extends StatefulWidget {
+  const UserListNav({super.key});
 
   @override
-  State<TWUserListNav> createState() => _TWUserListNavState();
+  State<UserListNav> createState() => _UserListNavState();
 }
 
-class _TWUserListNavState extends State<TWUserListNav> {
+class _UserListNavState extends State<UserListNav> {
 
   final _playListManagerUseCase = GetIt.I<MusicListManagerUseCase>();
   final _musicManagerUseCase = GetIt.I<MusicManagerUseCase>();

@@ -29,6 +29,8 @@ class _UserListNavState extends State<UserListNav> {
     return Expanded(
       child: Column(
         children: [
+
+          //* Boton para crear nueva lista
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
             child: Material(
@@ -55,6 +57,7 @@ class _UserListNavState extends State<UserListNav> {
               ),
             ),
           ),
+
           Expanded(
             child: FutureBuilder<List<MusicList>>(
               future: _listOfMusicList(),
@@ -69,7 +72,11 @@ class _UserListNavState extends State<UserListNav> {
                   itemCount: snapshot.data!.length,
                   itemBuilder: (context, index) {
                     final item = snapshot.data![index];
-                    return TWMusicListViewItem(item: item, isOnline: false);
+                    return TWMusicListViewItem(
+                      item: item,
+                      isOnline: false,
+                      onDelete: () => setState(() {}),
+                    );
                   },
                 );
               }

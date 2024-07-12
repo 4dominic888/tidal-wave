@@ -2,6 +2,35 @@
 
 import 'package:flutter/material.dart';
 
+class PopupSelect extends StatelessWidget{
+  final List<Map<String, void Function()>> actions;
+
+  const PopupSelect({super.key, required this.actions});
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: MediaQuery.of(context).size.width,
+            height: 200,
+            child: ListView(
+              scrollDirection: Axis.vertical,
+              children: actions.map((e) =>
+                ListTile(
+                  title: Text(e.keys.first),
+                  onTap: e.values.first,
+                )).toList(),
+            ),
+          )
+        ],
+      )
+    );
+  }
+}
+
 class PopupMessage extends StatelessWidget {
 
   final String title;

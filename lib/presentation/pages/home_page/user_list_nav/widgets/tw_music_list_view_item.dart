@@ -11,10 +11,12 @@ final _musicListManagerUseCase = GetIt.I<MusicListManagerUseCase>();
 class TWMusicListViewItem extends StatelessWidget {
   final MusicList item;
   final bool? isOnline;
+  final void Function()? onDelete;
 
   const TWMusicListViewItem({
     super.key,
     required this.item,
+    this.onDelete,
     this.isOnline = true
   });
 
@@ -34,6 +36,27 @@ class TWMusicListViewItem extends StatelessWidget {
             return;
           }
           Navigator.of(context).push(MaterialPageRoute(builder: (context) => ListaMusicaScreen(musicList: musicListResult.data!)));
+        },
+        onLongPress: (){
+          showDialog(context: context, builder: (context) => PopupSelect(
+            actions: [
+              {
+               'Eliminar':() {
+                  Navigator.of(context).pop();
+                  showDialog(context: context, builder: (context) => PopupDialog(
+                    title: 'Borrar lista',
+                    description: '¿Estás seguro que deseas eliminar esta lista? Esta acción no se puede deshacer.',
+                    onOK: (){
+                      _musicListManagerUseCase.eliminarLista(item.id);
+                      Navigator.of(context).pop();
+                      onDelete?.call();
+                    },
+                  )
+                  );
+                }
+              }
+            ]
+          ));
         },
         splashColor: Colors.white,
         child: Card(

@@ -210,4 +210,16 @@ class MusicManagerUseCaseImplement with SaveFiles implements MusicManagerUseCase
   Future<bool> musicaExistente(String uuid) async{
     return repo.existingId(uuid);
   }
+  
+  @override
+  Future<Result<String>> establecerFavorito(String id, bool estado) async {
+    try {
+      final result = await repo.getOne(id, dataSourceType: DataSourceType.local);
+      if(!result.onSuccess) Result.error(result.errorMessage!);
+      repo.updateOne(result.data!..favorito = estado, id);
+      return Result.success('Musica agregada a favoritos con exito');
+    } catch (e) {
+      return Result.error('Ha ocurrido un error $e');
+    }
+  }
 }

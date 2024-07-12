@@ -350,7 +350,7 @@ class _MusicElementViewState extends State<MusicElementView> {
               onTap: (){
                 final musicCubitState = context.read<MusicCubit>();
                 if(musicCubitState.state.audioSource != null && musicCubitState.idSelected == (widget.item.uuid ?? '') && musicCubitState.dataSourceTypeSelected == widget.item.type){
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => ReproductorMusicaScreen(canFavoriteSelected: widget.item.type != DataSourceType.online)));
+                  Navigator.of(context).push(MaterialPageRoute(builder: (context) => ReproductorMusicaScreen(canFavoriteSelected: widget.item.type != DataSourceType.online, favorite: widget.item.favorito, musicId: widget.item.uuid)));
                 }
               }
             ),

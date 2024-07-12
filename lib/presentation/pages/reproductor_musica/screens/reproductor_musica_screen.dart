@@ -14,8 +14,10 @@ import 'package:tidal_wave/presentation/utils/color_util.dart';
 class ReproductorMusicaScreen extends StatefulWidget {
   
   final bool? canFavoriteSelected;
+  final String? musicId;
+  final bool? favorite;
 
-  const ReproductorMusicaScreen({super.key, this.canFavoriteSelected = true});
+  const ReproductorMusicaScreen({super.key, this.canFavoriteSelected = true, this.musicId, this.favorite = false});
 
   @override
   State<ReproductorMusicaScreen> createState() => _ReproductorMusicaScreenState();
@@ -37,7 +39,7 @@ class _ReproductorMusicaScreenState extends State<ReproductorMusicaScreen> {
             Expanded(child: Container()),
             BlocBuilder<MusicColorCubit, ImportantColors>(
               builder: (context, snapshot) {
-                return widget.canFavoriteSelected! ? FavIcon(constrastColor: snapshot.constrastColor, fav: false) : const SizedBox.shrink();
+                return widget.canFavoriteSelected! && widget.musicId != null ? FavIcon(constrastColor: snapshot.constrastColor, fav: widget.favorite, musicId: widget.musicId!) : const SizedBox.shrink();
               }
             )
           ],

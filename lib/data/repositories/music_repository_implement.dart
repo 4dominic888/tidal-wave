@@ -79,7 +79,7 @@ class MusicRepositoryImplement extends RepositoryImplementBase with UseFirestore
   @override
   Future<Result<bool>> updateOne(T data, String id) async {
     try {
-      await offlinesqfliteContext.updateOne(dataset, data.toJson(), id);
+      await offlinesqfliteContext.updateOne(dataset, data.toJsonLocal(), id);
       return Result.success(true);
     } catch (e) {
       return Result.error('Ha ocurrido un error: $e');

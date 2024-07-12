@@ -81,6 +81,7 @@ class _CreateUserListScreenState extends State<CreateUserListScreen> {
                   validator: (value) {
                     if(value == null || value.trim().isEmpty) {return "Campo no proporcionado";}
                     if(value.length <= 2 || value.length > 50) {return "El campo debe ser mayor a 2 y menor a 50 caracteres";}
+                    if(value.trim() == 'favoritos') {return "Este nombre no puede ser usado, pruebe otro";}
                     return null;
                   },
                 ),

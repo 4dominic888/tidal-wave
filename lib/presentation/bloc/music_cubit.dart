@@ -20,7 +20,8 @@ class MusicCubit extends Cubit<AudioPlayer> {
   MusicCubit() : super(_initAudioPlayer){
     //* Listeners
     state.currentIndexStream.listen((event) {
-      if (event == null) { _playListStateCubit.clear(); }
+      print(event);
+      if (event == null || event == -1) { _playListStateCubit.clear(); }
       else { _playListStateCubit.setIndex(event); }
     });
   }

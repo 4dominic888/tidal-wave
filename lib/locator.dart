@@ -33,9 +33,9 @@ void setupLocator() {
     () => SqfliteDatabaseService(), instanceName: 'Sqflite'
   );
 
+  locator.registerLazySingleton<PlayListStateCubit>(() => PlayListStateCubit());
   locator.registerLazySingleton<DownloadMusicCubit>(() => DownloadMusicCubit());
   locator.registerLazySingleton<MusicPlayingCubit>(() => MusicPlayingCubit());
-  locator.registerLazySingleton<PlayListStateCubit>(() => PlayListStateCubit());
 
   locator.registerLazySingleton<AuthenticationManagerUseCase>(() => 
     AuthenticationManagerUseCaseImplement(UserRepositoryImplement(

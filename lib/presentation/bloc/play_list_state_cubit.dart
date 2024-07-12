@@ -21,15 +21,21 @@ class PlayListStateCubit extends Cubit<Map<String, int>>{
   }
 
   void nextIndex(){
-    state[state.keys.first] = state.values.first+1;
+    if(state.isNotEmpty){
+      state[state.keys.first] = state.values.first+1;
+    }
   }
   
   void previousIndex(){
-    state[state.keys.first] = state.values.first-1;
+    if(state.isNotEmpty){
+      state[state.keys.first] = state.values.first-1;
+    }
   }
 
   void setIndex(int index){
-    state[state.keys.first] = index;
+    if(state.isNotEmpty){
+      state[state.keys.first] = index;
+    }
   }
 
   int? getId({required String listId}){

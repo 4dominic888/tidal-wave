@@ -1,7 +1,5 @@
 import 'package:tidal_wave/data/abstractions/save_file_local.dart';
-import 'package:tidal_wave/data/abstractions/tw_enums.dart';
 import 'package:tidal_wave/data/result.dart';
-import 'package:tidal_wave/data/utils/find_field_on_firebase.dart';
 import 'package:tidal_wave/domain/models/music_list.dart';
 import 'package:tidal_wave/domain/repositories/music_list_repository.dart';
 import 'package:tidal_wave/domain/use_case/interfaces/music_list_manager_use_case.dart';
@@ -78,9 +76,9 @@ class MusicListManagerUseCaseImplement with SaveFiles implements MusicListManage
   }
 
   @override
-  Future<Result<MusicList>> obtenerLista(String id, {DataSourceType type = DataSourceType.local}) async {
+  Future<Result<MusicList>> obtenerLista(String id) async {
     try {
-      return await repo.getOne(id, dataSourceType: type);
+      return await repo.getOne(id);
     } catch (e) {
       return Result.error('Ha ocurrido un error $e');
     }
@@ -94,16 +92,6 @@ class MusicListManagerUseCaseImplement with SaveFiles implements MusicListManage
   @override
   Future<Result<List<MusicList>>> obtenerListasSinMusicaAColocar(String musicId) async {
     return await repo.getAllNonRepetitiveMusicAdded(musicId);
-  }
-
-  @override
-  Future<Result<List<MusicList>>> obtenerListasPublicas({FindManyFieldsToOneSearchFirebase? finder, int limit = 10}) async {
-    return await repo.getAllGlobal(finder: finder, limit: limit);
-  }
-
-  @override
-  Future<Result<List<MusicList>>> obtenerListasSubidas({FindManyFieldsToOneSearchFirebase? finder, int limit = 10}) async {
-    return await repo.getAllUploaded(finder: finder, limit: limit);
   }
 
   @override

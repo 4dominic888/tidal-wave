@@ -1,10 +1,8 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:group_button/group_button.dart';
 import 'package:tidal_wave/domain/models/music_list.dart';
 import 'package:tidal_wave/domain/use_case/interfaces/music_list_manager_use_case.dart';
-import 'package:tidal_wave/domain/use_case/interfaces/music_manager_use_case.dart';
 import 'package:tidal_wave/presentation/pages/home_page/user_account_nav/screens/create_user_list_screen.dart';
 import 'package:tidal_wave/presentation/pages/home_page/user_list_nav/widgets/tw_music_list_view_item.dart';
 
@@ -18,10 +16,6 @@ class UserListNav extends StatefulWidget {
 class _UserListNavState extends State<UserListNav> {
 
   final _playListManagerUseCase = GetIt.I<MusicListManagerUseCase>();
-  final _musicManagerUseCase = GetIt.I<MusicManagerUseCase>();
-
-  static final _buttonsController = GroupButtonController(selectedIndex: 0);
-  static final _buttonsOptions = ['Mis listas', 'Otras listas'];
 
   Future<List<MusicList>>? _listOfMusicList() async {
     final result = await _playListManagerUseCase.obtenerListasLocales();
@@ -86,38 +80,14 @@ class _UserListNavState extends State<UserListNav> {
     );
   }
 
-  Widget _otherUserLists() {
-    _musicManagerUseCase.obtenerMusicasDescargadas();
-    return const Center(child: Icon(Icons.list));
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        const SizedBox(height: 40),
+        const SizedBox(height: 30),
 
-        //* Seleccionar entre 2 opciones
-        GroupButton(
-          controller: _buttonsController,
-          buttonIndexedBuilder: (selected, index, context) => ElevatedButton(
-            onPressed: (){
-              setState(() {_buttonsController.selectIndex(index);});
-            },
-            style: ButtonStyle(
-              backgroundColor: WidgetStateColor.resolveWith((states) => selected ? const Color.fromARGB(255, 36, 161, 196) : const Color.fromARGB(255, 20, 84, 101))
-            ),
-            child: Text(_buttonsOptions[index], style: TextStyle(color: selected ? Colors.white : Colors.grey.shade300))
-          ),
-          isRadio: true,
-          buttons: _buttonsOptions
-        ),
-
-        const SizedBox(height: 10),
-
-        if(_buttonsController.selectedIndex == 0) _userMusicList()
-        else _otherUserLists()
+        _userMusicList()
       ],
     );
   }

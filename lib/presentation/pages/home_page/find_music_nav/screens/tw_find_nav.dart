@@ -33,14 +33,14 @@ class _TWFindNavState extends State<TWFindNav> {
   static final _buttonsOptions = ['Musicas publicas', 'Mis musicas descargadas'];
 
   //* Listas auxiliares
-  final List<Music> _allData = [];
-  final List<String> _localMusicIds = [];
+  final List<Music> _allData = []; //* Contenedor de las musicas a mostrar
+  final List<String> _localMusicIds = []; //* Contenedor de las Ids de las musicas descargadas
 
   //* Variables auxiliares para paginado
   Music? _lastItem; //* Paginado online con Firebase
   int _localPage = 0; //* Paginado local con SqfLite
-  bool _hasMore = true;
-  bool _loading = false;
+  bool _hasMore = true; //* Si hubiera mas data para mostrar
+  bool _loading = false; //* Si se esta cargando
   static const int _limit = 10;
 
   //* Variable para hacer aparecer el boton para ir al inicio del scroll
@@ -49,11 +49,17 @@ class _TWFindNavState extends State<TWFindNav> {
   @override
   void initState() {
     super.initState();
+
+    //* Se llena la lista de las ids de musicas descargadas
     _fillIdsList();
+
+    //* Se llama las primeras 10 canciones
     _fetchData(DataSourceType.online);
+
     _scrollController.addListener(_scrollListener);
   }
 
+  //* Para llenar el array de IDs de musicas descargadas de manera automatica, es para ver en tiempo real que canciones han sido descargadas
   Future<void> _fillIdsList() async {
     _localMusicIds.clear();
     _localMusicIds.addAll(
@@ -61,10 +67,13 @@ class _TWFindNavState extends State<TWFindNav> {
         .data!.map((e) => e.uuid!));
   }
 
+  //* Metodo que se ejecuta cada vez que el scroll sube o baja.
+  //* Funciona para hacer aparecer un boton para desplazarse al top de la lista
+  //* Funciona para cargar mas informacion a modo de scroll infinito
   void _scrollListener(){
-  final double viewportExtent = _scrollController.position.viewportDimension;
-  final double offsetActivation = 0.8 * viewportExtent; //* 80% de viewport
-  const upOffset = 300;
+    final double viewportExtent = _scrollController.position.viewportDimension;
+    final double offsetActivation = 0.8 * viewportExtent; //* 80% de viewport
+    const upOffset = 300; //* Limite superior para que el boton aparezca
 
     if(_scrollController.offset > upOffset && !_isTopScrollAvailable){
       setState(() => _isTopScrollAvailable = true);
@@ -78,8 +87,9 @@ class _TWFindNavState extends State<TWFindNav> {
     }
   }
 
+  //* Metodo centralizado para cargar mas informacion a la variable _allData, pieza clave para el scroll infinito
   Future<void> _fetchData(DataSourceType dataSourceType) async{
-    if(_loading || !_hasMore) return;
+    if(_loading || !_hasMore) return; //* No hay mas para mostrar
     _loading = true;
 
     if(dataSourceType == DataSourceType.online){
@@ -97,6 +107,7 @@ class _TWFindNavState extends State<TWFindNav> {
     });
   }
 
+  //* Metodo que escucha el textfield cada vez que cambia un caracter, limpia el _allData para mostrar la informacion correspondiente
   Future<void> _findMusic(String? query) async {
     final fQuery = query != null && query.trim().isNotEmpty ? query.trim() : null;
     _allData.clear();
@@ -110,6 +121,7 @@ class _TWFindNavState extends State<TWFindNav> {
     setState(() {});
   }
 
+  //* Obtiene las musicas en base al tipo de dato y lo escrito en el textfield
   Future<List<Music>> listOfMusic(DataSourceType dataSourceType, {String? query}) async {
     late final Result<List<Music>> result;
     if(dataSourceType == DataSourceType.online){
@@ -134,6 +146,7 @@ class _TWFindNavState extends State<TWFindNav> {
     throw Exception(result.errorMessage);
   }
 
+  //* Reinicia las variables a un estado inicial
   void _resetList(){
     _allData.clear();
     _lastItem = null;
@@ -243,6 +256,7 @@ class _TWFindNavState extends State<TWFindNav> {
     );
   }
 
+  //* Widget contenedor de la grilla de musicas
   StatefulBuilder _gridMusicContainer(BuildContext context, {bool? isOnline = true}) {
     return StatefulBuilder(
       builder: (stfContext, stfSetState) {

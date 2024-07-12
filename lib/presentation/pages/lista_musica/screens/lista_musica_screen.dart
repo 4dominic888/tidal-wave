@@ -32,6 +32,7 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
   late List<Music> _list;
 
   final _playListStateCubit = GetIt.I<PlayListStateCubit>();
+  final _musicPlayingCubit = GetIt.I<MusicPlayingCubit>();
 
   List<Widget> _appBarWidgets(){
     return [      
@@ -154,7 +155,7 @@ class _ListaMusicaScreenState extends State<ListaMusicaScreen> {
                               stream: context.read<MusicCubit>().state.sequenceStateStream.asBroadcastStream(),
                               builder: (context, snapshot) {
                                 final mediaData = snapshot.data?.currentSource?.tag as MediaItem?;
-                                final String text = (mediaData != null) && context.read<MusicPlayingCubit>().isActive ? 'Escuchando ${mediaData.title}' : 'En silencio...';
+                                final String text = (mediaData != null) && _musicPlayingCubit.isActive ? 'Escuchando ${mediaData.title}' : 'En silencio...';
                                 return TitleContainer(text: text);
                               }
                             ),

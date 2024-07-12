@@ -15,8 +15,15 @@ class MusicCubit extends Cubit<AudioPlayer> {
   String? idSelected;
   DataSourceType? dataSourceTypeSelected;
   final _playingCubit = GetIt.I<MusicPlayingCubit>();
+  final _playListStateCubit = GetIt.I<PlayListStateCubit>();
 
-  MusicCubit() :super(_initAudioPlayer);
+  MusicCubit() : super(_initAudioPlayer){
+    //* Listeners
+    state.currentIndexStream.listen((event) {
+      if (event == null) { _playListStateCubit.clear(); }
+      else { _playListStateCubit.setIndex(event); }
+    });
+  }
 
   static final AudioPlayer _initAudioPlayer = AudioPlayer(
     audioLoadConfiguration: const AudioLoadConfiguration(

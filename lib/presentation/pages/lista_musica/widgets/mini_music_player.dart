@@ -114,7 +114,6 @@ class MiniMusicPlayer extends StatelessWidget {
                     builder: (context, snapshot) {
                       return MusicStateUtil.previousReturns<Widget>(snapshot.data, 
                         active: IconButton(onPressed: () {
-                          GetIt.I<PlayListStateCubit>().previousIndex();
                           state.seekToPrevious();
                         },
                         icon: const Icon(Icons.skip_previous_sharp), color: Colors.grey.shade500),
@@ -141,7 +140,6 @@ class MiniMusicPlayer extends StatelessWidget {
                     builder: (context, snapshot) {
                       return MusicStateUtil.nextReturns<Widget>(snapshot.data, state,
                         active: IconButton(onPressed: () {
-                          GetIt.I<PlayListStateCubit>().nextIndex();
                           state.seekToNext();
                         },
                         icon: const Icon(Icons.skip_next_rounded), color: Colors.grey.shade500),

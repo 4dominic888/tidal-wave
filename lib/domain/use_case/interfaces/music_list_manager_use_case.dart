@@ -16,5 +16,6 @@ abstract class MusicListManagerUseCase{
   Future<Result<List<MusicList>>> obtenerListasPublicas({FindManyFieldsToOneSearchFirebase? finder, int limit = 10});
 
   Future<Result<List<MusicList>>> obtenerListasLocales({String? where, List<String>? whereArgs, int limit = 10});
+  Future<Result<List<MusicList>>> obtenerListasSinMusicaAColocar(String musicId);
   Future<Result<List<MusicList>>> obtenerListasSubidas({FindManyFieldsToOneSearchFirebase? finder, int limit = 10});
 }

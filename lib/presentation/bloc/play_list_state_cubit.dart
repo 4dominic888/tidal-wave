@@ -26,7 +26,11 @@ class PlayListStateCubit extends Cubit<Map<String, int>>{
   
   void previousIndex(){
     state[state.keys.first] = state.values.first-1;
-  }  
+  }
+
+  void setIndex(int index){
+    state[state.keys.first] = index;
+  }
 
   int? getId({required String listId}){
     return state[listId];

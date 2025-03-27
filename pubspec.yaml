@@ -14,7 +14,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   cached_network_image: ^3.3.1
   audio_video_progress_bar: ^2.0.2
-  just_audio: ^0.9.37
+  just_audio: ^0.9.46
   rxdart: ^0.27.7
   palette_generator: ^0.3.3+3
   flutter_bloc: ^8.1.5
@@ -25,7 +25,7 @@ dependencies:
   cloud_firestore: ^5.0.1
   dotted_border: ^2.1.0
   file_picker: ^8.0.3
-  image_cropper: ^7.0.4
+  image_cropper: ^9.0.0
   uuid: ^4.4.0
   firebase_storage: ^12.0.1
   audio_duration: ^0.0.3
@@ -36,7 +36,7 @@ dependencies:
   group_button: ^5.3.4
   rounded_loading_button_plus: ^3.0.1
   get_it: ^7.7.0
-  just_audio_background: ^0.0.1-beta.12
+  just_audio_background: ^0.0.1-beta.15
   connectivity_plus: ^6.0.3
   sqflite: ^2.3.3+1
   path_provider: ^2.1.3
